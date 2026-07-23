@@ -39,3 +39,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# Respaldos y documentación local
+*.zip
+
+ArbolProyecto.txt
+CodigoProyecto.txt
+EstructuraProyecto.txt
+estructura.txt
+CodigoFuente.zip
+CodigoFuenteCompleto.zip
+MotoCars-Codigo.zip
