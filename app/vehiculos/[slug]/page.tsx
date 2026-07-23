@@ -1,185 +1,134 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import {
-  Calendar,
-  Car,
-  Cog,
-  Fuel,
-  Gauge,
-  Palette,
-} from "lucide-react";
+import { obtenerVehiculos } from "@/lib/supabase-vehicles";
 
-import VehicleGallery from "@/componentes/VehicleDetail/VehicleGallery";
-import { obtenerVehiculoPorId } from "@/lib/supabase-vehicles";
-
-const whatsappNumber = "5492995133023";
-
-function formatearPrecio(precio: number | null) {
-  if (precio === null) {
-    return "Consultar";
-  }
-
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(precio);
-}
-
-function formatearKilometros(kilometros: number | null) {
-  if (kilometros === null) {
-    return "Sin informar";
-  }
-
-  return `${new Intl.NumberFormat("es-AR").format(kilometros)} km`;
-}
-
-export default async function VehiclePage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
-
-  const vehicleId = Number(slug);
-
-  if (!Number.isInteger(vehicleId) || vehicleId <= 0) {
-    notFound();
-  }
-
-  const vehicle = await obtenerVehiculoPorId(vehicleId);
-
-  if (!vehicle) {
-    notFound();
-  }
-
-  const nombreCompleto = [
-    vehicle.marca,
-    vehicle.modelo,
-    vehicle.version,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  const imagenPrincipal =
-    vehicle.imagen_principal?.trim() || "/images/vehiculo-placeholder.jpg";
-    const imagenes =
-  vehicle.marca.toLowerCase() === "jeep" &&
-  vehicle.modelo.toLowerCase() === "renegade"
-    ? [
-        "/images/renegade1.jpeg",
-        "/images/renegade2.jpeg",
-        "/images/renegade3.jpeg",
-        "/images/renegade4.jpeg",
-        "/images/renegade5.jpeg",
-        "/images/renegade6.jpeg",
-        "/images/renegade7.jpeg",
-      ]
-    : [imagenPrincipal];
-
-  const whatsappMessage = encodeURIComponent(
-    `Hola, vi publicado el vehículo ${nombreCompleto}${
-      vehicle.anio ? ` modelo ${vehicle.anio}` : ""
-    } en la web de MotoCars y quisiera recibir más información.`
-  );
+export default async function AdminVehiculosPage() {
+  const vehiculos = await obtenerVehiculos();
 
   return (
-    <main className="vehicle-detail-page">
-      <section className="vehicle-detail">
-        <div className="container">
-          <Link href="/#vehiculos" className="vehicle-back-link">
-            ← Volver a vehículos
-          </Link>
+    <section>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 30,
+        }}
+      >
+        <div>
+          <h1 style={{ margin: 0 }}>Vehículos</h1>
 
-          <div className="vehicle-detail-grid">
-            <VehicleGallery
-  imagenes={imagenes}
-  marca={vehicle.marca}
-  modelo={vehicle.modelo}
-/>
-
-            <div className="vehicle-detail-content">
-              <span className="vehicle-detail-badge">
-                {vehicle.estado || "Disponible"}
-              </span>
-
-              <h1>{nombreCompleto}</h1>
-
-              <div className="vehicle-detail-price">
-                {formatearPrecio(vehicle.precio)}
-              </div>
-
-              <p className="vehicle-detail-description">
-                {vehicle.descripcion ||
-                  "Unidad disponible en MotoCars. Consultanos para conocer más detalles, opciones de financiación y condiciones de permuta."}
-              </p>
-
-              <div className="vehicle-detail-info">
-                <div className="vehicle-detail-info-card">
-                  <Calendar size={22} />
-                  <span>Año</span>
-                  <strong>{vehicle.anio ?? "Sin informar"}</strong>
-                </div>
-
-                <div className="vehicle-detail-info-card">
-                  <Gauge size={22} />
-                  <span>Kilómetros</span>
-                  <strong>
-                    {formatearKilometros(vehicle.kilometros)}
-                  </strong>
-                </div>
-
-                <div className="vehicle-detail-info-card">
-                  <Fuel size={22} />
-                  <span>Combustible</span>
-                  <strong>
-                    {vehicle.combustible || "Sin informar"}
-                  </strong>
-                </div>
-
-                <div className="vehicle-detail-info-card">
-                  <Cog size={22} />
-                  <span>Transmisión</span>
-                  <strong>
-                    {vehicle.transmision || "Sin informar"}
-                  </strong>
-                </div>
-
-                <div className="vehicle-detail-info-card">
-                  <Car size={22} />
-                  <span>Tipo</span>
-                  <strong>{vehicle.tipo || "Sin informar"}</strong>
-                </div>
-
-                <div className="vehicle-detail-info-card">
-                  <Palette size={22} />
-                  <span>Color exterior</span>
-                  <strong>{vehicle.color || "Sin informar"}</strong>
-                </div>
-              </div>
-
-              <div className="vehicle-detail-location">
-                <span>Ubicación</span>
-                <strong>Neuquén Capital</strong>
-              </div>
-
-              <a
-                className="vehicle-detail-whatsapp"
-                href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Consultar por WhatsApp
-              </a>
-
-              <p className="vehicle-detail-note">
-                Consultanos por financiación, permutas y disponibilidad de la
-                unidad.
-              </p>
-            </div>
-          </div>
+          <p style={{ color: "#666", marginTop: 8 }}>
+            Administrá el stock publicado en MotoCars.
+          </p>
         </div>
-      </section>
-    </main>
+
+        <Link
+          href="/admin/vehiculos/nuevo"
+          style={{
+            background: "#1f2937",
+            color: "#fff",
+            padding: "12px 18px",
+            borderRadius: 8,
+            textDecoration: "none",
+            fontWeight: 600,
+          }}
+        >
+          Agregar vehículo
+        </Link>
+      </div>
+
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: 12,
+          overflowX: "auto",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
+        }}
+      >
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+          }}
+        >
+          <thead>
+            <tr style={{ background: "#f3f4f6", textAlign: "left" }}>
+              <th style={{ padding: 16 }}>Vehículo</th>
+              <th style={{ padding: 16 }}>Año</th>
+              <th style={{ padding: 16 }}>Kilómetros</th>
+              <th style={{ padding: 16 }}>Precio</th>
+              <th style={{ padding: 16 }}>Estado</th>
+              <th style={{ padding: 16 }}>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {vehiculos.map((vehiculo) => (
+              <tr
+                key={vehiculo.id}
+                style={{ borderTop: "1px solid #e5e7eb" }}
+              >
+                <td style={{ padding: 16 }}>
+                  <strong>
+                    {vehiculo.marca} {vehiculo.modelo}
+                  </strong>
+
+                  {vehiculo.version && (
+                    <div style={{ color: "#666", marginTop: 4 }}>
+                      {vehiculo.version}
+                    </div>
+                  )}
+                </td>
+
+                <td style={{ padding: 16 }}>
+                  {vehiculo.anio ?? "Sin informar"}
+                </td>
+
+                <td style={{ padding: 16 }}>
+                  {vehiculo.kilometros !== null
+                    ? `${new Intl.NumberFormat("es-AR").format(
+                        vehiculo.kilometros
+                      )} km`
+                    : "Sin informar"}
+                </td>
+
+                <td style={{ padding: 16 }}>
+                  {vehiculo.precio !== null
+                    ? new Intl.NumberFormat("es-AR", {
+                        style: "currency",
+                        currency: "ARS",
+                        maximumFractionDigits: 0,
+                      }).format(vehiculo.precio)
+                    : "Consultar"}
+                </td>
+
+                <td style={{ padding: 16 }}>
+                  {vehiculo.estado || "Disponible"}
+                </td>
+
+                <td style={{ padding: 16 }}>
+                  <Link
+                    href={`/admin/vehiculos/${vehiculo.id}`}
+                    style={{
+                      color: "#1d4ed8",
+                      textDecoration: "none",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Editar
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {vehiculos.length === 0 && (
+          <p style={{ padding: 30, textAlign: "center", color: "#666" }}>
+            Todavía no hay vehículos cargados.
+          </p>
+        )}
+      </div>
+    </section>
   );
 }

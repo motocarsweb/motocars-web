@@ -126,7 +126,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
           </div>
 
           <Link
-            href={`/vehicles/${vehicle.id}`}
+            href={`/vehiculos/${vehicle.id}`}
             className="vehicle-details-button"
           >
             Ver vehículo
