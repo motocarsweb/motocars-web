@@ -47,7 +47,9 @@ export default function Stats() {
                 </div>
 
                 <div className="stat-content">
-                  <strong>{stat.value}</strong>
+                  <strong className={stat.value === "Multimarca" ? "stat-value-long" : ""}>
+  {stat.value}
+</strong>
                   <h2>{stat.title}</h2>
                   <p>{stat.description}</p>
                 </div>

@@ -292,13 +292,13 @@ nav a:hover {
 }
 
 .stat-card {
-  min-height: 145px;
+  min-height: 110px;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-start;
   gap: 16px;
-  padding: 24px;
+  padding: 18px 20px;
   text-align: left;
   background: #f5f7fa;
   border: 1px solid #e5e8ee;
@@ -332,9 +332,14 @@ nav a:hover {
   display: block;
   margin-bottom: 4px;
   color: var(--primary);
-  font-size: 30px;
+  font-size: 26px;
   font-weight: 900;
   line-height: 1;
+}
+.stat-content strong.stat-value-long {
+  font-size: 21px;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
 }
 
 .stat-content h2 {
@@ -348,8 +353,8 @@ nav a:hover {
   max-width: none;
   margin: 0;
   color: #64748b;
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: 12;
+  line-height: 1.45;
 }
 
 /* VEHÍCULOS DESTACADOS */
@@ -388,12 +393,12 @@ nav a:hover {
 
 /* FILTROS */
 .vehicle-filters {
-  margin: 30px 0 28px;
-  padding: 20px 28px;
+  margin: 16px 0 28px;
+  padding: 24px 30px 26px;
   background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 18px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
 }
 
 .vehicle-filters h3 {
