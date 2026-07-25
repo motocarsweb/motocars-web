@@ -1,33 +1,19 @@
 import Link from "next/link";
 import {
   ArrowUpRight,
-  CalendarDays,
   Fuel,
   Gauge,
+  MessageCircle,
   Settings2,
 } from "lucide-react";
 
-type Vehicle = {
-  id: number;
-  marca: string;
-  modelo: string;
-  version: string | null;
-  anio: number | null;
-  precio: number | null;
-  kilometros: number | null;
-  combustible: string | null;
-  transmision: string | null;
-  color: string | null;
-  tipo: string | null;
-  estado: string | null;
-  destacado: boolean | null;
-  descripcion: string | null;
-  imagen_principal: string | null;
-};
+import type { VehiculoSupabase } from "@/lib/supabase-vehicles";
 
 type VehicleCardProps = {
-  vehicle: Vehicle;
+  vehicle: VehiculoSupabase;
 };
+
+const WHATSAPP_NUMBER = "5492995133023";
 
 function formatearPrecio(precio: number | null) {
   if (precio === null) {
@@ -53,7 +39,21 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
   const imagen =
     vehicle.imagen_principal?.trim() || "/images/vehiculo-placeholder.jpg";
 
-  const nombreCompleto = `${vehicle.marca} ${vehicle.modelo}`;
+  const marca = vehicle.marca?.trim() || "Marca sin informar";
+  const modelo = vehicle.modelo?.trim() || "Modelo sin informar";
+  const version = vehicle.version?.trim() || "";
+
+  const nombreCompleto = `${marca} ${modelo}${
+    version ? ` ${version}` : ""
+  }`;
+
+  const mensajeWhatsApp = encodeURIComponent(
+    `Hola, me interesa el ${nombreCompleto}${
+      vehicle.anio ? ` ${vehicle.anio}` : ""
+    } publicado en MotoCars. Quisiera recibir más información.`
+  );
+
+  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${mensajeWhatsApp}`;
 
   return (
     <article className="vehicle-card">
@@ -62,11 +62,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
         className="vehicle-image"
         aria-label={`Ver ${nombreCompleto}`}
       >
-        <img
-          src={imagen}
-          alt={nombreCompleto}
-          loading="lazy"
-        />
+        <img src={imagen} alt={nombreCompleto} loading="lazy" />
 
         {vehicle.destacado && (
           <span className="vehicle-badge">Destacado</span>
@@ -74,18 +70,18 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
 
         <span className="vehicle-image-action">
           Ver detalle
-          <ArrowUpRight size={16} />
+          <ArrowUpRight size={15} />
         </span>
       </Link>
 
       <div className="vehicle-content">
         <div className="vehicle-heading">
           <div>
-            <span className="vehicle-brand">{vehicle.marca}</span>
+            <span className="vehicle-brand">{marca}</span>
 
             <h3>
-              {vehicle.modelo}
-              {vehicle.version ? ` ${vehicle.version}` : ""}
+              {modelo}
+              {version ? ` ${version}` : ""}
             </h3>
           </div>
 
@@ -109,29 +105,35 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
             <Settings2 size={15} />
             {vehicle.transmision || "Sin informar"}
           </span>
-
-          <span>
-            <CalendarDays size={15} />
-            Modelo {vehicle.anio ?? "Sin informar"}
-          </span>
         </div>
 
-        <div className="vehicle-card-footer">
-          <div>
-            <span className="vehicle-price-label">Precio</span>
+        <div className="vehicle-price-wrapper">
+          <span className="vehicle-price-label">Precio</span>
 
-            <div className="vehicle-price">
-              {formatearPrecio(vehicle.precio)}
-            </div>
+          <div className="vehicle-price">
+            {formatearPrecio(vehicle.precio)}
           </div>
+        </div>
 
+        <div className="vehicle-card-actions">
           <Link
             href={`/vehiculos/${vehicle.id}`}
             className="vehicle-details-button"
           >
             Ver vehículo
-            <ArrowUpRight size={17} />
+            <ArrowUpRight size={16} />
           </Link>
+
+          <a
+            href={whatsappUrl}
+            className="vehicle-whatsapp-button"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Consultar por WhatsApp sobre ${nombreCompleto}`}
+          >
+            <MessageCircle size={17} />
+            WhatsApp
+          </a>
         </div>
       </div>
     </article>

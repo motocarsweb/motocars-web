@@ -11,9 +11,7 @@ import { obtenerVehiculos } from "@/lib/supabase-vehicles";
 export default async function Home() {
   const vehiculos = await obtenerVehiculos();
   
-  console.log("Vehículos recibidos desde Supabase:", vehiculos);
-
-  return (
+    return (
     <>
       <Header />
 

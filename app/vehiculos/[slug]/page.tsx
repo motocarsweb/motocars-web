@@ -1,134 +1,152 @@
 import Link from "next/link";
-import { obtenerVehiculos } from "@/lib/supabase-vehicles";
+import { notFound } from "next/navigation";
+import { obtenerVehiculoPorId } from "@/lib/supabase-vehicles";
 
-export default async function AdminVehiculosPage() {
-  const vehiculos = await obtenerVehiculos();
+type VehicleDetailPageProps = {
+  params: Promise<{
+    slug: string;
+  }>;
+};
+
+function formatearPrecio(precio: number | null | undefined) {
+  if (!precio) return "Consultar precio";
+
+  return new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 0,
+  }).format(precio);
+}
+
+function formatearKilometros(kilometros: number | null | undefined) {
+  if (kilometros === null || kilometros === undefined) {
+    return "Consultar";
+  }
+
+  return `${new Intl.NumberFormat("es-AR").format(kilometros)} km`;
+}
+
+export default async function VehicleDetailPage({
+  params,
+}: VehicleDetailPageProps) {
+  const { slug } = await params;
+
+  const id = Number(slug);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    notFound();
+  }
+
+  const vehiculo = await obtenerVehiculoPorId(id);
+
+  if (!vehiculo) {
+    notFound();
+  }
+
+  const titulo = [vehiculo.marca, vehiculo.modelo, vehiculo.version]
+    .filter(Boolean)
+    .join(" ");
+
+  const imagen =
+    vehiculo.imagen_principal?.trim() || "/images/placeholder-vehicle.jpg";
+
+  const mensajeWhatsApp = encodeURIComponent(
+    `Hola, quiero consultar por el vehículo ${titulo}${
+      vehiculo.anio ? `, año ${vehiculo.anio}` : ""
+    }. Lo vi publicado en la web de MotoCars.`
+  );
+
+  const whatsappUrl = `https://wa.me/5492995133023?text=${mensajeWhatsApp}`;
 
   return (
-    <section>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 30,
-        }}
-      >
-        <div>
-          <h1 style={{ margin: 0 }}>Vehículos</h1>
+    <main className="vehicle-detail-page">
+      <section className="vehicle-detail">
+        <div className="container">
+          <Link href="/#vehiculos" className="vehicle-back-link">
+            ← Volver a vehículos
+          </Link>
 
-          <p style={{ color: "#666", marginTop: 8 }}>
-            Administrá el stock publicado en MotoCars.
-          </p>
-        </div>
+          <div className="vehicle-detail-grid">
+            <div className="vehicle-detail-gallery">
+              <div className="vehicle-detail-main-image">
+                <img
+                  src={imagen}
+                  alt={titulo}
+                />
+              </div>
+            </div>
 
-        <Link
-          href="/admin/vehiculos/nuevo"
-          style={{
-            background: "#1f2937",
-            color: "#fff",
-            padding: "12px 18px",
-            borderRadius: 8,
-            textDecoration: "none",
-            fontWeight: 600,
-          }}
-        >
-          Agregar vehículo
-        </Link>
-      </div>
+            <div className="vehicle-detail-content">
+              {vehiculo.destacado && (
+                <span className="vehicle-detail-badge">
+                  Nuevo ingreso
+                </span>
+              )}
 
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: 12,
-          overflowX: "auto",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
-        }}
-      >
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-          }}
-        >
-          <thead>
-            <tr style={{ background: "#f3f4f6", textAlign: "left" }}>
-              <th style={{ padding: 16 }}>Vehículo</th>
-              <th style={{ padding: 16 }}>Año</th>
-              <th style={{ padding: 16 }}>Kilómetros</th>
-              <th style={{ padding: 16 }}>Precio</th>
-              <th style={{ padding: 16 }}>Estado</th>
-              <th style={{ padding: 16 }}>Acciones</th>
-            </tr>
-          </thead>
+              <h1>{titulo}</h1>
 
-          <tbody>
-            {vehiculos.map((vehiculo) => (
-              <tr
-                key={vehiculo.id}
-                style={{ borderTop: "1px solid #e5e7eb" }}
-              >
-                <td style={{ padding: 16 }}>
+              <p className="vehicle-detail-price">
+                {formatearPrecio(vehiculo.precio)}
+              </p>
+
+              <div className="vehicle-detail-info">
+                <div className="vehicle-detail-info-card">
+                  <span>Año</span>
+                  <strong>{vehiculo.anio || "Consultar"}</strong>
+                </div>
+
+                <div className="vehicle-detail-info-card">
+                  <span>Kilómetros</span>
                   <strong>
-                    {vehiculo.marca} {vehiculo.modelo}
+                    {formatearKilometros(vehiculo.kilometros)}
                   </strong>
+                </div>
 
-                  {vehiculo.version && (
-                    <div style={{ color: "#666", marginTop: 4 }}>
-                      {vehiculo.version}
-                    </div>
-                  )}
-                </td>
+                <div className="vehicle-detail-info-card">
+                  <span>Combustible</span>
+                  <strong>{vehiculo.combustible || "Consultar"}</strong>
+                </div>
 
-                <td style={{ padding: 16 }}>
-                  {vehiculo.anio ?? "Sin informar"}
-                </td>
+                <div className="vehicle-detail-info-card">
+                  <span>Transmisión</span>
+                  <strong>{vehiculo.transmision || "Consultar"}</strong>
+                </div>
 
-                <td style={{ padding: 16 }}>
-                  {vehiculo.kilometros !== null
-                    ? `${new Intl.NumberFormat("es-AR").format(
-                        vehiculo.kilometros
-                      )} km`
-                    : "Sin informar"}
-                </td>
+                <div className="vehicle-detail-info-card">
+                  <span>Color</span>
+                  <strong>{vehiculo.color || "Consultar"}</strong>
+                </div>
 
-                <td style={{ padding: 16 }}>
-                  {vehiculo.precio !== null
-                    ? new Intl.NumberFormat("es-AR", {
-                        style: "currency",
-                        currency: "ARS",
-                        maximumFractionDigits: 0,
-                      }).format(vehiculo.precio)
-                    : "Consultar"}
-                </td>
+                <div className="vehicle-detail-info-card">
+                  <span>Estado</span>
+                  <strong>{vehiculo.estado || "Consultar"}</strong>
+                </div>
+              </div>
 
-                <td style={{ padding: 16 }}>
-                  {vehiculo.estado || "Disponible"}
-                </td>
+              {vehiculo.descripcion && (
+                <div className="vehicle-detail-description">
+                  <h2>Descripción</h2>
+                  <p>{vehiculo.descripcion}</p>
+                </div>
+              )}
 
-                <td style={{ padding: 16 }}>
-                  <Link
-                    href={`/admin/vehiculos/${vehiculo.id}`}
-                    style={{
-                      color: "#1d4ed8",
-                      textDecoration: "none",
-                      fontWeight: 600,
-                    }}
-                  >
-                    Editar
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="vehicle-detail-whatsapp"
+              >
+                Consultar por WhatsApp
+              </a>
 
-        {vehiculos.length === 0 && (
-          <p style={{ padding: 30, textAlign: "center", color: "#666" }}>
-            Todavía no hay vehículos cargados.
-          </p>
-        )}
-      </div>
-    </section>
+              <p className="vehicle-detail-note">
+                Consultanos por financiación, disponibilidad y recepción de
+                vehículos usados.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }

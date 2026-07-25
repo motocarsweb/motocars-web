@@ -8,23 +8,23 @@ export default function Hero() {
       <div className="container hero-content">
         <div className="hero-main">
           <span className="hero-subtitle">
-            MOTOCARS CONCESIONARIA · NEUQUÉN
-          </span>
+  MÁS DE 30 AÑOS DE CONFIANZA EN NEUQUÉN
+</span>
 
           <h1>
-            Tu próximo vehículo.
-            <span> Tu nueva historia.</span>
-          </h1>
+  Encontrá el vehículo
+  <span>ideal para vos.</span>
+</h1>
 
           <p>
-            Más de 30 años acompañando a nuestros clientes en la compra y venta
-            de vehículos nuevos y usados, con atención personalizada y respaldo
-            en cada operación.
-          </p>
+  En MotoCars seleccionamos cada vehículo para ofrecer calidad, respaldo y
+  confianza. Autos usados, 0 km y financiación con atención personalizada en
+  Neuquén.
+</p>
 
           <div className="hero-buttons">
             <a href="#vehiculos" className="btn hero-primary-button">
-              Ver vehículos
+              Ver Stock Disponible
               <ArrowRight size={19} strokeWidth={2.2} />
             </a>
 
@@ -38,27 +38,34 @@ export default function Hero() {
               Contactar por WhatsApp
             </a>
           </div>
-        </div>
+       <div className="hero-trust">
+  <div className="hero-trust-item">
+    <strong>+30</strong>
+    <span>Años de experiencia</span>
+  </div>
 
-        <div className="hero-trust">
-          <div className="hero-trust-item">
-            <strong>+30</strong>
-            <span>Años de trayectoria</span>
-          </div>
+  <div className="hero-trust-divider" />
 
-          <div className="hero-trust-divider" />
+  <div className="hero-trust-item">
+    <strong>100%</strong>
+    <span>Vehículos revisados</span>
+  </div>
 
-          <div className="hero-trust-item">
-            <strong>Multimarca</strong>
-            <span>Vehículos seleccionados</span>
-          </div>
+  <div className="hero-trust-divider" />
 
-          <div className="hero-trust-divider" />
+  <div className="hero-trust-item">
+    <strong>Financiación</strong>
+    <span>Cuotas fijas en pesos</span>
+  </div>
 
-          <div className="hero-trust-item">
-            <strong>Neuquén</strong>
-            <span>Atención personalizada</span>
-          </div>
+  <div className="hero-trust-divider" />
+
+  <div className="hero-trust-item">
+    <strong>Neuquén</strong>
+    <span>Atención personalizada</span>
+  </div>
+</div>
+
         </div>
       </div>
 
