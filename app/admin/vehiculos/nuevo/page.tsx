@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { crearVehiculo } from "@/lib/supabase-vehicles";
-import { subirImagenVehiculo } from "@/lib/storage";
+import { subirImagenesVehiculo } from "@/lib/storage";
 
 export default function NuevoVehiculoPage() {
   const router = useRouter();
 
   const [guardando, setGuardando] = useState(false);
-  const [imagen, setImagen] = useState<File | null>(null);
-  const [vistaPrevia, setVistaPrevia] = useState("");
+  const [imagenes, setImagenes] = useState<File[]>([]);
+  const [vistasPrevias, setVistasPrevias] = useState<string[]>([]);
 
   const [form, setForm] = useState({
     marca: "",
@@ -29,19 +29,21 @@ export default function NuevoVehiculoPage() {
   });
 
   useEffect(() => {
-    if (!imagen) {
-      setVistaPrevia("");
+    if (imagenes.length === 0) {
+      setVistasPrevias([]);
       return;
     }
 
-    const urlTemporal = URL.createObjectURL(imagen);
+    const urlsTemporales = imagenes.map((imagen) =>
+      URL.createObjectURL(imagen)
+    );
 
-    setVistaPrevia(urlTemporal);
+    setVistasPrevias(urlsTemporales);
 
     return () => {
-      URL.revokeObjectURL(urlTemporal);
+      urlsTemporales.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, [imagen]);
+  }, [imagenes]);
 
   function actualizar(
     e: React.ChangeEvent<
@@ -59,11 +61,13 @@ export default function NuevoVehiculoPage() {
     }));
   }
 
-  function seleccionarImagen(e: React.ChangeEvent<HTMLInputElement>) {
-    const archivo = e.target.files?.[0];
+  function seleccionarImagenes(
+    e: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const archivos = Array.from(e.target.files ?? []);
 
-    if (!archivo) {
-      setImagen(null);
+    if (archivos.length === 0) {
+      setImagenes([]);
       return;
     }
 
@@ -73,23 +77,37 @@ export default function NuevoVehiculoPage() {
       "image/webp",
     ];
 
-    if (!formatosPermitidos.includes(archivo.type)) {
-      alert("La imagen debe ser JPG, PNG o WEBP.");
+    const archivoConFormatoIncorrecto = archivos.find(
+      (archivo) => !formatosPermitidos.includes(archivo.type)
+    );
+
+    if (archivoConFormatoIncorrecto) {
+      alert(
+        `El archivo "${archivoConFormatoIncorrecto.name}" no es JPG, PNG o WEBP.`
+      );
+
       e.target.value = "";
-      setImagen(null);
+      setImagenes([]);
       return;
     }
 
     const limiteBytes = 10 * 1024 * 1024;
 
-    if (archivo.size > limiteBytes) {
-      alert("La imagen no puede superar los 10 MB.");
+    const archivoDemasiadoGrande = archivos.find(
+      (archivo) => archivo.size > limiteBytes
+    );
+
+    if (archivoDemasiadoGrande) {
+      alert(
+        `La imagen "${archivoDemasiadoGrande.name}" supera los 10 MB.`
+      );
+
       e.target.value = "";
-      setImagen(null);
+      setImagenes([]);
       return;
     }
 
-    setImagen(archivo);
+    setImagenes(archivos);
   }
 
   async function guardar(e: React.FormEvent<HTMLFormElement>) {
@@ -102,11 +120,14 @@ export default function NuevoVehiculoPage() {
     setGuardando(true);
 
     try {
-      let imagenPrincipal: string | null = null;
+      let urlsImagenes: string[] = [];
 
-      if (imagen) {
-        imagenPrincipal = await subirImagenVehiculo(imagen);
+      if (imagenes.length > 0) {
+        urlsImagenes = await subirImagenesVehiculo(imagenes);
       }
+
+      const imagenPrincipal =
+        urlsImagenes.length > 0 ? urlsImagenes[0] : null;
 
       const resultado = await crearVehiculo({
         marca: form.marca.trim(),
@@ -125,6 +146,7 @@ export default function NuevoVehiculoPage() {
         destacado: form.destacado,
         descripcion: form.descripcion.trim() || null,
         imagen_principal: imagenPrincipal,
+        imagenes: urlsImagenes,
       });
 
       if (!resultado) {
@@ -140,7 +162,7 @@ export default function NuevoVehiculoPage() {
       console.error("Error al guardar el vehículo:", error);
 
       alert(
-        "No se pudo guardar el vehículo o subir la imagen. Revisá la consola para ver el error."
+        "No se pudo guardar el vehículo o subir las imágenes. Revisá la consola para ver el error."
       );
     } finally {
       setGuardando(false);
@@ -251,41 +273,73 @@ export default function NuevoVehiculoPage() {
         <div
           style={{
             display: "grid",
-            gap: 10,
+            gap: 12,
             padding: 18,
             border: "1px solid #d1d5db",
             borderRadius: 10,
           }}
         >
-          <label htmlFor="imagen">
-            <strong>Imagen principal</strong>
+          <label htmlFor="imagenes">
+            <strong>Imágenes del vehículo</strong>
           </label>
 
           <input
-            id="imagen"
-            name="imagen"
+            id="imagenes"
+            name="imagenes"
             type="file"
             accept="image/jpeg,image/png,image/webp"
-            onChange={seleccionarImagen}
+            multiple
+            onChange={seleccionarImagenes}
           />
 
           <small>
-            Formatos admitidos: JPG, PNG y WEBP. Tamaño máximo: 10 MB.
+            Podés seleccionar varias fotos juntas. La primera será la
+            imagen principal. Máximo 10 MB por imagen.
           </small>
 
-          {vistaPrevia && (
-            <img
-              src={vistaPrevia}
-              alt="Vista previa del vehículo"
+          {imagenes.length > 0 && (
+            <strong>
+              {imagenes.length}{" "}
+              {imagenes.length === 1
+                ? "imagen seleccionada"
+                : "imágenes seleccionadas"}
+            </strong>
+          )}
+
+          {vistasPrevias.length > 0 && (
+            <div
               style={{
-                width: "100%",
-                maxWidth: 420,
-                height: 260,
-                objectFit: "cover",
-                borderRadius: 10,
-                border: "1px solid #d1d5db",
+                display: "grid",
+                gridTemplateColumns:
+                  "repeat(auto-fill, minmax(140px, 1fr))",
+                gap: 12,
               }}
-            />
+            >
+              {vistasPrevias.map((url, index) => (
+                <div key={url}>
+                  <img
+                    src={url}
+                    alt={`Vista previa ${index + 1}`}
+                    style={{
+                      width: "100%",
+                      height: 110,
+                      objectFit: "cover",
+                      borderRadius: 8,
+                      border:
+                        index === 0
+                          ? "3px solid #111827"
+                          : "1px solid #d1d5db",
+                    }}
+                  />
+
+                  <small>
+                    {index === 0
+                      ? "Imagen principal"
+                      : `Imagen ${index + 1}`}
+                  </small>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
@@ -309,8 +363,8 @@ export default function NuevoVehiculoPage() {
 
         <button type="submit" disabled={guardando}>
           {guardando
-            ? imagen
-              ? "Subiendo imagen y guardando..."
+            ? imagenes.length > 0
+              ? `Subiendo ${imagenes.length} imágenes...`
               : "Guardando..."
             : "Guardar vehículo"}
         </button>

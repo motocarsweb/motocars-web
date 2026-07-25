@@ -23,3 +23,14 @@ export async function subirImagenVehiculo(file: File) {
 
   return data.publicUrl;
 }
+
+export async function subirImagenesVehiculo(files: File[]) {
+  const urls: string[] = [];
+
+  for (const file of files) {
+    const url = await subirImagenVehiculo(file);
+    urls.push(url);
+  }
+
+  return urls;
+}

@@ -17,6 +17,7 @@ export type VehiculoSupabase = {
   destacado: boolean | null;
   descripcion: string | null;
   imagen_principal: string | null;
+  imagenes: string[] | null;
 };
 
 export type NuevoVehiculo = Omit<
