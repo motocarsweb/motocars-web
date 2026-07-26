@@ -110,7 +110,7 @@ nav a:hover {
 
 /* HERO */
 .hero {
-  min-height: 100vh;
+  min-height: 720px;
   position: relative;
   display: flex;
   align-items: center;
@@ -133,8 +133,8 @@ nav a:hover {
   position: relative;
   z-index: 2;
   width: 100%;
-  padding-top: 135px;
-  padding-bottom: 120px;
+  padding-top: 185px;
+  padding-bottom: 44px;
   color: var(--white);
 }
 
@@ -146,7 +146,7 @@ nav a:hover {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
   color: #9bbcff;
   font-size: 13px;
   font-weight: 800;
@@ -164,9 +164,9 @@ nav a:hover {
   max-width: 850px;
   margin: 0 0 28px;
   color: #ffffff;
-  font-size: clamp(48px, 6.4vw, 86px);
-  line-height: 0.98;
-  letter-spacing: -3px;
+  font-size: clamp(42px, 5.5vw, 72px);
+  line-height: 1;
+  letter-spacing: -2px;
 }
 
 .hero h1 span {
@@ -223,8 +223,8 @@ nav a:hover {
   align-items: center;
   width: fit-content;
   max-width: 100%;
-  margin-top: 58px;
-  padding: 22px 26px;
+  margin-top: 26px;
+  padding: 18px 22px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 12px;
   background: rgba(10, 16, 28, 0.55);
@@ -525,19 +525,23 @@ nav a:hover {
   min-width: 0;
   overflow: hidden;
   background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.09);
-  border-radius: 14px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  border-radius: 18px;
+  box-shadow:
+    0 4px 10px rgba(15, 23, 42, 0.04),
+    0 18px 40px rgba(15, 23, 42, 0.06);
   transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    border-color 0.25s ease;
+    transform 0.28s ease,
+    box-shadow 0.28s ease,
+    border-color 0.28s ease;
 }
 
 .vehicle-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(37, 99, 235, 0.22);
-  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.12);
+  transform: translateY(-6px);
+  border-color: rgba(37, 99, 235, 0.18);
+  box-shadow:
+    0 8px 18px rgba(15, 23, 42, 0.06),
+    0 26px 55px rgba(15, 23, 42, 0.12);
 }
 
 .vehicle-image {
@@ -546,7 +550,7 @@ nav a:hover {
   width: 100%;
   aspect-ratio: 16 / 10;
   overflow: hidden;
-  background: #eef1f5;
+  background: linear-gradient(180deg, #f7f8fa 0%, #e9edf2 100%);
 }
 
 .vehicle-image img {
@@ -556,11 +560,28 @@ nav a:hover {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  transition:
+    transform 0.55s ease,
+    filter 0.35s ease;
 }
 
 .vehicle-card:hover .vehicle-image img {
-  transform: scale(1.025);
+  transform: scale(1.06);
+  filter: brightness(1.03);
+}
+
+.vehicle-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    to top,
+    rgba(15, 23, 42, 0.18) 0%,
+    rgba(15, 23, 42, 0.05) 30%,
+    transparent 60%
+  );
+  pointer-events: none;
 }
 
 .vehicle-image::after {
@@ -713,31 +734,37 @@ nav a:hover {
 }
 
 .vehicle-price-wrapper {
-  margin-bottom: 11px;
+  margin: 2px 0 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(15, 23, 42, 0.07);
 }
 
 .vehicle-price-label {
   display: block;
-  margin-bottom: 2px;
+  margin-bottom: 5px;
   color: #64748b;
   font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
 }
 
 .vehicle-price {
   margin: 0;
   color: #0f172a;
-  font-size: clamp(19px, 1.7vw, 24px);
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.4px;
+  font-size: clamp(22px, 1.9vw, 28px);
+  font-weight: 850;
+  line-height: 1.05;
+  letter-spacing: -0.75px;
   white-space: nowrap;
 }
 
 .vehicle-card-actions,
 .vehicle-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 7px;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 9px;
   margin-top: auto;
 }
 
@@ -745,36 +772,39 @@ nav a:hover {
 .vehicle-whatsapp-button,
 .vehicle-button {
   min-width: 0;
-  min-height: 38px;
+  min-height: 42px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  padding: 0 9px;
-  border-radius: 8px;
+  gap: 6px;
+  padding: 0 12px;
+  border-radius: 10px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 750;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
   transition:
-    background 0.22s ease,
-    border-color 0.22s ease,
-    color 0.22s ease,
-    transform 0.22s ease;
+    background 0.24s ease,
+    border-color 0.24s ease,
+    color 0.24s ease,
+    transform 0.24s ease,
+    box-shadow 0.24s ease;
 }
 
 .vehicle-details-button {
   border: 1px solid #0f172a;
   background: #0f172a;
   color: #ffffff;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
 }
 
 .vehicle-details-button:hover {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: #1d4ed8;
+  border-color: #1d4ed8;
   color: #ffffff;
   transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(29, 78, 216, 0.2);
 }
 
 .vehicle-details-button svg {
@@ -784,14 +814,14 @@ nav a:hover {
 }
 
 .vehicle-details-button:hover svg {
-  transform: translateX(2px);
+  transform: translate(2px, -1px);
 }
 
 .vehicle-whatsapp-button,
 .vehicle-button {
-  border: 1px solid #16a34a;
-  background: #16a34a;
-  color: #ffffff;
+  border: 1px solid rgba(22, 163, 74, 0.28);
+  background: rgba(22, 163, 74, 0.08);
+  color: #15803d;
 }
 
 .vehicle-whatsapp-button svg {
@@ -801,12 +831,12 @@ nav a:hover {
 
 .vehicle-whatsapp-button:hover,
 .vehicle-button:hover {
-  background: #15803d;
-  border-color: #15803d;
+  background: #16a34a;
+  border-color: #16a34a;
   color: #ffffff;
   transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(22, 163, 74, 0.18);
 }
-
 /* NUESTRA CONCESIONARIA */
 .about {
   padding: 50px 0 90px;
@@ -884,7 +914,7 @@ nav a:hover {
 }
 
 .vehicle-detail {
-  padding: 120px 0 80px;
+  padding: 96px 0 60px;
 }
 
 .vehicle-back-link {
@@ -902,8 +932,8 @@ nav a:hover {
 
 .vehicle-detail-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
-  gap: 36px;
+  grid-template-columns: minmax(0, 1.45fr) minmax(340px, 0.75fr);
+  gap: 28px;
   align-items: start;
 }
 
@@ -915,14 +945,15 @@ nav a:hover {
 }
 
 .vehicle-detail-gallery {
-  padding: 20px;
+  padding: 14px;
 }
 
-.vehicle-detail-main-image {
-  position: relative;
-  overflow: hidden;
-  border-radius: 16px;
-  background: #e2e8f0;
+.vehicle-detail-main-image img {
+  display: block;
+  width: 100%;
+  height: clamp(360px, 39vw, 470px);
+  object-fit: cover;
+  transition: transform 0.4s ease;
 }
 
 .vehicle-detail-main-image img {
@@ -972,9 +1003,9 @@ nav a:hover {
 
 .vehicle-detail-thumbnails {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 14px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 10px;
 }
 
 .vehicle-thumbnail {
@@ -1005,46 +1036,55 @@ nav a:hover {
 }
 
 .vehicle-detail-content {
-  padding: 32px;
+  padding: 24px;
 }
 
 .vehicle-detail-badge {
   display: inline-flex;
-  margin-bottom: 18px;
-  padding: 8px 14px;
+  margin-bottom: 12px;
+  padding: 6px 11px;
   border-radius: 999px;
   background: #dcfce7;
   color: #15803d;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 800;
 }
 
 .vehicle-detail-content h1 {
-  margin: 0 0 14px;
+  margin: 0 0 10px;
   color: #0f172a;
-  font-size: clamp(32px, 4vw, 48px);
-  line-height: 1.05;
+  font-size: clamp(27px, 3vw, 38px);
+  line-height: 1.08;
+  letter-spacing: -0.7px;
 }
 
 .vehicle-detail-price {
-  margin-bottom: 26px;
+  margin: 0 0 18px;
   color: #2563eb;
-  font-size: 32px;
+  font-size: clamp(26px, 2.5vw, 32px);
   font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.5px;
 }
 
 .vehicle-detail-description {
-  margin: 22px 0 28px;
+  margin: 18px 0 20px;
   color: #475569;
-  font-size: 17px;
-  line-height: 1.8;
+  font-size: 15px;
+  line-height: 1.6;
   text-align: left;
+}
+
+.vehicle-detail-description h2 {
+  margin: 0 0 7px;
+  color: #0f172a;
+  font-size: 18px;
 }
 
 .vehicle-detail-info {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
 }
 
 .vehicle-detail-info div,
@@ -1052,10 +1092,11 @@ nav a:hover {
 .vehicle-detail-info-card {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 16px;
+  gap: 3px;
+  min-width: 0;
+  padding: 11px 12px;
   border: 1px solid #e2e8f0;
-  border-radius: 14px;
+  border-radius: 11px;
   background: #f8fafc;
 }
 
@@ -1073,14 +1114,16 @@ nav a:hover {
 .vehicle-detail-location span,
 .vehicle-detail-info-card span {
   color: #64748b;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .vehicle-detail-info strong,
 .vehicle-detail-location strong,
 .vehicle-detail-info-card strong {
   color: #0f172a;
-  font-size: 17px;
+  font-size: 14px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 .vehicle-detail-info-card svg {
@@ -1096,15 +1139,25 @@ nav a:hover {
   align-items: center;
   justify-content: center;
   width: 100%;
-  margin-top: 22px;
-  padding: 16px;
-  border-radius: 14px;
+  min-height: 48px;
+  margin-top: 18px;
+  padding: 0 16px;
+  border-radius: 11px;
   background: #16a34a;
   color: #ffffff;
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 800;
   text-decoration: none;
-  transition: background 0.25s ease, transform 0.25s ease;
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.vehicle-detail-whatsapp:hover {
+  background: #15803d;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(22, 163, 74, 0.22);
 }
 
 .vehicle-detail-whatsapp:hover {
@@ -1113,13 +1166,12 @@ nav a:hover {
 }
 
 .vehicle-detail-note {
-  margin: 16px 0 0;
+  margin: 11px 0 0;
   color: #64748b;
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.5;
   text-align: center;
 }
-
 /* RESPONSIVE */
 @media (max-width: 950px) {
   nav {
@@ -1184,7 +1236,7 @@ nav a:hover {
   }
 
   .vehicle-detail-main-image img {
-    height: 420px;
+  height: clamp(320px, 58vw, 420px);
   }
 }
 

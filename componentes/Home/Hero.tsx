@@ -8,7 +8,7 @@ export default function Hero() {
       <div className="container hero-content">
         <div className="hero-main">
           <span className="hero-subtitle">
-  MÁS DE 30 AÑOS DE CONFIANZA EN NEUQUÉN
+  35 años en la esquina de siempre
 </span>
 
           <h1>
@@ -40,7 +40,7 @@ export default function Hero() {
           </div>
        <div className="hero-trust">
   <div className="hero-trust-item">
-    <strong>+30</strong>
+    <strong>+35</strong>
     <span>Años de experiencia</span>
   </div>
 

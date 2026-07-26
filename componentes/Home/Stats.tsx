@@ -8,7 +8,7 @@ import {
 const stats = [
   {
     icon: Handshake,
-    value: "30+",
+    value: "35+",
     title: "Años de trayectoria",
     description: "Experiencia y respaldo en cada operación.",
   },
