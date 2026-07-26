@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+
+import ImageManager from "@/app/ImageManager";
 import { crearVehiculo } from "@/lib/supabase-vehicles";
 import { subirImagenesVehiculo } from "@/lib/storage";
 
@@ -10,7 +12,6 @@ export default function NuevoVehiculoPage() {
 
   const [guardando, setGuardando] = useState(false);
   const [imagenes, setImagenes] = useState<File[]>([]);
-  const [vistasPrevias, setVistasPrevias] = useState<string[]>([]);
 
   const [form, setForm] = useState({
     marca: "",
@@ -28,23 +29,6 @@ export default function NuevoVehiculoPage() {
     descripcion: "",
   });
 
-  useEffect(() => {
-    if (imagenes.length === 0) {
-      setVistasPrevias([]);
-      return;
-    }
-
-    const urlsTemporales = imagenes.map((imagen) =>
-      URL.createObjectURL(imagen)
-    );
-
-    setVistasPrevias(urlsTemporales);
-
-    return () => {
-      urlsTemporales.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [imagenes]);
-
   function actualizar(
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -59,55 +43,6 @@ export default function NuevoVehiculoPage() {
           ? (e.target as HTMLInputElement).checked
           : value,
     }));
-  }
-
-  function seleccionarImagenes(
-    e: React.ChangeEvent<HTMLInputElement>
-  ) {
-    const archivos = Array.from(e.target.files ?? []);
-
-    if (archivos.length === 0) {
-      setImagenes([]);
-      return;
-    }
-
-    const formatosPermitidos = [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-    ];
-
-    const archivoConFormatoIncorrecto = archivos.find(
-      (archivo) => !formatosPermitidos.includes(archivo.type)
-    );
-
-    if (archivoConFormatoIncorrecto) {
-      alert(
-        `El archivo "${archivoConFormatoIncorrecto.name}" no es JPG, PNG o WEBP.`
-      );
-
-      e.target.value = "";
-      setImagenes([]);
-      return;
-    }
-
-    const limiteBytes = 10 * 1024 * 1024;
-
-    const archivoDemasiadoGrande = archivos.find(
-      (archivo) => archivo.size > limiteBytes
-    );
-
-    if (archivoDemasiadoGrande) {
-      alert(
-        `La imagen "${archivoDemasiadoGrande.name}" supera los 10 MB.`
-      );
-
-      e.target.value = "";
-      setImagenes([]);
-      return;
-    }
-
-    setImagenes(archivos);
   }
 
   async function guardar(e: React.FormEvent<HTMLFormElement>) {
@@ -270,78 +205,10 @@ export default function NuevoVehiculoPage() {
           <option value="Usado">Usado</option>
         </select>
 
-        <div
-          style={{
-            display: "grid",
-            gap: 12,
-            padding: 18,
-            border: "1px solid #d1d5db",
-            borderRadius: 10,
-          }}
-        >
-          <label htmlFor="imagenes">
-            <strong>Imágenes del vehículo</strong>
-          </label>
-
-          <input
-            id="imagenes"
-            name="imagenes"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            multiple
-            onChange={seleccionarImagenes}
-          />
-
-          <small>
-            Podés seleccionar varias fotos juntas. La primera será la
-            imagen principal. Máximo 10 MB por imagen.
-          </small>
-
-          {imagenes.length > 0 && (
-            <strong>
-              {imagenes.length}{" "}
-              {imagenes.length === 1
-                ? "imagen seleccionada"
-                : "imágenes seleccionadas"}
-            </strong>
-          )}
-
-          {vistasPrevias.length > 0 && (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "repeat(auto-fill, minmax(140px, 1fr))",
-                gap: 12,
-              }}
-            >
-              {vistasPrevias.map((url, index) => (
-                <div key={url}>
-                  <img
-                    src={url}
-                    alt={`Vista previa ${index + 1}`}
-                    style={{
-                      width: "100%",
-                      height: 110,
-                      objectFit: "cover",
-                      borderRadius: 8,
-                      border:
-                        index === 0
-                          ? "3px solid #111827"
-                          : "1px solid #d1d5db",
-                    }}
-                  />
-
-                  <small>
-                    {index === 0
-                      ? "Imagen principal"
-                      : `Imagen ${index + 1}`}
-                  </small>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <ImageManager
+          images={imagenes}
+          onChange={setImagenes}
+        />
 
         <textarea
           name="descripcion"
