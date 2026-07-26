@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Phone, MapPin } from "lucide-react";
+import { Phone, MessageCircle } from "lucide-react";
 
 export default function Header() {
   return (
@@ -11,68 +11,36 @@ export default function Header() {
           <Image
             src="/logo/logo.png"
             alt="MotoCars Concesionaria"
-            width={200}
-            height={60}
+            width={240}
+            height={80}
             priority
-            style={{
-              width: "200px",
-              height: "auto",
-            }}
+            className="header-logo"
           />
         </a>
 
-        <nav>
-          <a href="#">Inicio</a>
+        <nav className="header-nav" aria-label="Navegación principal">
+          <a href="/">Inicio</a>
           <a href="#vehiculos">Vehículos</a>
           <a href="#nosotros">Nosotros</a>
           <a href="#contacto">Contacto</a>
         </nav>
 
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "14px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              color: "white",
-              fontSize: "13px",
-              fontWeight: 600,
-            }}
-          >
-            <MapPin size={16} />
-            Neuquén
-          </div>
-
-          <a
-            href="tel:+542995133023"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              color: "white",
-              textDecoration: "none",
-              fontSize: "13px",
-              fontWeight: 600,
-            }}
-          >
-            <Phone size={16} />
-            299 513-3023
+        <div className="header-actions">
+          
+                  <a href="tel:+542995133023" className="header-phone">
+            <Phone size={18} strokeWidth={2} />
+            <span>299 513-3023</span>
           </a>
 
-          <a
-            href="https://wa.me/5492995133023?text=Hola%20MotoCars,%20quiero%20información%20sobre%20un%20vehículo."
-            className="btn"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            WhatsApp
-          </a>
+         <a
+  href="https://wa.me/5492995133023?text=Hola%20MotoCars,%20quiero%20información%20sobre%20un%20vehículo."
+  className="header-whatsapp"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <MessageCircle size={18} strokeWidth={2} />
+  <span>Consultar por WhatsApp</span>
+</a>
         </div>
       </div>
     </header>

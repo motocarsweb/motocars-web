@@ -8,7 +8,7 @@ export default function Hero() {
       <div className="container hero-content">
         <div className="hero-main">
           <span className="hero-subtitle">
-  35 años en la esquina de siempre
+  35 años de historia en la esquina de siempre
 </span>
 
           <h1>
