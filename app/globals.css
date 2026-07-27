@@ -1818,3 +1818,9 @@ body {
     grid-template-columns: 1fr;
   }
 }
+@supports (-webkit-touch-callout: none) {
+  .stat-content strong.stat-value-long {
+    font-size: 25px;
+    letter-spacing: -0.5px;
+  }
+}
