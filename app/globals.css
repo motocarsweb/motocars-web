@@ -437,8 +437,9 @@ flex-shrink: 0;
 .stat-content strong.stat-value-long {
   display: block;
   width: 100%;
-  font-size: 27px;
+  font-size: 26px;
   line-height: 1.05;
+  letter-spacing: -0.3px;
   white-space: nowrap;
   overflow-wrap: normal;
   word-break: normal;
