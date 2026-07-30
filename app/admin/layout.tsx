@@ -59,6 +59,10 @@ export default function AdminLayout({
             Vehículos
           </Link>
 
+          <Link href="/admin/configuracion" style={{ color: "white" }}>
+  Configuración
+</Link>
+
           <button
             type="button"
             onClick={cerrarSesion}

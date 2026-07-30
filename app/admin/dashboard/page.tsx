@@ -1,110 +1,170 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const pathname = usePathname();
-  const router = useRouter();
-
-  async function cerrarSesion() {
-    await supabase.auth.signOut();
-    router.replace("/admin/login");
-  }
-
-  const menu = [
-    {
-      titulo: "Dashboard",
-      href: "/admin/dashboard",
-      icono: "🏠",
-    },
-    {
-      titulo: "Vehículos",
-      href: "/admin/vehiculos",
-      icono: "🚗",
-    },
-    {
-      titulo: "Agregar vehículo",
-      href: "/admin/vehiculos/nuevo",
-      icono: "➕",
-    },
-  ];
-
+export default function AdminDashboardPage() {
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        background: "#f5f5f5",
-      }}
-    >
-      <aside
+    <section>
+      <div
         style={{
-          width: 260,
-          background: "#1f2937",
-          color: "#fff",
-          padding: 25,
+          marginBottom: "32px",
         }}
       >
-        <h2
+        <h1
           style={{
-            marginTop: 0,
-            marginBottom: 35,
+            margin: 0,
+            fontSize: "32px",
+            color: "#111827",
           }}
         >
-          MotoCars Admin
-        </h2>
+          Dashboard
+        </h1>
 
-        {menu.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
+        <p
+          style={{
+            marginTop: "8px",
+            marginBottom: 0,
+            color: "#6b7280",
+            fontSize: "16px",
+          }}
+        >
+          Panel principal de administración de MotoCars.
+        </p>
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: "20px",
+        }}
+      >
+        <Link
+          href="/admin/vehiculos"
+          style={{
+            display: "block",
+            padding: "24px",
+            borderRadius: "12px",
+            backgroundColor: "#ffffff",
+            color: "#111827",
+            textDecoration: "none",
+            boxShadow: "0 4px 14px rgba(0, 0, 0, 0.08)",
+          }}
+        >
+          <div
             style={{
-              display: "block",
-              padding: "12px 16px",
-              marginBottom: 8,
-              borderRadius: 8,
-              textDecoration: "none",
-              color: "#fff",
-              background:
-                pathname === item.href ? "#374151" : "transparent",
+              fontSize: "28px",
+              marginBottom: "12px",
             }}
           >
-            {item.icono} {item.titulo}
-          </Link>
-        ))}
+            🚗
+          </div>
 
-        <button
-          onClick={cerrarSesion}
+          <h2
+            style={{
+              margin: 0,
+              fontSize: "20px",
+            }}
+          >
+            Vehículos
+          </h2>
+
+          <p
+            style={{
+              marginTop: "8px",
+              marginBottom: 0,
+              color: "#6b7280",
+              lineHeight: 1.5,
+            }}
+          >
+            Administrar el stock publicado de autos y motos.
+          </p>
+        </Link>
+
+        <Link
+          href="/admin/vehiculos/nuevo"
           style={{
-            marginTop: 40,
-            width: "100%",
-            padding: 12,
-            border: "none",
-            borderRadius: 8,
-            background: "#c62828",
-            color: "#fff",
-            cursor: "pointer",
-            fontWeight: "bold",
+            display: "block",
+            padding: "24px",
+            borderRadius: "12px",
+            backgroundColor: "#ffffff",
+            color: "#111827",
+            textDecoration: "none",
+            boxShadow: "0 4px 14px rgba(0, 0, 0, 0.08)",
           }}
         >
-          Cerrar sesión
-        </button>
-      </aside>
+          <div
+            style={{
+              fontSize: "28px",
+              marginBottom: "12px",
+            }}
+          >
+            ➕
+          </div>
 
-      <main
-        style={{
-          flex: 1,
-          padding: 40,
-        }}
-      >
-        {children}
-      </main>
-    </div>
+          <h2
+            style={{
+              margin: 0,
+              fontSize: "20px",
+            }}
+          >
+            Agregar vehículo
+          </h2>
+
+          <p
+            style={{
+              marginTop: "8px",
+              marginBottom: 0,
+              color: "#6b7280",
+              lineHeight: 1.5,
+            }}
+          >
+            Cargar un nuevo vehículo en el sistema.
+          </p>
+        </Link>
+
+        <Link
+          href="/admin/configuracion"
+          style={{
+            display: "block",
+            padding: "24px",
+            borderRadius: "12px",
+            backgroundColor: "#ffffff",
+            color: "#111827",
+            textDecoration: "none",
+            boxShadow: "0 4px 14px rgba(0, 0, 0, 0.08)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "28px",
+              marginBottom: "12px",
+            }}
+          >
+            ⚙️
+          </div>
+
+          <h2
+            style={{
+              margin: 0,
+              fontSize: "20px",
+            }}
+          >
+            Configuración
+          </h2>
+
+          <p
+            style={{
+              marginTop: "8px",
+              marginBottom: 0,
+              color: "#6b7280",
+              lineHeight: 1.5,
+            }}
+          >
+            Editar los datos comerciales y generales de MotoCars.
+          </p>
+        </Link>
+      </div>
+    </section>
   );
 }

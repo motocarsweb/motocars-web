@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { ThemeProvider } from "@/componentes/theme/ThemeProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -54,9 +55,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${inter.variable} h-full scroll-smooth`}>
+    <html
+      lang="es"
+      className={`${inter.variable} h-full scroll-smooth`}
+      data-scroll-behavior="smooth"
+    >
       <body className="min-h-screen bg-white text-zinc-900 antialiased">
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );
