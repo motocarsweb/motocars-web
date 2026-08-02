@@ -8,10 +8,16 @@ import About from "@/componentes/Home/About";
 
 import { obtenerVehiculos } from "@/lib/supabase-vehicles";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
-  const vehiculos = await obtenerVehiculos();
-  
-    return (
+  const todosLosVehiculos = await obtenerVehiculos();
+
+  const vehiculosPublicados = todosLosVehiculos.filter(
+    (vehiculo) => vehiculo.publicado === true
+  );
+
+  return (
     <>
       <Header />
 
@@ -19,7 +25,7 @@ export default async function Home() {
 
       <Stats />
 
-      <FeaturedCars vehicles={vehiculos} />
+      <FeaturedCars vehicles={vehiculosPublicados} />
 
       <About />
 
