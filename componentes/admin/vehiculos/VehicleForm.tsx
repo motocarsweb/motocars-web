@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import VersionSelector from "./VersionSelector";
+import BasicData from "./vehicle-form/BasicData";
 
 import ImageManager from "@/app/ImageManager";
 import { supabase } from "@/lib/supabase";
@@ -564,122 +565,30 @@ export default function VehicleForm() {
           maxWidth: 900,
         }}
       >
-        <select
-          name="tipo_ingreso_id"
-          value={form.tipo_ingreso_id}
-          onChange={actualizar}
-          required
-          disabled={cargandoCatalogos}
-        >
-          <option value="">
-            {cargandoCatalogos
-              ? "Cargando tipos de ingreso..."
-              : "Seleccionar tipo de ingreso"}
-          </option>
-
-          {tiposIngreso.map((tipoIngreso) => (
-            <option key={tipoIngreso.id} value={tipoIngreso.id}>
-              {tipoIngreso.nombre}
-            </option>
-          ))}
-        </select>
-
-        <select
-          name="marca_id"
-          value={form.marca_id}
-          onChange={actualizarMarca}
-          required
-          disabled={cargandoCatalogos}
-        >
-          <option value="">
-            {cargandoCatalogos
-              ? "Cargando marcas..."
-              : "Seleccionar marca"}
-          </option>
-
-          {marcas.map((marca) => (
-            <option key={marca.id} value={marca.id}>
-              {marca.nombre}
-            </option>
-          ))}
-        </select>
-
-        <select
-          name="modelo_id"
-          value={form.modelo_id}
-          onChange={actualizarModelo}
-          required
-          disabled={!form.marca_id || cargandoModelos}
-        >
-          <option value="">
-            {!form.marca_id
-              ? "Primero seleccioná una marca"
-              : cargandoModelos
-                ? "Cargando modelos..."
-                : "Seleccionar modelo"}
-          </option>
-
-          {modelos.map((modelo) => (
-            <option key={modelo.id} value={modelo.id}>
-              {modelo.nombre}
-            </option>
-          ))}
-
-          {form.marca_id && (
-            <option value={VALOR_MODELO_NUEVO}>
-              + Agregar modelo nuevo
-            </option>
-          )}
-        </select>
-
-        {agregandoModelo && (
-          <input
-            name="modelo_nuevo"
-            placeholder="Escribí el modelo nuevo"
-            value={modeloNuevo}
-            onChange={actualizarModeloNuevo}
-            required
-            autoFocus
-          />
-        )}
-
-       <VersionSelector
-  modeloId={form.modelo_id}
-  versionId={form.version_id}
-  versionNombre={form.version}
-  onChange={(versionId, versionNombre) =>
+        <BasicData
+  form={form}
+  marcas={marcas}
+  modelos={modelos}
+  tiposVehiculo={tiposVehiculo}
+  tiposIngreso={tiposIngreso}
+  cargandoCatalogos={cargandoCatalogos}
+  cargandoModelos={cargandoModelos}
+  agregandoModelo={agregandoModelo}
+  modeloNuevo={modeloNuevo}
+  valorModeloNuevo={VALOR_MODELO_NUEVO}
+  onChange={actualizar}
+  onMarcaChange={actualizarMarca}
+  onModeloChange={actualizarModelo}
+  onModeloNuevoChange={actualizarModeloNuevo}
+  onVersionChange={(versionId, versionNombre) =>
     setForm((anterior) => ({
       ...anterior,
       version_id: versionId,
       version: versionNombre,
     }))
   }
+  onTipoVehiculoChange={actualizarTipoVehiculo}
 />
-
-        <select
-          name="tipo_vehiculo_id"
-          value={form.tipo_vehiculo_id}
-          onChange={actualizarTipoVehiculo}
-          required
-          disabled={cargandoCatalogos}
-        >
-          <option value="">Seleccionar tipo de vehículo</option>
-
-          {tiposVehiculo.map((tipoVehiculo) => (
-            <option key={tipoVehiculo.id} value={tipoVehiculo.id}>
-              {tipoVehiculo.nombre}
-            </option>
-          ))}
-        </select>
-
-        <select
-          name="condicion"
-          value={form.condicion}
-          onChange={actualizar}
-        >
-          <option value="0km">0 km</option>
-          <option value="usado">Usado</option>
-        </select>
 
         <input
           type="number"
