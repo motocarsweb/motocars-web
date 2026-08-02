@@ -1,64 +1,34 @@
-"use client";
+import type {
+  CSSProperties,
+  HTMLAttributes,
+  ReactNode,
+} from "react";
 
-import type { CSSProperties, ReactNode } from "react";
-
-type CardProps = {
+type CardProps = HTMLAttributes<HTMLDivElement> & {
   children: ReactNode;
-  title?: string;
-  subtitle?: string;
   padding?: number;
-  style?: CSSProperties;
 };
 
 export default function Card({
   children,
-  title,
-  subtitle,
-  padding = 24,
+  padding = 20,
   style,
+  ...props
 }: CardProps) {
   return (
-    <section
+    <div
+      {...props}
       style={{
-        background: "#ffffff",
-        border: "1px solid #e5e7eb",
-        borderRadius: "14px",
+        width: "100%",
         padding,
-        boxShadow: "0 4px 18px rgba(0,0,0,.06)",
+        border: "1px solid #e5e7eb",
+        borderRadius: 12,
+        backgroundColor: "#ffffff",
+        boxShadow: "0 6px 20px rgba(15, 23, 42, 0.04)",
         ...style,
       }}
     >
-      {(title || subtitle) && (
-        <header style={{ marginBottom: 20 }}>
-          {title && (
-            <h2
-              style={{
-                margin: 0,
-                fontSize: 22,
-                fontWeight: 700,
-                color: "#111827",
-              }}
-            >
-              {title}
-            </h2>
-          )}
-
-          {subtitle && (
-            <p
-              style={{
-                marginTop: 8,
-                marginBottom: 0,
-                color: "#6b7280",
-                lineHeight: 1.5,
-              }}
-            >
-              {subtitle}
-            </p>
-          )}
-        </header>
-      )}
-
       {children}
-    </section>
+    </div>
   );
 }

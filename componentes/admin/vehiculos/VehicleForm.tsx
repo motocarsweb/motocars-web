@@ -1,0 +1,850 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+import ImageManager from "@/app/ImageManager";
+import { supabase } from "@/lib/supabase";
+import { crearVehiculo } from "@/lib/supabase-vehicles";
+import { subirImagenesVehiculo } from "@/lib/storage";
+
+type Marca = {
+  id: string;
+  nombre: string;
+};
+
+type Modelo = {
+  id: string;
+  nombre: string;
+  marca_id: string;
+};
+
+type Catalogo = {
+  id: string;
+  nombre: string;
+};
+
+const VALOR_MODELO_NUEVO = "__nuevo__";
+
+function crearSlug(texto: string) {
+  return texto
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export default function VehicleForm() {
+  const router = useRouter();
+
+  const [guardando, setGuardando] = useState(false);
+  const [cargandoCatalogos, setCargandoCatalogos] = useState(true);
+  const [cargandoModelos, setCargandoModelos] = useState(false);
+
+  const [imagenes, setImagenes] = useState<File[]>([]);
+
+  const [marcas, setMarcas] = useState<Marca[]>([]);
+  const [modelos, setModelos] = useState<Modelo[]>([]);
+  const [tiposVehiculo, setTiposVehiculo] = useState<Catalogo[]>([]);
+  const [combustibles, setCombustibles] = useState<Catalogo[]>([]);
+  const [transmisiones, setTransmisiones] = useState<Catalogo[]>([]);
+  const [tracciones, setTracciones] = useState<Catalogo[]>([]);
+  const [tiposIngreso, setTiposIngreso] = useState<Catalogo[]>([]);
+
+  const [modeloNuevo, setModeloNuevo] = useState("");
+  const [agregandoModelo, setAgregandoModelo] = useState(false);
+
+  const [form, setForm] = useState({
+    marca: "",
+    modelo: "",
+    version: "",
+    combustible: "",
+    transmision: "",
+    tipo: "",
+
+    marca_id: "",
+    modelo_id: "",
+    tipo_vehiculo_id: "",
+    combustible_id: "",
+    transmision_id: "",
+    traccion_id: "",
+    tipo_ingreso_id: "",
+
+    anio: "",
+    precio: "",
+    precio_compra: "",
+    kilometros: "",
+
+    color: "",
+    estado: "Usado",
+    condicion: "usado",
+
+    dominio: "",
+    numero_chasis: "",
+    numero_motor: "",
+
+    destacado: false,
+    publicado: true,
+
+    descripcion: "",
+    observaciones_internas: "",
+  });
+
+  useEffect(() => {
+    async function cargarCatalogos() {
+      setCargandoCatalogos(true);
+
+      const [
+        respuestaMarcas,
+        respuestaTiposVehiculo,
+        respuestaCombustibles,
+        respuestaTransmisiones,
+        respuestaTracciones,
+        respuestaTiposIngreso,
+      ] = await Promise.all([
+        supabase
+          .from("marcas")
+          .select("id, nombre")
+          .eq("activo", true)
+          .order("orden", { ascending: true })
+          .order("nombre", { ascending: true }),
+
+        supabase
+          .from("tipos_vehiculo")
+          .select("id, nombre")
+          .eq("activo", true)
+          .order("orden", { ascending: true })
+          .order("nombre", { ascending: true }),
+
+        supabase
+          .from("combustibles")
+          .select("id, nombre")
+          .eq("activo", true)
+          .order("orden", { ascending: true })
+          .order("nombre", { ascending: true }),
+
+        supabase
+          .from("transmisiones")
+          .select("id, nombre")
+          .eq("activo", true)
+          .order("orden", { ascending: true })
+          .order("nombre", { ascending: true }),
+
+        supabase
+          .from("tracciones")
+          .select("id, nombre")
+          .eq("activo", true)
+          .order("orden", { ascending: true })
+          .order("nombre", { ascending: true }),
+
+        supabase
+          .from("tipos_ingreso")
+          .select("id, nombre")
+          .eq("activo", true)
+          .order("orden", { ascending: true })
+          .order("nombre", { ascending: true }),
+      ]);
+
+      if (respuestaMarcas.error) {
+        console.error(
+          "Error al cargar marcas:",
+          respuestaMarcas.error.message
+        );
+      }
+
+      if (respuestaTiposVehiculo.error) {
+        console.error(
+          "Error al cargar tipos de vehículo:",
+          respuestaTiposVehiculo.error.message
+        );
+      }
+
+      if (respuestaCombustibles.error) {
+        console.error(
+          "Error al cargar combustibles:",
+          respuestaCombustibles.error.message
+        );
+      }
+
+      if (respuestaTransmisiones.error) {
+        console.error(
+          "Error al cargar transmisiones:",
+          respuestaTransmisiones.error.message
+        );
+      }
+
+      if (respuestaTracciones.error) {
+        console.error(
+          "Error al cargar tracciones:",
+          respuestaTracciones.error.message
+        );
+      }
+
+      if (respuestaTiposIngreso.error) {
+        console.error(
+          "Error al cargar tipos de ingreso:",
+          respuestaTiposIngreso.error.message
+        );
+      }
+
+      setMarcas(respuestaMarcas.data ?? []);
+      setTiposVehiculo(respuestaTiposVehiculo.data ?? []);
+      setCombustibles(respuestaCombustibles.data ?? []);
+      setTransmisiones(respuestaTransmisiones.data ?? []);
+      setTracciones(respuestaTracciones.data ?? []);
+      setTiposIngreso(respuestaTiposIngreso.data ?? []);
+
+      setCargandoCatalogos(false);
+    }
+
+    cargarCatalogos();
+  }, []);
+
+  function actualizar(
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) {
+    const { name, value, type } = event.target;
+
+    setForm((formAnterior) => ({
+      ...formAnterior,
+      [name]:
+        type === "checkbox"
+          ? (event.target as HTMLInputElement).checked
+          : value,
+    }));
+  }
+
+  async function cargarModelosPorMarca(marcaId: string) {
+    setModelos([]);
+
+    if (!marcaId) {
+      setCargandoModelos(false);
+      return;
+    }
+
+    setCargandoModelos(true);
+
+    const { data, error } = await supabase
+      .from("modelos")
+      .select("id, nombre, marca_id")
+      .eq("marca_id", marcaId)
+      .eq("activo", true)
+      .order("orden", { ascending: true })
+      .order("nombre", { ascending: true });
+
+    if (error) {
+      console.error("Error al cargar modelos:", error.message);
+      setModelos([]);
+    } else {
+      setModelos(data ?? []);
+    }
+
+    setCargandoModelos(false);
+  }
+
+  async function actualizarMarca(
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) {
+    const marcaId = event.target.value;
+
+    const marcaSeleccionada = marcas.find(
+      (marca) => marca.id === marcaId
+    );
+
+    setModeloNuevo("");
+    setAgregandoModelo(false);
+
+    setForm((formAnterior) => ({
+      ...formAnterior,
+      marca_id: marcaId,
+      marca: marcaSeleccionada?.nombre ?? "",
+      modelo_id: "",
+      modelo: "",
+    }));
+
+    await cargarModelosPorMarca(marcaId);
+  }
+
+  function actualizarModelo(
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) {
+    const modeloId = event.target.value;
+
+    if (modeloId === VALOR_MODELO_NUEVO) {
+      setAgregandoModelo(true);
+      setModeloNuevo("");
+
+      setForm((formAnterior) => ({
+        ...formAnterior,
+        modelo_id: VALOR_MODELO_NUEVO,
+        modelo: "",
+      }));
+
+      return;
+    }
+
+    setAgregandoModelo(false);
+    setModeloNuevo("");
+
+    const modeloSeleccionado = modelos.find(
+      (modelo) => modelo.id === modeloId
+    );
+
+    setForm((formAnterior) => ({
+      ...formAnterior,
+      modelo_id: modeloId,
+      modelo: modeloSeleccionado?.nombre ?? "",
+    }));
+  }
+
+  function actualizarModeloNuevo(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const nombre = event.target.value;
+
+    setModeloNuevo(nombre);
+
+    setForm((formAnterior) => ({
+      ...formAnterior,
+      modelo: nombre,
+    }));
+  }
+
+  function actualizarTipoVehiculo(
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) {
+    const tipoId = event.target.value;
+
+    const tipoSeleccionado = tiposVehiculo.find(
+      (tipo) => tipo.id === tipoId
+    );
+
+    setForm((formAnterior) => ({
+      ...formAnterior,
+      tipo_vehiculo_id: tipoId,
+      tipo: tipoSeleccionado?.nombre ?? "",
+    }));
+  }
+
+  function actualizarCombustible(
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) {
+    const combustibleId = event.target.value;
+
+    const combustibleSeleccionado = combustibles.find(
+      (combustible) => combustible.id === combustibleId
+    );
+
+    setForm((formAnterior) => ({
+      ...formAnterior,
+      combustible_id: combustibleId,
+      combustible: combustibleSeleccionado?.nombre ?? "",
+    }));
+  }
+
+  function actualizarTransmision(
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) {
+    const transmisionId = event.target.value;
+
+    const transmisionSeleccionada = transmisiones.find(
+      (transmision) => transmision.id === transmisionId
+    );
+
+    setForm((formAnterior) => ({
+      ...formAnterior,
+      transmision_id: transmisionId,
+      transmision: transmisionSeleccionada?.nombre ?? "",
+    }));
+  }
+
+  async function crearModeloSiCorresponde() {
+    if (!agregandoModelo) {
+      return {
+        modeloId: form.modelo_id,
+        modeloNombre: form.modelo,
+      };
+    }
+
+    const nombre = modeloNuevo.trim();
+
+    if (!nombre) {
+      throw new Error("Ingresá el nombre del modelo nuevo.");
+    }
+
+    const slug = crearSlug(nombre);
+
+    if (!slug) {
+      throw new Error("El nombre del modelo nuevo no es válido.");
+    }
+
+    const modeloExistente = modelos.find(
+      (modelo) =>
+        modelo.nombre.trim().toLowerCase() === nombre.toLowerCase()
+    );
+
+    if (modeloExistente) {
+      return {
+        modeloId: modeloExistente.id,
+        modeloNombre: modeloExistente.nombre,
+      };
+    }
+
+    const { data, error } = await supabase
+      .from("modelos")
+      .insert({
+        marca_id: form.marca_id,
+        nombre,
+        slug,
+      })
+      .select("id, nombre, marca_id")
+      .single();
+
+    if (error) {
+      throw new Error(
+        `No se pudo crear el modelo nuevo: ${error.message}`
+      );
+    }
+
+    return {
+      modeloId: data.id,
+      modeloNombre: data.nombre,
+    };
+  }
+
+  async function guardar(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (guardando) {
+      return;
+    }
+
+    if (!form.marca_id) {
+      alert("Seleccioná una marca.");
+      return;
+    }
+
+    if (!form.modelo_id) {
+      alert("Seleccioná un modelo.");
+      return;
+    }
+
+    if (agregandoModelo && !modeloNuevo.trim()) {
+      alert("Escribí el nombre del modelo nuevo.");
+      return;
+    }
+
+    if (!form.tipo_vehiculo_id) {
+      alert("Seleccioná un tipo de vehículo.");
+      return;
+    }
+
+    if (!form.tipo_ingreso_id) {
+      alert("Seleccioná el tipo de ingreso.");
+      return;
+    }
+
+    setGuardando(true);
+
+    try {
+      const modeloDefinitivo = await crearModeloSiCorresponde();
+
+      let urlsImagenes: string[] = [];
+
+      if (imagenes.length > 0) {
+        urlsImagenes = await subirImagenesVehiculo(imagenes);
+      }
+
+      const imagenPrincipal =
+        urlsImagenes.length > 0 ? urlsImagenes[0] : null;
+
+      const resultado = await crearVehiculo({
+        marca: form.marca.trim(),
+        modelo: modeloDefinitivo.modeloNombre.trim(),
+        version: form.version.trim() || null,
+        combustible: form.combustible.trim() || null,
+        transmision: form.transmision.trim() || null,
+        tipo: form.tipo.trim() || null,
+
+        marca_id: form.marca_id,
+        modelo_id: modeloDefinitivo.modeloId,
+        tipo_vehiculo_id: form.tipo_vehiculo_id,
+        combustible_id: form.combustible_id || null,
+        transmision_id: form.transmision_id || null,
+        traccion_id: form.traccion_id || null,
+        tipo_ingreso_id: form.tipo_ingreso_id,
+
+        anio: form.anio ? Number(form.anio) : null,
+        precio: form.precio ? Number(form.precio) : null,
+        precio_compra: form.precio_compra
+          ? Number(form.precio_compra)
+          : null,
+        kilometros: form.kilometros
+          ? Number(form.kilometros)
+          : null,
+
+        color: form.color.trim() || null,
+        estado: form.estado || null,
+        condicion: form.condicion || null,
+
+        dominio: form.dominio.trim().toUpperCase() || null,
+        numero_chasis: form.numero_chasis.trim() || null,
+        numero_motor: form.numero_motor.trim() || null,
+
+        destacado: form.destacado,
+        publicado: form.publicado,
+
+        descripcion: form.descripcion.trim() || null,
+        observaciones_internas:
+          form.observaciones_internas.trim() || null,
+
+        imagen_principal: imagenPrincipal,
+        imagenes: urlsImagenes,
+      });
+
+      if (!resultado) {
+        alert("Ocurrió un error al guardar el vehículo.");
+        return;
+      }
+
+      alert("Vehículo guardado correctamente.");
+
+      router.push("/admin/vehiculos");
+      router.refresh();
+    } catch (error) {
+      console.error("Error al guardar el vehículo:", error);
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "No se pudo guardar el vehículo."
+      );
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  return (
+    <section>
+      <div style={{ marginBottom: 28 }}>
+        <p
+          style={{
+            margin: "0 0 8px",
+            color: "#2563eb",
+            fontSize: 12,
+            fontWeight: 800,
+            letterSpacing: "0.12em",
+          }}
+        >
+          ADMINISTRACIÓN DE STOCK
+        </p>
+
+        <h1 style={{ margin: 0 }}>Nuevo vehículo</h1>
+
+        <p style={{ marginTop: 8, color: "#6b7280" }}>
+          Cargá una unidad para incorporarla al stock de MotoCars.
+        </p>
+      </div>
+
+      <form
+        onSubmit={guardar}
+        style={{
+          display: "grid",
+          gap: 18,
+          maxWidth: 900,
+        }}
+      >
+        <select
+          name="tipo_ingreso_id"
+          value={form.tipo_ingreso_id}
+          onChange={actualizar}
+          required
+          disabled={cargandoCatalogos}
+        >
+          <option value="">
+            {cargandoCatalogos
+              ? "Cargando tipos de ingreso..."
+              : "Seleccionar tipo de ingreso"}
+          </option>
+
+          {tiposIngreso.map((tipoIngreso) => (
+            <option key={tipoIngreso.id} value={tipoIngreso.id}>
+              {tipoIngreso.nombre}
+            </option>
+          ))}
+        </select>
+
+        <select
+          name="marca_id"
+          value={form.marca_id}
+          onChange={actualizarMarca}
+          required
+          disabled={cargandoCatalogos}
+        >
+          <option value="">
+            {cargandoCatalogos
+              ? "Cargando marcas..."
+              : "Seleccionar marca"}
+          </option>
+
+          {marcas.map((marca) => (
+            <option key={marca.id} value={marca.id}>
+              {marca.nombre}
+            </option>
+          ))}
+        </select>
+
+        <select
+          name="modelo_id"
+          value={form.modelo_id}
+          onChange={actualizarModelo}
+          required
+          disabled={!form.marca_id || cargandoModelos}
+        >
+          <option value="">
+            {!form.marca_id
+              ? "Primero seleccioná una marca"
+              : cargandoModelos
+                ? "Cargando modelos..."
+                : "Seleccionar modelo"}
+          </option>
+
+          {modelos.map((modelo) => (
+            <option key={modelo.id} value={modelo.id}>
+              {modelo.nombre}
+            </option>
+          ))}
+
+          {form.marca_id && (
+            <option value={VALOR_MODELO_NUEVO}>
+              + Agregar modelo nuevo
+            </option>
+          )}
+        </select>
+
+        {agregandoModelo && (
+          <input
+            name="modelo_nuevo"
+            placeholder="Escribí el modelo nuevo"
+            value={modeloNuevo}
+            onChange={actualizarModeloNuevo}
+            required
+            autoFocus
+          />
+        )}
+
+        <input
+          name="version"
+          placeholder="Versión"
+          value={form.version}
+          onChange={actualizar}
+        />
+
+        <select
+          name="tipo_vehiculo_id"
+          value={form.tipo_vehiculo_id}
+          onChange={actualizarTipoVehiculo}
+          required
+          disabled={cargandoCatalogos}
+        >
+          <option value="">Seleccionar tipo de vehículo</option>
+
+          {tiposVehiculo.map((tipoVehiculo) => (
+            <option key={tipoVehiculo.id} value={tipoVehiculo.id}>
+              {tipoVehiculo.nombre}
+            </option>
+          ))}
+        </select>
+
+        <select
+          name="condicion"
+          value={form.condicion}
+          onChange={actualizar}
+        >
+          <option value="0km">0 km</option>
+          <option value="usado">Usado</option>
+        </select>
+
+        <input
+          type="number"
+          name="anio"
+          placeholder="Año"
+          min="1900"
+          max="2100"
+          value={form.anio}
+          onChange={actualizar}
+        />
+
+        <input
+          type="number"
+          name="kilometros"
+          placeholder="Kilómetros"
+          min="0"
+          value={form.kilometros}
+          onChange={actualizar}
+        />
+
+        <select
+          name="combustible_id"
+          value={form.combustible_id}
+          onChange={actualizarCombustible}
+          disabled={cargandoCatalogos}
+        >
+          <option value="">Seleccionar combustible</option>
+
+          {combustibles.map((combustible) => (
+            <option key={combustible.id} value={combustible.id}>
+              {combustible.nombre}
+            </option>
+          ))}
+        </select>
+
+        <select
+          name="transmision_id"
+          value={form.transmision_id}
+          onChange={actualizarTransmision}
+          disabled={cargandoCatalogos}
+        >
+          <option value="">Seleccionar transmisión</option>
+
+          {transmisiones.map((transmision) => (
+            <option key={transmision.id} value={transmision.id}>
+              {transmision.nombre}
+            </option>
+          ))}
+        </select>
+
+        <select
+          name="traccion_id"
+          value={form.traccion_id}
+          onChange={actualizar}
+          disabled={cargandoCatalogos}
+        >
+          <option value="">Seleccionar tracción</option>
+
+          {tracciones.map((traccion) => (
+            <option key={traccion.id} value={traccion.id}>
+              {traccion.nombre}
+            </option>
+          ))}
+        </select>
+
+        <input
+          name="color"
+          placeholder="Color"
+          value={form.color}
+          onChange={actualizar}
+        />
+
+        <input
+          type="number"
+          name="precio"
+          placeholder="Precio de venta"
+          min="0"
+          value={form.precio}
+          onChange={actualizar}
+        />
+
+        <input
+          type="number"
+          name="precio_compra"
+          placeholder="Precio de compra"
+          min="0"
+          value={form.precio_compra}
+          onChange={actualizar}
+        />
+
+        <input
+          name="dominio"
+          placeholder="Dominio"
+          value={form.dominio}
+          onChange={actualizar}
+        />
+
+        <input
+          name="numero_chasis"
+          placeholder="Número de chasis"
+          value={form.numero_chasis}
+          onChange={actualizar}
+        />
+
+        <input
+          name="numero_motor"
+          placeholder="Número de motor"
+          value={form.numero_motor}
+          onChange={actualizar}
+        />
+
+        <ImageManager
+          images={imagenes}
+          onChange={setImagenes}
+        />
+
+        <textarea
+          name="descripcion"
+          placeholder="Descripción pública"
+          rows={5}
+          value={form.descripcion}
+          onChange={actualizar}
+        />
+
+        <textarea
+          name="observaciones_internas"
+          placeholder="Observaciones internas"
+          rows={4}
+          value={form.observaciones_internas}
+          onChange={actualizar}
+        />
+
+        <label>
+          <input
+            type="checkbox"
+            name="destacado"
+            checked={form.destacado}
+            onChange={actualizar}
+          />{" "}
+          Vehículo destacado
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            name="publicado"
+            checked={form.publicado}
+            onChange={actualizar}
+          />{" "}
+          Publicado en la web
+        </label>
+
+        <button
+          type="submit"
+          disabled={guardando || cargandoCatalogos}
+          style={{
+            padding: "13px 18px",
+            border: 0,
+            borderRadius: 8,
+            backgroundColor: "#111827",
+            color: "#ffffff",
+            cursor:
+              guardando || cargandoCatalogos
+                ? "not-allowed"
+                : "pointer",
+            fontWeight: 700,
+            opacity:
+              guardando || cargandoCatalogos ? 0.7 : 1,
+          }}
+        >
+          {guardando
+            ? imagenes.length > 0
+              ? `Subiendo ${imagenes.length} imágenes...`
+              : "Guardando..."
+            : "Guardar vehículo"}
+        </button>
+      </form>
+    </section>
+  );
+}

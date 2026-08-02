@@ -1,17 +1,20 @@
 import type {
-  InputHTMLAttributes,
   CSSProperties,
+  ReactNode,
+  SelectHTMLAttributes,
 } from "react";
 
-type InputProps = InputHTMLAttributes<HTMLInputElement> & {
+type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
   label?: string;
+  children: ReactNode;
 };
 
-export default function Input({
+export default function Select({
   label,
+  children,
   style,
   ...props
-}: InputProps) {
+}: SelectProps) {
   return (
     <label
       style={{
@@ -23,16 +26,16 @@ export default function Input({
       {label && (
         <span
           style={{
+            color: "#374151",
             fontSize: 13,
             fontWeight: 700,
-            color: "#374151",
           }}
         >
           {label}
         </span>
       )}
 
-      <input
+      <select
         {...props}
         style={{
           width: "100%",
@@ -41,13 +44,17 @@ export default function Input({
           border: "1px solid #d1d5db",
           borderRadius: 8,
           outline: "none",
+          backgroundColor: "#ffffff",
+          color: "#111827",
           fontFamily: "inherit",
           fontSize: 14,
-          background: "#ffffff",
-          color: "#111827",
+          cursor: props.disabled ? "not-allowed" : "pointer",
+          opacity: props.disabled ? 0.7 : 1,
           ...style,
         }}
-      />
+      >
+        {children}
+      </select>
     </label>
   );
 }

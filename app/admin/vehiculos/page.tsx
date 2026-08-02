@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { obtenerVehiculos } from "@/lib/supabase-vehicles";
+import VehicleRow from "@/componentes/admin/vehiculos/VehicleRow";
 
 type AdminVehiculosPageProps = {
   searchParams: Promise<{
@@ -176,6 +177,7 @@ export default async function AdminVehiculosPage({
                 <th style={styles.encabezadoTabla}>Datos</th>
                 <th style={styles.encabezadoTabla}>Precio</th>
                 <th style={styles.encabezadoTabla}>Estado</th>
+                <th style={styles.encabezadoTabla}>Web</th>
                 <th style={styles.encabezadoAcciones}>
                   Acciones
                 </th>
@@ -183,114 +185,13 @@ export default async function AdminVehiculosPage({
             </thead>
 
             <tbody>
-              {vehiculosFiltrados.map((vehiculo) => {
-                const titulo = [
-                  vehiculo.marca,
-                  vehiculo.modelo,
-                ]
-                  .filter(Boolean)
-                  .join(" ");
-
-                const imagen =
-                  vehiculo.imagen_principal?.trim() ||
-                  "/images/placeholder-vehicle.jpg";
-
-                const estado =
-                  vehiculo.estado?.trim() || "Disponible";
-
-                const vendido =
-                  estado.toLowerCase() === "vendido";
-
-                return (
-                  <tr
-                    key={vehiculo.id}
-                    style={styles.filaVehiculo}
-                  >
-                    <td style={styles.celdaImagen}>
-                      <img
-                        src={imagen}
-                        alt={titulo || "Vehículo"}
-                        style={styles.imagenVehiculo}
-                      />
-                    </td>
-
-                    <td style={styles.celda}>
-                      <div style={styles.vehiculoTituloFila}>
-                        <strong style={styles.vehiculoTitulo}>
-                          {titulo || "Vehículo sin nombre"}
-                        </strong>
-
-                        {vehiculo.destacado && (
-                          <span style={styles.badgeDestacado}>
-                            Destacado
-                          </span>
-                        )}
-                      </div>
-
-                      {vehiculo.version && (
-                        <span style={styles.vehiculoVersion}>
-                          {vehiculo.version}
-                        </span>
-                      )}
-
-                      <span style={styles.vehiculoId}>
-                        ID #{vehiculo.id}
-                      </span>
-                    </td>
-
-                    <td style={styles.celda}>
-                      <strong style={styles.datoPrincipal}>
-                        {vehiculo.anio ?? "Año sin informar"}
-                      </strong>
-
-                      <span style={styles.datoSecundario}>
-                        {formatearKilometros(
-                          vehiculo.kilometros
-                        )}
-                      </span>
-                    </td>
-
-                    <td style={styles.celda}>
-                      <strong style={styles.precio}>
-                        {formatearPrecio(vehiculo.precio)}
-                      </strong>
-                    </td>
-
-                    <td style={styles.celda}>
-                      <span
-                        style={{
-                          ...styles.badgeEstado,
-                          ...(vendido
-                            ? styles.badgeVendido
-                            : styles.badgeDisponible),
-                        }}
-                      >
-                        {estado}
-                      </span>
-                    </td>
-
-                    <td style={styles.celdaAcciones}>
-                      <div style={styles.acciones}>
-                        <Link
-                          href={`/vehiculos/${vehiculo.id}`}
-                          target="_blank"
-                          style={styles.botonVer}
-                        >
-                          Ver
-                        </Link>
-
-                        <Link
-                          href={`/admin/vehiculos/${vehiculo.id}`}
-                          style={styles.botonEditar}
-                        >
-                          Editar
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
+  {vehiculosFiltrados.map((vehiculo) => (
+    <VehicleRow
+      key={vehiculo.id}
+      vehiculo={vehiculo}
+    />
+  ))}
+</tbody>
           </table>
         </div>
       )}
