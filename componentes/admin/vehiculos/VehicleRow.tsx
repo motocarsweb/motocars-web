@@ -1,14 +1,18 @@
 import Link from "next/link";
 
-import VehiclePublishButton from "@/componentes/admin/vehiculos/VehiclePublishButton";
-import VehicleFeaturedButton from "./VehicleFeaturedButton";
 import type { VehiculoSupabase } from "@/lib/supabase-vehicles";
+
+import VehicleDuplicateButton from "./VehicleDuplicateButton";
+import VehicleFeaturedButton from "./VehicleFeaturedButton";
+import VehiclePublishButton from "./VehiclePublishButton";
 
 type VehicleRowProps = {
   vehiculo: VehiculoSupabase;
 };
 
-function formatearPrecio(precio: number | null | undefined) {
+function formatearPrecio(
+  precio: number | null | undefined
+) {
   if (precio === null || precio === undefined) {
     return "Consultar";
   }
@@ -43,9 +47,14 @@ export default function VehicleRow({
     vehiculo.imagen_principal?.trim() ||
     "/images/placeholder-vehicle.jpg";
 
-  const estado = vehiculo.estado?.trim() || "Disponible";
-  const vendido = estado.toLowerCase() === "vendido";
+  const estado =
+    vehiculo.estado?.trim() || "Disponible";
+
+  const vendido =
+    estado.toLowerCase() === "vendido";
+
   const publicado = vehiculo.publicado ?? false;
+  const destacado = vehiculo.destacado ?? false;
 
   return (
     <tr style={styles.filaVehiculo}>
@@ -63,7 +72,7 @@ export default function VehicleRow({
             {titulo || "Vehículo sin nombre"}
           </strong>
 
-          {vehiculo.destacado && (
+          {destacado && (
             <span style={styles.badgeDestacado}>
               Destacado
             </span>
@@ -125,18 +134,31 @@ export default function VehicleRow({
 
       <td style={styles.celdaAcciones}>
         <div style={styles.acciones}>
-        <VehiclePublishButton
-  vehiculoId={vehiculo.id}
-  publicado={publicado}
-/>
+          <VehiclePublishButton
+            vehiculoId={vehiculo.id}
+            publicado={publicado}
+          />
 
-<VehicleFeaturedButton
-  vehiculoId={vehiculo.id}
-  destacado={vehiculo.destacado ?? false}
-/>
+          <VehicleFeaturedButton
+            vehiculoId={vehiculo.id}
+            destacado={destacado}
+          />
 
-<Link
-  href={`/vehiculos/${vehiculo.id}`}
+          <VehicleDuplicateButton
+            vehiculoId={vehiculo.id}
+          />
+
+          <Link
+            href={`/vehiculos/${vehiculo.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={styles.botonVer}
+          >
+            Ver
+          </Link>
+
+          <Link
+            href={`/admin/vehiculos/${vehiculo.id}`}
             style={styles.botonEditar}
           >
             Editar
@@ -283,6 +305,7 @@ const styles: Record<string, React.CSSProperties> = {
     textDecoration: "none",
     fontSize: 13,
     fontWeight: 700,
+    whiteSpace: "nowrap",
   },
 
   botonEditar: {
@@ -297,5 +320,6 @@ const styles: Record<string, React.CSSProperties> = {
     textDecoration: "none",
     fontSize: 13,
     fontWeight: 700,
+    whiteSpace: "nowrap",
   },
 };

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import VersionSelector from "./VersionSelector";
 
 import ImageManager from "@/app/ImageManager";
 import { supabase } from "@/lib/supabase";
@@ -66,6 +67,7 @@ export default function VehicleForm() {
 
     marca_id: "",
     modelo_id: "",
+    version_id: "",
     tipo_vehiculo_id: "",
     combustible_id: "",
     transmision_id: "",
@@ -472,6 +474,10 @@ export default function VehicleForm() {
 
         marca_id: form.marca_id,
         modelo_id: modeloDefinitivo.modeloId,
+        version_id:
+  form.version_id && form.version_id !== "__nueva__"
+    ? form.version_id
+    : null,
         tipo_vehiculo_id: form.tipo_vehiculo_id,
         combustible_id: form.combustible_id || null,
         transmision_id: form.transmision_id || null,
@@ -637,12 +643,18 @@ export default function VehicleForm() {
           />
         )}
 
-        <input
-          name="version"
-          placeholder="Versión"
-          value={form.version}
-          onChange={actualizar}
-        />
+       <VersionSelector
+  modeloId={form.modelo_id}
+  versionId={form.version_id}
+  versionNombre={form.version}
+  onChange={(versionId, versionNombre) =>
+    setForm((anterior) => ({
+      ...anterior,
+      version_id: versionId,
+      version: versionNombre,
+    }))
+  }
+/>
 
         <select
           name="tipo_vehiculo_id"
