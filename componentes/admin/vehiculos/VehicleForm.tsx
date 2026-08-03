@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import VersionSelector from "./VersionSelector";
 import BasicData from "./vehicle-form/BasicData";
 import TechnicalData from "./vehicle-form/TechnicalData";
+import PricesSection from "./vehicle-form/PricesSection";
 
 import ImageManager from "@/app/ImageManager";
 import { supabase } from "@/lib/supabase";
@@ -672,23 +673,10 @@ export default function VehicleForm({
           onTransmisionChange={actualizarTransmision}
         />
 
-        <input
-          type="number"
-          name="precio"
-          placeholder="Precio de venta"
-          min="0"
-          value={form.precio}
-          onChange={actualizar}
-        />
-
-        <input
-          type="number"
-          name="precio_compra"
-          placeholder="Precio de compra"
-          min="0"
-          value={form.precio_compra}
-          onChange={actualizar}
-        />
+        <PricesSection
+  form={form}
+  onChange={actualizar}
+/>
 
         <input
           name="dominio"
