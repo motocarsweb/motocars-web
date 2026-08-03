@@ -9,7 +9,7 @@ import ImageManager from "@/app/ImageManager";
 import { supabase } from "@/lib/supabase";
 import { crearVehiculo } from "@/lib/supabase-vehicles";
 import { subirImagenesVehiculo } from "@/lib/storage";
-import { duplicarVehiculo } from "@/lib/service/duplicarVehiculo";
+import { obtenerVehiculoEditable } from "@/lib/service/obtenerVehiculoEditable";
 
 type Marca = {
   id: string;
@@ -218,25 +218,22 @@ export default function VehicleForm({
       return;
     }
 
-    const vehiculoIdDuplicado = duplicarId;
     let componenteActivo = true;
 
     async function cargarVehiculoParaDuplicar() {
       setCargandoDuplicado(true);
 
       try {
-        const datosDuplicados = await duplicarVehiculo(
-          vehiculoIdDuplicado
-        );
+        const vehiculo = await obtenerVehiculoEditable(duplicarId);
 
         if (!componenteActivo) {
           return;
         }
 
-        if (datosDuplicados.marca_id) {
-          await cargarModelosPorMarca(
-            datosDuplicados.marca_id
-          );
+        const marcaId = String(vehiculo.marca_id ?? "");
+
+        if (marcaId) {
+          await cargarModelosPorMarca(marcaId);
         }
 
         if (!componenteActivo) {
@@ -246,7 +243,45 @@ export default function VehicleForm({
         setModeloNuevo("");
         setAgregandoModelo(false);
         setImagenes([]);
-        setForm(datosDuplicados);
+
+        setForm({
+          marca: String(vehiculo.marca ?? ""),
+          modelo: String(vehiculo.modelo ?? ""),
+          version: String(vehiculo.version ?? ""),
+          combustible: String(vehiculo.combustible ?? ""),
+          transmision: String(vehiculo.transmision ?? ""),
+          tipo: String(vehiculo.tipo ?? ""),
+
+          marca_id: marcaId,
+          modelo_id: String(vehiculo.modelo_id ?? ""),
+          version_id: String(vehiculo.version_id ?? ""),
+          tipo_vehiculo_id: String(vehiculo.tipo_vehiculo_id ?? ""),
+          combustible_id: String(vehiculo.combustible_id ?? ""),
+          transmision_id: String(vehiculo.transmision_id ?? ""),
+          traccion_id: String(vehiculo.traccion_id ?? ""),
+          tipo_ingreso_id: String(vehiculo.tipo_ingreso_id ?? ""),
+
+          anio: String(vehiculo.anio ?? ""),
+          precio: String(vehiculo.precio ?? ""),
+          precio_compra: String(vehiculo.precio_compra ?? ""),
+          kilometros: String(vehiculo.kilometros ?? ""),
+
+          color: String(vehiculo.color ?? ""),
+          estado: String(vehiculo.estado ?? "Usado"),
+          condicion: String(vehiculo.condicion ?? "usado"),
+
+          dominio: "",
+          numero_chasis: "",
+          numero_motor: "",
+
+          destacado: false,
+          publicado: false,
+
+          descripcion: String(vehiculo.descripcion ?? ""),
+          observaciones_internas: String(
+            vehiculo.observaciones_internas ?? ""
+          ),
+        });
       } catch (error) {
         console.error("Error al cargar el vehículo para duplicar:", error);
 
@@ -841,5 +876,3 @@ export default function VehicleForm({
     </section>
   );
 }
-
-

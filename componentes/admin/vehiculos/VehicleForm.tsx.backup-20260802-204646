@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -9,7 +9,6 @@ import ImageManager from "@/app/ImageManager";
 import { supabase } from "@/lib/supabase";
 import { crearVehiculo } from "@/lib/supabase-vehicles";
 import { subirImagenesVehiculo } from "@/lib/storage";
-import { duplicarVehiculo } from "@/lib/service/duplicarVehiculo";
 
 type Marca = {
   id: string;
@@ -39,19 +38,12 @@ function crearSlug(texto: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-type VehicleFormProps = {
-  duplicarId?: number;
-};
-
-export default function VehicleForm({
-  duplicarId,
-}: VehicleFormProps) {
+export default function VehicleForm() {
   const router = useRouter();
 
   const [guardando, setGuardando] = useState(false);
   const [cargandoCatalogos, setCargandoCatalogos] = useState(true);
   const [cargandoModelos, setCargandoModelos] = useState(false);
-  const [cargandoDuplicado, setCargandoDuplicado] = useState(false);
 
   const [imagenes, setImagenes] = useState<File[]>([]);
 
@@ -212,62 +204,6 @@ export default function VehicleForm({
 
     cargarCatalogos();
   }, []);
-
-  useEffect(() => {
-    if (!duplicarId) {
-      return;
-    }
-
-    const vehiculoIdDuplicado = duplicarId;
-    let componenteActivo = true;
-
-    async function cargarVehiculoParaDuplicar() {
-      setCargandoDuplicado(true);
-
-      try {
-        const datosDuplicados = await duplicarVehiculo(
-          vehiculoIdDuplicado
-        );
-
-        if (!componenteActivo) {
-          return;
-        }
-
-        if (datosDuplicados.marca_id) {
-          await cargarModelosPorMarca(
-            datosDuplicados.marca_id
-          );
-        }
-
-        if (!componenteActivo) {
-          return;
-        }
-
-        setModeloNuevo("");
-        setAgregandoModelo(false);
-        setImagenes([]);
-        setForm(datosDuplicados);
-      } catch (error) {
-        console.error("Error al cargar el vehículo para duplicar:", error);
-
-        alert(
-          error instanceof Error
-            ? error.message
-            : "No se pudo cargar el vehículo para duplicar."
-        );
-      } finally {
-        if (componenteActivo) {
-          setCargandoDuplicado(false);
-        }
-      }
-    }
-
-    cargarVehiculoParaDuplicar();
-
-    return () => {
-      componenteActivo = false;
-    };
-  }, [duplicarId]);
 
   function actualizar(
     event: React.ChangeEvent<
@@ -614,16 +550,10 @@ export default function VehicleForm({
           ADMINISTRACIÓN DE STOCK
         </p>
 
-        <h1 style={{ margin: 0 }}>
-          {duplicarId ? "Duplicar vehículo" : "Nuevo vehículo"}
-        </h1>
+        <h1 style={{ margin: 0 }}>Nuevo vehículo</h1>
 
         <p style={{ marginTop: 8, color: "#6b7280" }}>
-          {cargandoDuplicado
-            ? "Cargando datos del vehículo original..."
-            : duplicarId
-              ? "Revisá los datos copiados y completá los identificadores de la nueva unidad."
-              : "Cargá una unidad para incorporarla al stock de MotoCars."}
+          Cargá una unidad para incorporarla al stock de MotoCars.
         </p>
       </div>
 
@@ -813,7 +743,7 @@ export default function VehicleForm({
 
         <button
           type="submit"
-          disabled={guardando || cargandoCatalogos || cargandoDuplicado}
+          disabled={guardando || cargandoCatalogos}
           style={{
             padding: "13px 18px",
             border: 0,
@@ -821,14 +751,12 @@ export default function VehicleForm({
             backgroundColor: "#111827",
             color: "#ffffff",
             cursor:
-              guardando || cargandoCatalogos || cargandoDuplicado
+              guardando || cargandoCatalogos
                 ? "not-allowed"
                 : "pointer",
             fontWeight: 700,
             opacity:
-              guardando || cargandoCatalogos || cargandoDuplicado
-                ? 0.7
-                : 1,
+              guardando || cargandoCatalogos ? 0.7 : 1,
           }}
         >
           {guardando
@@ -841,5 +769,3 @@ export default function VehicleForm({
     </section>
   );
 }
-
-
