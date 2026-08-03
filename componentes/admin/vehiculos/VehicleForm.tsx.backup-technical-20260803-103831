@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import VersionSelector from "./VersionSelector";
 import BasicData from "./vehicle-form/BasicData";
-import TechnicalData from "./vehicle-form/TechnicalData";
 
 import ImageManager from "@/app/ImageManager";
 import { supabase } from "@/lib/supabase";
@@ -661,15 +660,75 @@ export default function VehicleForm({
   onTipoVehiculoChange={actualizarTipoVehiculo}
 />
 
-        <TechnicalData
-          form={form}
-          combustibles={combustibles}
-          transmisiones={transmisiones}
-          tracciones={tracciones}
-          cargandoCatalogos={cargandoCatalogos}
+        <input
+          type="number"
+          name="anio"
+          placeholder="Año"
+          min="1900"
+          max="2100"
+          value={form.anio}
           onChange={actualizar}
-          onCombustibleChange={actualizarCombustible}
-          onTransmisionChange={actualizarTransmision}
+        />
+
+        <input
+          type="number"
+          name="kilometros"
+          placeholder="Kilómetros"
+          min="0"
+          value={form.kilometros}
+          onChange={actualizar}
+        />
+
+        <select
+          name="combustible_id"
+          value={form.combustible_id}
+          onChange={actualizarCombustible}
+          disabled={cargandoCatalogos}
+        >
+          <option value="">Seleccionar combustible</option>
+
+          {combustibles.map((combustible) => (
+            <option key={combustible.id} value={combustible.id}>
+              {combustible.nombre}
+            </option>
+          ))}
+        </select>
+
+        <select
+          name="transmision_id"
+          value={form.transmision_id}
+          onChange={actualizarTransmision}
+          disabled={cargandoCatalogos}
+        >
+          <option value="">Seleccionar transmisión</option>
+
+          {transmisiones.map((transmision) => (
+            <option key={transmision.id} value={transmision.id}>
+              {transmision.nombre}
+            </option>
+          ))}
+        </select>
+
+        <select
+          name="traccion_id"
+          value={form.traccion_id}
+          onChange={actualizar}
+          disabled={cargandoCatalogos}
+        >
+          <option value="">Seleccionar tracción</option>
+
+          {tracciones.map((traccion) => (
+            <option key={traccion.id} value={traccion.id}>
+              {traccion.nombre}
+            </option>
+          ))}
+        </select>
+
+        <input
+          name="color"
+          placeholder="Color"
+          value={form.color}
+          onChange={actualizar}
         />
 
         <input
@@ -782,6 +841,5 @@ export default function VehicleForm({
     </section>
   );
 }
-
 
 
