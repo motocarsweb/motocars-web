@@ -6,6 +6,7 @@ import VersionSelector from "./VersionSelector";
 import BasicData from "./vehicle-form/BasicData";
 import TechnicalData from "./vehicle-form/TechnicalData";
 import PricesSection from "./vehicle-form/PricesSection";
+import IdentitySection from "./vehicle-form/IdentitySection";
 
 import ImageManager from "@/app/ImageManager";
 import { supabase } from "@/lib/supabase";
@@ -678,26 +679,10 @@ export default function VehicleForm({
   onChange={actualizar}
 />
 
-        <input
-          name="dominio"
-          placeholder="Dominio"
-          value={form.dominio}
-          onChange={actualizar}
-        />
-
-        <input
-          name="numero_chasis"
-          placeholder="Número de chasis"
-          value={form.numero_chasis}
-          onChange={actualizar}
-        />
-
-        <input
-          name="numero_motor"
-          placeholder="Número de motor"
-          value={form.numero_motor}
-          onChange={actualizar}
-        />
+        <IdentitySection
+  form={form}
+  onChange={actualizar}
+/>
 
         <ImageManager
           images={imagenes}
