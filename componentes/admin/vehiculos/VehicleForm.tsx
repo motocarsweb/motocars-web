@@ -7,6 +7,7 @@ import BasicData from "./vehicle-form/BasicData";
 import TechnicalData from "./vehicle-form/TechnicalData";
 import PricesSection from "./vehicle-form/PricesSection";
 import IdentitySection from "./vehicle-form/IdentitySection";
+import { useVehicleForm } from "./hooks/useVehicleForm";
 
 import ImageManager from "@/app/ImageManager";
 import { supabase } from "@/lib/supabase";
@@ -69,42 +70,11 @@ export default function VehicleForm({
   const [modeloNuevo, setModeloNuevo] = useState("");
   const [agregandoModelo, setAgregandoModelo] = useState(false);
 
-  const [form, setForm] = useState({
-    marca: "",
-    modelo: "",
-    version: "",
-    combustible: "",
-    transmision: "",
-    tipo: "",
-
-    marca_id: "",
-    modelo_id: "",
-    version_id: "",
-    tipo_vehiculo_id: "",
-    combustible_id: "",
-    transmision_id: "",
-    traccion_id: "",
-    tipo_ingreso_id: "",
-
-    anio: "",
-    precio: "",
-    precio_compra: "",
-    kilometros: "",
-
-    color: "",
-    estado: "Usado",
-    condicion: "usado",
-
-    dominio: "",
-    numero_chasis: "",
-    numero_motor: "",
-
-    destacado: false,
-    publicado: true,
-
-    descripcion: "",
-    observaciones_internas: "",
-  });
+  const {
+    form,
+    setForm,
+    actualizar,
+  } = useVehicleForm();
 
   useEffect(() => {
     async function cargarCatalogos() {
@@ -271,22 +241,6 @@ export default function VehicleForm({
       componenteActivo = false;
     };
   }, [duplicarId]);
-
-  function actualizar(
-    event: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
-  ) {
-    const { name, value, type } = event.target;
-
-    setForm((formAnterior) => ({
-      ...formAnterior,
-      [name]:
-        type === "checkbox"
-          ? (event.target as HTMLInputElement).checked
-          : value,
-    }));
-  }
 
   async function cargarModelosPorMarca(marcaId: string) {
     setModelos([]);
@@ -755,6 +709,7 @@ export default function VehicleForm({
     </section>
   );
 }
+
 
 
 
