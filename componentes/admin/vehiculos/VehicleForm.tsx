@@ -10,6 +10,7 @@ import IdentitySection from "./vehicle-form/IdentitySection";
 import DescriptionSection from "./vehicle-form/DescriptionSection";
 import { useVehicleForm } from "./hooks/useVehicleForm";
 import PublicationSection from "./vehicle-form/PublicationSection";
+import ImagesSection from "./vehicle-form/ImagesSection";
 
 import ImageManager from "@/app/ImageManager";
 import { supabase } from "@/lib/supabase";
@@ -640,10 +641,10 @@ export default function VehicleForm({
   onChange={actualizar}
 />
 
-        <ImageManager
-          images={imagenes}
-          onChange={setImagenes}
-        />
+       <ImagesSection
+  imagenes={imagenes}
+  onChange={setImagenes}
+/>
 
         <DescriptionSection
   form={form}
