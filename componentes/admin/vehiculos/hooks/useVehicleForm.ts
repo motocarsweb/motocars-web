@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 
+export type MarcaFormulario = {
+  id: string;
+  nombre: string;
+};
+
 export type VehicleFormData = {
   marca: string;
   modelo: string;
@@ -76,6 +81,15 @@ export const VEHICLE_FORM_INITIAL_DATA: VehicleFormData = {
   observaciones_internas: "",
 };
 
+type ActualizarMarcaParametros = {
+  event: React.ChangeEvent<HTMLSelectElement>;
+  marcas: MarcaFormulario[];
+  cargarModelosPorMarca: (
+    marcaId: string
+  ) => Promise<void>;
+  limpiarModeloNuevo: () => void;
+};
+
 export function useVehicleForm() {
   const [form, setForm] = useState<VehicleFormData>(
     VEHICLE_FORM_INITIAL_DATA
@@ -97,6 +111,36 @@ export function useVehicleForm() {
     }));
   }
 
+  async function actualizarMarca({
+    event,
+    marcas,
+    cargarModelosPorMarca,
+    limpiarModeloNuevo,
+  }: ActualizarMarcaParametros) {
+    const marcaId = event.target.value;
+
+    const marcaSeleccionada = marcas.find(
+      (marca) => marca.id === marcaId
+    );
+
+    limpiarModeloNuevo();
+
+    setForm((formAnterior) => ({
+      ...formAnterior,
+
+      marca_id: marcaId,
+      marca: marcaSeleccionada?.nombre ?? "",
+
+      modelo_id: "",
+      modelo: "",
+
+      version_id: "",
+      version: "",
+    }));
+
+    await cargarModelosPorMarca(marcaId);
+  }
+
   function actualizarCampos(
     campos: Partial<VehicleFormData>
   ) {
@@ -113,13 +157,18 @@ export function useVehicleForm() {
   }
 
   function limpiarFormulario() {
-    setForm(VEHICLE_FORM_INITIAL_DATA);
+    setForm({
+      ...VEHICLE_FORM_INITIAL_DATA,
+    });
   }
 
   return {
     form,
     setForm,
+
     actualizar,
+    actualizarMarca,
+
     actualizarCampos,
     reemplazarFormulario,
     limpiarFormulario,
