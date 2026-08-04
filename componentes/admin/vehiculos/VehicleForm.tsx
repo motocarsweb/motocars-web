@@ -77,6 +77,7 @@ export default function VehicleForm({
     form,
     setForm,
     actualizar,
+    actualizarMarca: actualizarMarcaDesdeHook,
   } = useVehicleForm();
 
   useEffect(() => {
@@ -276,24 +277,15 @@ export default function VehicleForm({
   async function actualizarMarca(
     event: React.ChangeEvent<HTMLSelectElement>
   ) {
-    const marcaId = event.target.value;
-
-    const marcaSeleccionada = marcas.find(
-      (marca) => marca.id === marcaId
-    );
-
-    setModeloNuevo("");
-    setAgregandoModelo(false);
-
-    setForm((formAnterior) => ({
-      ...formAnterior,
-      marca_id: marcaId,
-      marca: marcaSeleccionada?.nombre ?? "",
-      modelo_id: "",
-      modelo: "",
-    }));
-
-    await cargarModelosPorMarca(marcaId);
+    await actualizarMarcaDesdeHook({
+      event,
+      marcas,
+      cargarModelosPorMarca,
+      limpiarModeloNuevo: () => {
+        setModeloNuevo("");
+        setAgregandoModelo(false);
+      },
+    });
   }
 
   function actualizarModelo(
@@ -696,6 +688,7 @@ export default function VehicleForm({
     </section>
   );
 }
+
 
 
 
