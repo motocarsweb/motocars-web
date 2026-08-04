@@ -9,6 +9,7 @@ import PricesSection from "./vehicle-form/PricesSection";
 import IdentitySection from "./vehicle-form/IdentitySection";
 import DescriptionSection from "./vehicle-form/DescriptionSection";
 import { useVehicleForm } from "./hooks/useVehicleForm";
+import PublicationSection from "./vehicle-form/PublicationSection";
 
 import ImageManager from "@/app/ImageManager";
 import { supabase } from "@/lib/supabase";
@@ -649,15 +650,10 @@ export default function VehicleForm({
   onChange={actualizar}
 />
 
-        <label>
-          <input
-            type="checkbox"
-            name="destacado"
-            checked={form.destacado}
-            onChange={actualizar}
-          />{" "}
-          Vehículo destacado
-        </label>
+        <PublicationSection
+  form={form}
+  onChange={actualizar}
+/>
 
         <label>
           <input
