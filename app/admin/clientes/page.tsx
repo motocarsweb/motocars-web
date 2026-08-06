@@ -1,4 +1,6 @@
 import PageHeader from "@/componentes/admin/PageHeader";
+import PrimaryButton from "@/componentes/admin/PrimaryButton";
+import EmptyState from "@/componentes/admin/EmptyState";
 
 export default function ClientesPage() {
   return (
@@ -6,9 +8,17 @@ export default function ClientesPage() {
       <PageHeader
         titulo="Clientes"
         descripcion="Administración de clientes"
+        acciones={
+          <PrimaryButton>
+            + Nuevo Cliente
+          </PrimaryButton>
+        }
       />
 
-      <p>Próximamente listado de clientes.</p>
+      <EmptyState
+  titulo="No hay clientes"
+  descripcion="Cuando registres el primer cliente aparecerá aquí."
+/>
     </main>
   );
 }
