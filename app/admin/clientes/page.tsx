@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import EmptyState from "@/componentes/admin/EmptyState";
 import PageHeader from "@/componentes/admin/PageHeader";
 import PrimaryButton from "@/componentes/admin/PrimaryButton";
+import Link from "next/link";
 
 import {
   listarClientes,
@@ -68,9 +69,11 @@ export default function ClientesPage() {
         titulo="Clientes"
         descripcion="Administración de clientes"
         acciones={
-          <PrimaryButton>
-            + Nuevo Cliente
-          </PrimaryButton>
+          <Link href="/admin/clientes/nuevo">
+  <PrimaryButton>
+    + Nuevo Cliente
+  </PrimaryButton>
+</Link>
         }
       />
 
