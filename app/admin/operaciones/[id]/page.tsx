@@ -337,6 +337,43 @@ export default function OperacionPage() {
           </button>
         </div>
       </div>
+      <section className="rounded-xl border border-gray-200 bg-white p-6 mt-6">
+  <h2 className="text-xl font-semibold mb-4">
+    Expediente de la Operación
+  </h2>
+
+  <div className="border-b border-gray-200 mb-6">
+    <nav className="flex flex-wrap gap-2">
+      <button className="px-4 py-2 rounded-t-lg bg-red-600 text-white font-medium">
+        Cliente
+      </button>
+
+      <button className="px-4 py-2 rounded-t-lg hover:bg-gray-100">
+        Vehículo
+      </button>
+
+      <button className="px-4 py-2 rounded-t-lg hover:bg-gray-100">
+        Pagos
+      </button>
+
+      <button className="px-4 py-2 rounded-t-lg hover:bg-gray-100">
+        Documentos
+      </button>
+
+      <button className="px-4 py-2 rounded-t-lg hover:bg-gray-100">
+        Gestoría
+      </button>
+
+      <button className="px-4 py-2 rounded-t-lg hover:bg-gray-100">
+        Historial
+      </button>
+    </nav>
+  </div>
+
+  <div className="rounded-lg border border-dashed border-gray-300 p-8 text-center text-gray-500">
+    Próximamente comenzaremos a completar cada sección del expediente.
+  </div>
+</section>
     </main>
   );
 }

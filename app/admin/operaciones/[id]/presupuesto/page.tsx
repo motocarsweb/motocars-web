@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 
 import {
   obtenerCliente,
@@ -450,9 +451,15 @@ export default function PresupuestoPage() {
               MotoCars
             </div>
 
-            <div className="submarca-presupuesto">
-              Concesionaria
-            </div>
+           <Image
+
+  src="/logo/motocars-nuevo.png"
+  alt="MotoCars Concesionaria"
+  width={230}
+  height={95}
+  priority
+  className="logo-presupuesto"
+/>
 
             <div className="datos-empresa">
               Primeros Pobladores 1400, Neuquén Capital

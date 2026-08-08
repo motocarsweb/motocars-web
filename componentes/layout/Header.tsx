@@ -26,7 +26,7 @@ export default function Header() {
           onClick={closeMenu}
         >
           <Image
-            src="/logo/logo.png"
+            src="/logo/motocars-nuevo.png"
             alt="MotoCars Concesionaria"
             width={240}
             height={80}
