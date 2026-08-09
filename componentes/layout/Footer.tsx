@@ -1,76 +1,211 @@
+import Image from "next/image";
+import Link from "next/link";
+import {
+  Clock3,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+} from "lucide-react";
+
+const WHATSAPP_URL =
+  "https://wa.me/5492995133023?text=Hola%20MotoCars%2C%20quiero%20hacer%20una%20consulta.";
+
 export default function Footer() {
   return (
-    <footer
-      id="contacto"
-      style={{
-        background: "#0f172a",
-        color: "#fff",
-        padding: "70px 0 25px",
-        marginTop: "80px",
-      }}
-    >
-      <div className="container">
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "2fr 1fr 1fr",
-            gap: "50px",
-          }}
-        >
+    <footer id="contacto" className="site-footer">
+      {/* CTA SUPERIOR */}
+      <div className="footer-cta">
+        <div className="container footer-cta-inner">
           <div>
-            <h2 style={{ marginBottom: 18 }}>MotoCars Concesionaria</h2>
+            <span className="footer-eyebrow">Estamos para asesorarte</span>
 
-            <p
-              style={{
-                color: "#cbd5e1",
-                lineHeight: 1.8,
-                maxWidth: 450,
-              }}
-            >
-              Más de 30 años acompañando a nuestros clientes en la compra
-              de autos y motos. Vehículos seleccionados, financiación,
-              permutas y atención personalizada.
+            <h2>¿Encontraste el vehículo que buscabas?</h2>
+
+            <p>
+              Escribinos y recibí atención personalizada de nuestro equipo.
             </p>
           </div>
 
-          <div>
-            <h3 style={{ marginBottom: 18 }}>Contacto</h3>
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer-cta-button"
+          >
+            <MessageCircle size={19} />
+            Consultar ahora
+          </a>
+        </div>
+      </div>
 
-            <p>📍 Primeros Pobladores 1400</p>
-            <p>Neuquén Capital</p>
-            <p>📞 +54 9 299 513 3023</p>
-            <p>✉ motocars.concesionaria@gmail.com</p>
+      {/* CONTENIDO PRINCIPAL */}
+      <div className="footer-main">
+        <div className="container footer-grid">
+
+          {/* COLUMNA 1 */}
+          <div className="footer-brand">
+            <Link href="/" aria-label="Ir al inicio de MotoCars">
+              <Image
+                src="/logos/motocars-white.png"
+                alt="MotoCars Concesionaria"
+                width={300}
+                height={100}
+                className="footer-main-logo"
+                unoptimized
+              />
+            </Link>
+
+            <div className="footer-history">
+              <span className="footer-history-line" />
+
+              <strong>
+                +35 años en la Esquina de Siempre
+              </strong>
+            </div>
           </div>
 
-          <div>
-            <h3 style={{ marginBottom: 18 }}>Horarios</h3>
+          {/* COLUMNA 2 */}
+          <div className="footer-column">
+            <h3>Nuestras marcas</h3>
 
-            <p>Lunes a Viernes</p>
-            <p>09:00 - 13:00</p>
-            <p>16:00 - 20:00</p>
+            <nav className="footer-links" aria-label="Nuestras marcas">
+              <Link href="/">MotoCars</Link>
+              <Link href="/motos#rvm">RVM Patagonia</Link>
+              <Link href="/motos#jawa">JAWA Patagonia</Link>
+            </nav>
+          </div>
 
-            <br />
+          {/* COLUMNA 3 */}
+          <div className="footer-column">
+            <h3>Contacto</h3>
 
-            <p>Sábados</p>
-            <p>09:00 - 13:00</p>
+            <div className="footer-contact-list">
+              <div className="footer-contact-item">
+                <MapPin size={18} />
+
+                <span>
+                  Primeros Pobladores 1400
+                  <small>Neuquén Capital</small>
+                </span>
+              </div>
+
+              <a
+                href="tel:+542995133023"
+                className="footer-contact-item"
+              >
+                <Phone size={18} />
+                <span>+54 9 299 513 3023</span>
+              </a>
+
+              <a
+                href="mailto:motocars.concesionaria@gmail.com"
+                className="footer-contact-item"
+              >
+                <Mail size={18} />
+                <span>motocars.concesionaria@gmail.com</span>
+              </a>
+            </div>
+          </div>
+
+          {/* COLUMNA 4 */}
+          <div className="footer-column">
+            <h3>Horarios</h3>
+
+            <div className="footer-hours">
+              <div>
+                <Clock3 size={18} />
+
+                <span>
+                  <strong>Lunes a Viernes</strong>
+                  <small>8:00 a 20:00 hs</small>
+                </span>
+              </div>
+
+              <div>
+                <Clock3 size={18} />
+
+                <span>
+                  <strong>Sábados</strong>
+                  <small>8:00 a 13:00 hs</small>
+                </span>
+              </div>
+            </div>
+
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer-whatsapp-note"
+            >
+              <MessageCircle size={17} />
+              Consultanos por WhatsApp todos los días
+            </a>
+
+            <div className="footer-social">
+              <a
+                href="https://www.instagram.com/motocars.concesionaria/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram MotoCars"
+              >
+                <span>Instagram</span>
+              </a>
+
+              <a
+                href={WHATSAPP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="WhatsApp MotoCars"
+              >
+                <MessageCircle size={19} />
+              </a>
+            </div>
           </div>
         </div>
 
-        <hr
-          style={{
-            margin: "45px 0 25px",
-            borderColor: "rgba(255,255,255,.12)",
-          }}
-        />
+        {/* TRES MARCAS */}
+        <div className="container footer-brands-strip">
+          <Link href="/" className="footer-brand-link">
+            <Image
+              src="/logos/motocars-white.png"
+              alt="MotoCars"
+              width={150}
+              height={55}
+              unoptimized
+            />
+          </Link>
 
-        <p
-          style={{
-            textAlign: "center",
-            color: "#94a3b8",
-          }}
-        >
-          © {new Date().getFullYear()} MotoCars Concesionaria · Todos los derechos reservados.
-        </p>
+          <Link href="/motos#rvm" className="footer-brand-link">
+            <Image
+              src="/logos/rvm-white.png"
+              alt="RVM Patagonia"
+              width={150}
+              height={65}
+              unoptimized
+            />
+          </Link>
+
+          <Link href="/motos#jawa" className="footer-brand-link">
+            <Image
+              src="/logos/jawa-white.png"
+              alt="JAWA Patagonia"
+              width={150}
+              height={65}
+              unoptimized
+            />
+          </Link>
+        </div>
+
+        {/* PIE FINAL */}
+        <div className="container footer-bottom">
+          <p>
+            © {new Date().getFullYear()} MotoCars Concesionaria.
+            Todos los derechos reservados.
+          </p>
+
+          <span>Neuquén · Patagonia Argentina</span>
+        </div>
       </div>
     </footer>
   );

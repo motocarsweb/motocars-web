@@ -1,18 +1,24 @@
 import { ArrowRight, MessageCircle } from "lucide-react";
+import Image from "next/image";
 
 export default function Hero() {
   return (
     <section className="hero">
       <div className="hero-overlay" />
 
-      <div className="hero-brand-mark" aria-hidden="true">
-        M
-      </div>
+   <Image
+  src="/logos/motocars-Isotipo-rojo.png"
+  alt=""
+  width={700}
+  height={700}
+  className="hero-brand-mark"
+  aria-hidden="true"
+/>
 
       <div className="container hero-content">
         <div className="hero-main">
           <span className="hero-subtitle">
-            35 años de historia en la esquina de siempre
+           35 años de historia en la Esquina de Siempre
           </span>
 
           <h1>
