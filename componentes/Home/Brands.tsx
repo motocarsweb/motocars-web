@@ -5,7 +5,7 @@ const marcas = [
   {
     nombre: "MotoCars",
     descripcion: "Autos, SUVs, pickups y utilitarios seleccionados.",
-    logo: "/logos/motocars-horizontal-blanco.png",
+    logo: "/logos/motocars-white.png",
     href: "#vehiculos",
     boton: "Ver vehículos",
     clase: "brand-card brand-card-motocars",
@@ -13,7 +13,7 @@ const marcas = [
   {
     nombre: "RVM Patagonia",
     descripcion: "Adventure, touring, enduro y motos para todos los caminos.",
-    logo: "/logos/rvm-patagonia.png",
+    logo: "/logos/rvm-white.png",
     href: "#vehiculos",
     boton: "Ver motos RVM",
     clase: "brand-card brand-card-rvm",
@@ -21,7 +21,7 @@ const marcas = [
   {
     nombre: "JAWA Patagonia",
     descripcion: "Motos clásicas, urbanas y touring con identidad propia.",
-    logo: "/logos/jawa-patagonia.png",
+    logo: "/logos/jawa-white.png",
     href: "#vehiculos",
     boton: "Ver motos JAWA",
     clase: "brand-card brand-card-jawa",
@@ -50,14 +50,15 @@ export default function Brands() {
           {marcas.map((marca) => (
             <article key={marca.nombre} className={marca.clase}>
               <div className="brand-logo-wrapper">
-                <Image
+     <Image
   src={marca.logo}
   alt={marca.nombre}
   width={360}
   height={140}
   className="brand-logo"
+  unoptimized
 />
-                /
+
               </div>
 
               <div className="brand-content">
