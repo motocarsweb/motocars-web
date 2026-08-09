@@ -5,6 +5,7 @@ import Hero from "@/componentes/Home/Hero";
 import Stats from "@/componentes/Home/Stats";
 import FeaturedCars from "@/componentes/Home/FeaturedCars";
 import About from "@/componentes/Home/About";
+import Brands from "@/componentes/Home/Brands";
 
 import { obtenerVehiculos } from "@/lib/supabase-vehicles";
 
@@ -17,19 +18,21 @@ export default async function Home() {
     (vehiculo) => vehiculo.publicado === true
   );
 
-  return (
-    <>
-      <Header />
+ return (
+  <>
+    <Header />
 
-      <Hero />
+    <Hero />
 
-      <Stats />
+    <Stats />
 
-      <FeaturedCars vehicles={vehiculosPublicados} />
+    <Brands />
 
-      <About />
+    <FeaturedCars vehicles={vehiculosPublicados} />
 
-      <Footer />
-    </>
-  );
+    <About />
+
+    <Footer />
+  </>
+);
 }

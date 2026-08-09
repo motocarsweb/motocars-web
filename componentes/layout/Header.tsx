@@ -26,10 +26,10 @@ export default function Header() {
           onClick={closeMenu}
         >
           <Image
-            src="/logo/motocars-nuevo.png"
+            src="/logos/Horizontal-3000px-blanco.png"
             alt="MotoCars Concesionaria"
-            width={240}
-            height={80}
+            width={260}
+            height={110}
             priority
             className="header-logo"
           />

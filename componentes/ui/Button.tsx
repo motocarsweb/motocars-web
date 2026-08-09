@@ -18,15 +18,15 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variantStyles: Record<ButtonVariant, CSSProperties> = {
   primary: {
-    border: "1px solid #111827",
-    backgroundColor: "#111827",
+    border: "1px solid var(--mc-red)",
+    backgroundColor: "var(--mc-red)",
     color: "#ffffff",
   },
 
   secondary: {
-    border: "1px solid #d1d5db",
-    backgroundColor: "#ffffff",
-    color: "#374151",
+    border: "1px solid var(--mc-black)",
+    backgroundColor: "var(--mc-black)",
+    color: "#ffffff",
   },
 
   danger: {
@@ -60,17 +60,19 @@ export default function Button({
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
+        gap: 8,
         width: fullWidth ? "100%" : "auto",
-        minHeight: 42,
-        padding: "0 18px",
+        minHeight: 44,
+        padding: "0 20px",
         borderRadius: 8,
         cursor: disabled ? "not-allowed" : "pointer",
         fontFamily: "inherit",
         fontSize: 14,
         fontWeight: 700,
-        opacity: disabled ? 0.65 : 1,
+        lineHeight: 1,
+        opacity: disabled ? 0.55 : 1,
         transition:
-          "background-color 150ms ease, border-color 150ms ease, opacity 150ms ease",
+          "background-color 150ms ease, border-color 150ms ease, color 150ms ease, opacity 150ms ease, transform 150ms ease",
         ...variantStyles[variant],
         ...style,
       }}

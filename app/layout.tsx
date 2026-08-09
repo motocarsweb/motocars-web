@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Exo_2 } from "next/font/google";
 import { ThemeProvider } from "@/componentes/theme/ThemeProvider";
 import "./globals.css";
 
-const inter = Inter({
+const exo2 = Exo_2({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-exo2",
   display: "swap",
 });
 
@@ -57,7 +57,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${inter.variable} h-full scroll-smooth`}
+      className={`${exo2.variable} h-full scroll-smooth`}
       data-scroll-behavior="smooth"
     >
       <body className="min-h-screen bg-white text-zinc-900 antialiased">

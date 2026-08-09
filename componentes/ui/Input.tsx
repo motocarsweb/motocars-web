@@ -16,7 +16,7 @@ export default function Input({
     <label
       style={{
         display: "grid",
-        gap: 6,
+        gap: 7,
         width: "100%",
       }}
     >
@@ -25,7 +25,7 @@ export default function Input({
           style={{
             fontSize: 13,
             fontWeight: 700,
-            color: "#374151",
+            color: "var(--mc-black)",
           }}
         >
           {label}
@@ -36,16 +36,33 @@ export default function Input({
         {...props}
         style={{
           width: "100%",
-          minHeight: 42,
+          minHeight: 44,
           padding: "0 14px",
-          border: "1px solid #d1d5db",
+          border: "1px solid #d8d8d8",
           borderRadius: 8,
           outline: "none",
           fontFamily: "inherit",
           fontSize: 14,
-          background: "#ffffff",
-          color: "#111827",
+          backgroundColor: "#ffffff",
+          color: "var(--mc-black)",
+          transition:
+            "border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease",
           ...style,
+        }}
+        onFocus={(event) => {
+          event.currentTarget.style.borderColor =
+            "var(--mc-red)";
+          event.currentTarget.style.boxShadow =
+            "0 0 0 3px rgba(255, 0, 50, 0.10)";
+
+          props.onFocus?.(event);
+        }}
+        onBlur={(event) => {
+          event.currentTarget.style.borderColor =
+            "#d8d8d8";
+          event.currentTarget.style.boxShadow = "none";
+
+          props.onBlur?.(event);
         }}
       />
     </label>

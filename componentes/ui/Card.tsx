@@ -21,10 +21,10 @@ export default function Card({
       style={{
         width: "100%",
         padding,
-        border: "1px solid #e5e7eb",
-        borderRadius: 12,
+        border: "1px solid #e5e5e5",
+        borderRadius: 14,
         backgroundColor: "#ffffff",
-        boxShadow: "0 6px 20px rgba(15, 23, 42, 0.04)",
+        boxShadow: "0 10px 30px rgba(17, 17, 17, 0.06)",
         ...style,
       }}
     >

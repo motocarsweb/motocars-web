@@ -1,10 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --primary: #1e63ff;
-  --dark: #111111;
-  --white: #ffffff;
-  --gray-light: #f5f7fa;
+  --mc-red: #ff0032;
+  --mc-red-dark: #ec001a;
+  --mc-black: #111111;
+  --mc-dark: #1e1e1e;
+  --mc-light: #ececec;
+  --mc-white: #ffffff;
+
+  --primary: var(--mc-red);
+  --dark: var(--mc-black);
+  --white: var(--mc-white);
+  --gray-light: var(--mc-light);
 }
 
 * {
@@ -18,9 +25,9 @@ html {
 }
 
 body {
-  background: var(--white);
-  color: var(--dark);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--mc-white);
+  color: var(--mc-black);
+  font-family: var(--font-exo2), Arial, Helvetica, sans-serif;
   overflow-x: hidden;
 }
 
@@ -39,7 +46,7 @@ body {
   z-index: 1000;
   width: 100%;
   height: 126px;
-  background: rgba(12, 23, 45, 0.96);
+  background: rgba(17, 17, 17, 0.96);
   border-bottom: 1px solid rgba(255,255,255,.08);
   backdrop-filter: blur(16px);
 }
@@ -60,7 +67,7 @@ body {
 
 .header-logo {
   display: block;
-  width: 175px;
+  width: 215px;
   height: auto;
 }
 
@@ -92,7 +99,7 @@ body {
   bottom: -8px;
   width: 0;
   height: 2px;
-  background: #4f83ff;
+  background: var(--mc-red);
   transition: width .25s ease;
 }
 
@@ -134,7 +141,7 @@ flex-shrink: 0;
     min-height:48px;
     padding:0 20px;
 
-    background:#25D366;
+    background: var(--mc-red);
     color:#fff;
     text-decoration:none;
 
@@ -151,9 +158,9 @@ flex-shrink: 0;
 }
 
 .header-whatsapp:hover{
-    background:#1fa851;
+    background: var(--mc-red-dark);
     transform:translateY(-1px);
-    box-shadow:0 10px 24px rgba(37,211,102,.25);
+    box-shadow: 0 10px 24px rgba(255, 0, 50, 0.22);
 }
 /* BOTONES GENERALES */
 .btn,
@@ -243,7 +250,7 @@ flex-shrink: 0;
     width:68px;
     height:4px;
     border-radius:999px;
-    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    background: var(--mc-red);
     flex-shrink:0;
 }
 
@@ -264,7 +271,7 @@ flex-shrink: 0;
 .hero p {
   max-width: 710px;
   margin: 0 0 38px;
-  color: rgba(255, 255, 255, 0.84);
+ color: var(--mc-red);
   font-size: 20px;
   line-height: 1.7;
 }
@@ -362,6 +369,23 @@ flex-shrink: 0;
   width: 34px;
   height: 1px;
   background: rgba(255, 255, 255, 0.55);
+}
+
+.hero-brand-mark {
+  position: absolute;
+  right: 5vw;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+
+  font-size: clamp(260px, 34vw, 620px);
+  font-weight: 900;
+  line-height: 0.8;
+
+  color: rgba(255, 0, 50, 0.045);
+
+  pointer-events: none;
+  user-select: none;
 }
 
 /* ESTADÍSTICAS */
@@ -1822,5 +1846,589 @@ body {
   .stat-content strong.stat-value-long {
     font-size: 25px;
     letter-spacing: -0.5px;
+  }
+}
+/* =========================================================
+   MOTOCARS HERO 2.0
+   ========================================================= */
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  isolation: isolate;
+
+  background-image: url("/images/hero-motocars.jpg");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(17, 17, 17, 0.97) 0%,
+      rgba(17, 17, 17, 0.91) 34%,
+      rgba(17, 17, 17, 0.67) 56%,
+      rgba(17, 17, 17, 0.20) 82%,
+      rgba(17, 17, 17, 0.06) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(17, 17, 17, 0.12) 0%,
+      rgba(17, 17, 17, 0.10) 65%,
+      rgba(17, 17, 17, 0.58) 100%
+    );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  padding-top: 190px;
+  padding-bottom: 100px;
+}
+
+.hero-main {
+  width: min(760px, 100%);
+}
+
+.hero-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  margin: 0 0 28px;
+
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hero-subtitle::before {
+  content: "";
+  display: block;
+  flex: 0 0 52px;
+  width: 52px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--mc-red);
+}
+
+.hero h1 {
+  max-width: 760px;
+  margin: 0 0 28px;
+
+  color: #ffffff;
+  font-size: clamp(54px, 6.4vw, 92px);
+  font-weight: 800;
+  line-height: 0.94;
+  letter-spacing: -0.055em;
+}
+
+.hero h1 span {
+  display: block;
+  margin-top: 10px;
+  color: var(--mc-red);
+}
+
+.hero p {
+  max-width: 650px;
+  margin: 0 0 38px;
+
+  color: rgba(255, 255, 255, 0.80);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+.hero-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero-primary-button,
+.hero-whatsapp-button {
+  min-height: 54px;
+  padding: 0 24px;
+  border-radius: 8px;
+
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.hero-primary-button {
+  border: 1px solid var(--mc-red);
+  background: var(--mc-red);
+  color: #ffffff;
+}
+
+.hero-primary-button:hover {
+  background: var(--mc-red-dark);
+  border-color: var(--mc-red-dark);
+}
+
+.hero-whatsapp-button {
+  border: 1px solid rgba(255, 255, 255, 0.48);
+  background: rgba(17, 17, 17, 0.30);
+  color: #ffffff;
+  backdrop-filter: blur(10px);
+}
+
+.hero-whatsapp-button:hover {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
+}
+
+.hero-trust {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  width: min(850px, 100%);
+  margin-top: 58px;
+  padding: 0;
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+
+  background: rgba(17, 17, 17, 0.52);
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.20);
+  backdrop-filter: blur(14px);
+
+  overflow: hidden;
+}
+
+.hero-trust-item {
+  min-width: 0;
+  padding: 20px 18px;
+}
+
+.hero-trust-item strong {
+  display: block;
+  margin: 0 0 6px;
+
+  color: var(--mc-red);
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.hero-trust-item span {
+  display: block;
+
+  color: rgba(255, 255, 255, 0.64);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.hero-trust-divider {
+  display: none;
+}
+
+.hero-trust-item + .hero-trust-item {
+  border-left: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.hero-brand-mark {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  right: -4vw;
+
+  transform: translateY(-50%);
+
+  color: rgba(255, 0, 50, 0.055);
+  font-size: clamp(320px, 42vw, 720px);
+  font-weight: 900;
+  line-height: 0.75;
+
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero-scroll {
+  position: absolute;
+  right: 34px;
+  bottom: 30px;
+  z-index: 4;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.20em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.hero-scroll span {
+  display: block;
+  width: 38px;
+  height: 1px;
+  background: var(--mc-red);
+}
+
+/* Tablet */
+
+@media (max-width: 900px) {
+  .hero {
+    min-height: auto;
+    background-position: 60% center;
+  }
+
+  .hero-content {
+    padding-top: 170px;
+    padding-bottom: 80px;
+  }
+
+  .hero-main {
+    width: 100%;
+  }
+
+  .hero-trust {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hero-trust-item:nth-child(3) {
+    border-left: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+  }
+
+  .hero-trust-item:nth-child(4) {
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+  }
+
+  .hero-brand-mark {
+    right: -16vw;
+    opacity: 0.65;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 620px) {
+  .hero {
+    background-position: 62% center;
+  }
+
+  .hero-overlay {
+    background:
+      linear-gradient(
+        90deg,
+        rgba(17, 17, 17, 0.96),
+        rgba(17, 17, 17, 0.82)
+      ),
+      linear-gradient(
+        180deg,
+        rgba(17, 17, 17, 0.20),
+        rgba(17, 17, 17, 0.65)
+      );
+  }
+
+  .hero-content {
+    padding-top: 145px;
+    padding-bottom: 60px;
+  }
+
+  .hero-subtitle {
+    font-size: 11px;
+    letter-spacing: 0.10em;
+  }
+
+  .hero-subtitle::before {
+    width: 34px;
+    flex-basis: 34px;
+  }
+
+  .hero h1 {
+    font-size: clamp(44px, 15vw, 66px);
+    letter-spacing: -0.045em;
+  }
+
+  .hero p {
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .hero-buttons {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .hero-primary-button,
+  .hero-whatsapp-button {
+    width: 100%;
+  }
+
+  .hero-trust {
+    grid-template-columns: 1fr 1fr;
+    margin-top: 42px;
+  }
+
+  .hero-trust-item {
+    padding: 16px 14px;
+  }
+
+  .hero-trust-item strong {
+    font-size: 18px;
+  }
+
+  .hero-brand-mark {
+    display: none;
+  }
+
+  .hero-scroll {
+    display: none;
+  }
+}
+/* =========================================================
+   NUESTRAS MARCAS
+   ========================================================= */
+
+.brands-section {
+  padding: 90px 0;
+  background: #111111;
+  color: #ffffff;
+}
+
+.brands-heading {
+  max-width: 760px;
+  margin-bottom: 48px;
+}
+
+.brands-heading > span {
+  display: inline-block;
+  margin-bottom: 14px;
+
+  color: var(--mc-red);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.brands-heading h2 {
+  margin: 0;
+
+  color: #ffffff;
+  font-size: clamp(38px, 5vw, 64px);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+
+.brands-heading h2 strong {
+  color: var(--mc-red);
+  font-weight: 800;
+}
+
+.brands-heading p {
+  max-width: 650px;
+  margin: 22px 0 0;
+
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.brands-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.brand-card {
+  position: relative;
+
+  min-height: 390px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  padding: 34px;
+
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.04),
+      rgba(255, 255, 255, 0.015)
+    );
+
+  overflow: hidden;
+
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    background 220ms ease;
+}
+
+.brand-card::before {
+  content: "";
+  position: absolute;
+  inset: auto -25% -45% auto;
+
+  width: 300px;
+  height: 300px;
+
+  border-radius: 50%;
+
+  background: rgba(255, 0, 50, 0.08);
+  filter: blur(10px);
+
+  pointer-events: none;
+}
+
+.brand-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(255, 0, 50, 0.55);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 0, 50, 0.07),
+      rgba(255, 255, 255, 0.02)
+    );
+}
+
+.brand-logo-wrapper {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+
+  min-height: 150px;
+}
+
+.brand-logo {
+  display: block;
+
+  width: auto;
+  max-width: 100%;
+  max-height: 115px;
+
+  object-fit: contain;
+}
+
+.brand-content {
+  position: relative;
+  z-index: 2;
+}
+
+.brand-content p {
+  max-width: 320px;
+  margin: 0 0 26px;
+
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+
+  transition:
+    color 180ms ease,
+    gap 180ms ease;
+}
+
+.brand-link:hover {
+  gap: 14px;
+  color: var(--mc-red);
+}
+
+.brand-card-motocars {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 0, 50, 0.10),
+      rgba(255, 255, 255, 0.02) 55%
+    );
+}
+
+.brand-card-rvm {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 0, 0, 0.10),
+      rgba(255, 255, 255, 0.02) 55%
+    );
+}
+
+.brand-card-jawa {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(190, 0, 0, 0.12),
+      rgba(255, 255, 255, 0.02) 55%
+    );
+}
+
+@media (max-width: 960px) {
+  .brands-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-card {
+    min-height: 300px;
+  }
+
+  .brand-logo-wrapper {
+    min-height: 120px;
+  }
+}
+
+@media (max-width: 620px) {
+  .brands-section {
+    padding: 64px 0;
+  }
+
+  .brands-heading {
+    margin-bottom: 34px;
+  }
+
+  .brands-heading h2 {
+    font-size: clamp(34px, 11vw, 48px);
+  }
+
+  .brands-heading p {
+    font-size: 15px;
+  }
+
+  .brand-card {
+    min-height: 260px;
+    padding: 26px;
+    border-radius: 14px;
+  }
+
+  .brand-logo {
+    max-height: 90px;
   }
 }
