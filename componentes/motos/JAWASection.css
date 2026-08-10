@@ -1,0 +1,311 @@
+.jawa-section {
+  padding: 110px 0;
+
+  background: #111111;
+  color: #ffffff;
+}
+
+.jawa-section-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+
+  gap: 64px;
+
+  align-items: center;
+}
+
+/* =========================
+   IMAGEN
+========================= */
+
+.jawa-section-media {
+  width: 100%;
+}
+
+.jawa-section-image {
+  position: relative;
+
+  width: 100%;
+  aspect-ratio: 16 / 9;
+
+  overflow: hidden;
+
+  border-radius: 24px;
+
+  background: #080808;
+
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.35);
+}
+
+.jawa-section-image img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: center;
+
+  transition: transform 0.45s ease;
+}
+
+.jawa-section-image:hover img {
+  transform: scale(1.035);
+}
+
+/* =========================
+   UBICACIÓN / REPRESENTACIÓN
+========================= */
+
+.jawa-section-location {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  margin-top: 18px;
+  padding-left: 4px;
+}
+
+.jawa-section-location span {
+  color: #a7a7a7;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  letter-spacing: 0.8px;
+}
+
+.jawa-section-location strong {
+  color: #ffffff;
+
+  font-size: 17px;
+  font-weight: 800;
+
+  line-height: 1.25;
+}
+
+/* =========================
+   CONTENIDO
+========================= */
+
+.jawa-section-content {
+  max-width: 560px;
+}
+
+.jawa-section-eyebrow {
+  display: inline-block;
+
+  margin-bottom: 18px;
+
+  color: #d7a54a;
+
+  font-size: 13px;
+  font-weight: 900;
+
+  letter-spacing: 2px;
+
+  text-transform: uppercase;
+}
+
+.jawa-section h2 {
+  margin: 0 0 24px;
+
+  color: #ffffff;
+
+  font-size: clamp(42px, 5vw, 68px);
+  font-weight: 900;
+
+  line-height: 0.98;
+
+  letter-spacing: -2px;
+}
+
+.jawa-section p {
+  margin: 0 0 28px;
+
+  color: #b7b7b7;
+
+  font-size: 17px;
+
+  line-height: 1.75;
+}
+
+/* =========================
+   CATEGORÍAS
+========================= */
+
+.jawa-section-categories {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 10px;
+
+  margin-bottom: 34px;
+}
+
+.jawa-section-categories span {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 38px;
+
+  padding: 0 17px;
+
+  color: #ffffff;
+  background: #1c1c1c;
+
+  border: 1px solid #383838;
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* =========================
+   BENEFICIOS
+========================= */
+
+.jawa-section-benefits {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(180px, 1fr));
+
+  gap: 18px 28px;
+
+  margin: 38px 0;
+}
+
+.jawa-section-benefits span {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.jawa-section-benefits span::before {
+  content: "✓";
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 22px;
+  height: 22px;
+
+  flex-shrink: 0;
+
+  color: #111111;
+  background: #d7a54a;
+
+  border-radius: 50%;
+
+  font-size: 13px;
+  font-weight: 900;
+}
+
+/* =========================
+   BOTÓN
+========================= */
+
+.jawa-section-button {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 52px;
+
+  padding: 0 24px;
+
+  color: #111111;
+  background: #d7a54a;
+
+  border-radius: 9px;
+
+  font-size: 14px;
+  font-weight: 900;
+
+  text-decoration: none;
+
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.jawa-section-button:hover {
+  background: #e4b75e;
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 12px 28px
+    rgba(215, 165, 74, 0.20);
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 900px) {
+  .jawa-section {
+    padding: 80px 0;
+  }
+
+  .jawa-section-grid {
+    grid-template-columns: 1fr;
+
+    gap: 44px;
+  }
+
+  .jawa-section-content {
+    max-width: none;
+  }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 620px) {
+  .jawa-section {
+    padding: 64px 0;
+  }
+
+  .jawa-section h2 {
+    font-size:
+      clamp(38px, 12vw, 52px);
+  }
+
+  .jawa-section p {
+    font-size: 15px;
+  }
+
+  .jawa-section-benefits {
+    grid-template-columns: 1fr;
+  }
+
+  .jawa-section-button {
+    width: 100%;
+  }
+
+  .jawa-section-location {
+    margin-top: 14px;
+  }
+
+  .jawa-section-location strong {
+    font-size: 15px;
+  }
+}

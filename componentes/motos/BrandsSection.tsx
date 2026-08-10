@@ -1,57 +1,8 @@
 import "./BrandsSection.css";
 import "./RVMSection.css";
+import { motoCategories } from "@/lib/motos/categories";
 
 
-const categories = [
-  {
-    title: "Adventure",
-    subtitle: "Grandes viajes. Sin límites.",
-    brand: "RVM",
-    order: 1,
-    image: "/images/categories/adventure.webp",
-    anchor: "#adventure",
-  },
-  {
-    title: "Touring",
-    subtitle: "Kilómetros de libertad.",
-    brand: "RVM",
-    order: 2,
-    image: "/images/categories/touring.webp",
-    anchor: "#touring",
-  },
-  {
-    title: "Sport",
-    subtitle: "Pura adrenalina.",
-    brand: "RVM",
-    order: 3,
-    image: "/images/categories/sport.webp",
-    anchor: "#sport",
-  },
-  {
-    title: "Enduro",
-    subtitle: "Donde termina el camino.",
-    brand: "RVM",
-    order: 4,
-    image: "/images/categories/enduro.webp",
-    anchor: "#enduro",
-  },
-  {
-    title: "Custom",
-    subtitle: "Tu estilo. Tu moto.",
-    brand: "RVM / JAWA",
-    order: 5,
-    image: "/images/categories/custom.webp",
-    anchor: "#custom",
-  },
-  {
-    title: "Clásicas",
-    subtitle: "La historia sobre ruedas.",
-    brand: "JAWA",
-    order: 6,
-    image: "/images/categories/clasicas.webp",
-    anchor: "#clasicas",
-  },
-];
 
 export default function BrandsSection() {
   return (
@@ -66,7 +17,7 @@ export default function BrandsSection() {
         </h2>
 
         <div className="brands-grid">
-          {categories.map((category) => (
+          {motoCategories.map((category) => (
             <a
               key={category.title}
               href={category.anchor}
