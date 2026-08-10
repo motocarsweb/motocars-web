@@ -1,0 +1,186 @@
+.brands-section {
+  padding: 90px 0;
+  background: #111111;
+  color: #ffffff;
+}
+
+.brands-eyebrow {
+  display: block;
+  margin-bottom: 10px;
+
+  color: var(--mc-red);
+
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.brands-title {
+  margin: 0 0 38px;
+
+  font-size: clamp(34px, 4vw, 52px);
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.brands-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.brand-card {
+  min-height: 280px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  padding: 24px;
+
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 16px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.03),
+      rgba(255,255,255,.01)
+    );
+
+  color: #ffffff;
+  text-decoration: none;
+
+  transition:
+    transform .2s ease,
+    border-color .2s ease,
+    background .2s ease;
+}
+
+.brand-card:hover {
+  transform: translateY(-4px);
+
+  border-color: rgba(255, 0, 50, 0.45);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,0,50,.08),
+      rgba(255,255,255,.015)
+    );
+}
+
+.brand-card span {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.brand-card small {
+  margin-top: 8px;
+
+  color: rgba(255,255,255,.60);
+
+  font-size: 13px;
+  font-weight: 600;
+}
+.brand-card-content {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+
+  width: 100%;
+  min-height: 230px;
+
+  padding-top: 90px;
+}
+
+.brand-card-brand {
+  margin-bottom: 10px;
+
+  color: var(--mc-red);
+
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+
+  text-transform: uppercase;
+}
+
+.brand-card h3 {
+  margin: 0 0 8px;
+
+  color: #ffffff;
+
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.brand-card p {
+  margin: 0 0 18px;
+
+  color: rgba(255, 255, 255, 0.62);
+
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.brand-card small {
+  margin-top: auto;
+
+  color: rgba(255, 255, 255, 0.78);
+
+  font-size: 12px;
+  font-weight: 800;
+}
+.brand-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.brand-card-image {
+  position: absolute;
+  inset: 0;
+
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  transform: scale(1.01);
+
+  transition: transform 0.4s ease;
+}
+
+.brand-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(8, 8, 10, 0.78) 0%,
+      rgba(8, 8, 10, 0.46) 42%,
+      rgba(8, 8, 10, 0.10) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(8, 8, 10, 0.05) 30%,
+      rgba(8, 8, 10, 0.82) 100%
+    );
+}
+
+.brand-card:hover .brand-card-image {
+  transform: scale(1.06);
+}
+
+.brand-card-content {
+  position: relative;
+  z-index: 2;
+}
