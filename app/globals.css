@@ -2145,6 +2145,12 @@ body {
     transform 220ms ease,
     border-color 220ms ease,
     background 220ms ease;
+
+    .brand-card-link {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
 }
 
 .brand-card::before {

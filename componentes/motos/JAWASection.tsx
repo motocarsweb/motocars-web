@@ -44,12 +44,23 @@ export default function JAWASection() {
             ))}
           </div>
 
-          <a
-            href={jawaData.buttonHref}
-            className="jawa-section-button"
-          >
-            {jawaData.buttonLabel}
-          </a>
+          <div className="jawa-section-actions">
+  <a
+    href={jawaData.buttonHref}
+    className="jawa-section-button"
+  >
+    {jawaData.buttonLabel}
+  </a>
+
+  <a
+    href="https://www.instagram.com/jawapatagonia/"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="jawa-section-instagram"
+  >
+    Instagram JAWA Patagonia
+  </a>
+</div>
         </div>
       </div>
     </section>

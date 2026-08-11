@@ -14,7 +14,7 @@ const marcas = [
     nombre: "RVM Patagonia",
     descripcion: "Adventure, touring, enduro y motos para todos los caminos.",
     logo: "/logos/rvm-white.png",
-    href: "#vehiculos",
+    href: "/motos#rvm",
     boton: "Ver motos RVM",
     clase: "brand-card brand-card-rvm",
   },
@@ -22,7 +22,7 @@ const marcas = [
     nombre: "JAWA Patagonia",
     descripcion: "Motos clásicas, urbanas y touring con identidad propia.",
     logo: "/logos/jawa-white.png",
-    href: "#vehiculos",
+    href: "/motos#jawa",
     boton: "Ver motos JAWA",
     clase: "brand-card brand-card-jawa",
   },
@@ -47,31 +47,35 @@ export default function Brands() {
         </div>
 
         <div className="brands-grid">
-          {marcas.map((marca) => (
-            <article key={marca.nombre} className={marca.clase}>
-              <div className="brand-logo-wrapper">
-     <Image
-  src={marca.logo}
-  alt={marca.nombre}
-  width={360}
-  height={140}
-  className="brand-logo"
-  unoptimized
-/>
+  {marcas.map((marca) => (
+    <Link
+      key={marca.nombre}
+      href={marca.href}
+      className={`${marca.clase} brand-card-link`}
+      aria-label={`${marca.boton} - ${marca.nombre}`}
+    >
+      <div className="brand-logo-wrapper">
+        <Image
+          src={marca.logo}
+          alt={marca.nombre}
+          width={360}
+          height={140}
+          className="brand-logo"
+          unoptimized
+        />
+      </div>
 
-              </div>
+      <div className="brand-content">
+        <p>{marca.descripcion}</p>
 
-              <div className="brand-content">
-                <p>{marca.descripcion}</p>
-
-                <Link href={marca.href} className="brand-link">
-                  {marca.boton}
-                  <span aria-hidden="true">→</span>
-                </Link>
-              </div>
-            </article>
-          ))}
-        </div>
+        <span className="brand-link">
+          {marca.boton}
+          <span aria-hidden="true">→</span>
+        </span>
+      </div>
+    </Link>
+  ))}
+</div>
       </div>
     </section>
   );

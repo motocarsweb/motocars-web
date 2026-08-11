@@ -27,12 +27,23 @@ export default function RVMSection() {
             ))}
           </div>
 
-          <a
-            href={rvmData.buttonHref}
-            className="rvm-section-button"
-          >
-            {rvmData.buttonLabel}
-          </a>
+          <div className="rvm-section-actions">
+  <a
+    href={rvmData.buttonHref}
+    className="rvm-section-button"
+  >
+    {rvmData.buttonLabel}
+  </a>
+
+  <a
+    href="https://www.instagram.com/rvmpatagonia/"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="rvm-section-instagram"
+  >
+    Instagram RVM Patagonia
+  </a>
+</div>
         </div>
 
         <div className="rvm-section-media">
