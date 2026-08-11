@@ -2,8 +2,6 @@ import "./BrandsSection.css";
 import "./RVMSection.css";
 import { motoCategories } from "@/lib/motos/categories";
 
-
-
 export default function BrandsSection() {
   return (
     <section className="brands-section">
@@ -24,11 +22,12 @@ export default function BrandsSection() {
               className="brand-card"
             >
               <div
-  className="brand-card-image"
-  style={{
-    backgroundImage: `url(${category.image})`,
-  }}
-/>
+                className="brand-card-image"
+                style={{
+                  backgroundImage: `url(${category.image})`,
+                }}
+              />
+
               <div className="brand-card-content">
                 <span className="brand-card-brand">
                   {category.brand}

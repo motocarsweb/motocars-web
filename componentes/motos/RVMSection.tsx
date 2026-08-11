@@ -35,16 +35,18 @@ export default function RVMSection() {
           </a>
         </div>
 
-        <div className="rvm-section-image">
-          <Image
-            src={rvmData.image}
-            alt="RVM Patagonia"
-            width={1600}
-            height={900}
-            unoptimized
-          />
+        <div className="rvm-section-media">
+          <div className="rvm-section-image">
+            <Image
+              src={rvmData.image}
+              alt="RVM Patagonia"
+              width={1600}
+              height={900}
+              unoptimized
+            />
+          </div>
 
-          <div className="rvm-section-image-badge">
+          <div className="rvm-section-location">
             <span>Neuquén Capital</span>
             <strong>Representante Oficial RVM Patagonia</strong>
           </div>

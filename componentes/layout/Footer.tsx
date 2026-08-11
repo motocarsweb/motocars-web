@@ -11,33 +11,43 @@ import {
 const WHATSAPP_URL =
   "https://wa.me/5492995133023?text=Hola%20MotoCars%2C%20quiero%20hacer%20una%20consulta.";
 
-export default function Footer() {
+type FooterProps = {
+  showCta?: boolean;
+};
+
+export default function Footer({
+  showCta = true,
+}: FooterProps) {
   return (
-    <footer id="contacto" className="site-footer">
-      {/* CTA SUPERIOR */}
-      <div className="footer-cta">
-        <div className="container footer-cta-inner">
-          <div>
-            <span className="footer-eyebrow">Estamos para asesorarte</span>
+    <footer
+  id="contacto"
+  className={`site-footer ${!showCta ? "site-footer-no-cta" : ""}`}
+>
+     {showCta && (
+  <div className="footer-cta">
+    <div className="container footer-cta-inner">
+      <div>
+        <span className="footer-eyebrow">Estamos para asesorarte</span>
 
-            <h2>¿Encontraste el vehículo que buscabas?</h2>
+        <h2>¿Encontraste el vehículo que buscabas?</h2>
 
-            <p>
-              Escribinos y recibí atención personalizada de nuestro equipo.
-            </p>
-          </div>
-
-          <a
-            href={WHATSAPP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="footer-cta-button"
-          >
-            <MessageCircle size={19} />
-            Consultar ahora
-          </a>
-        </div>
+        <p>
+          Escribinos y recibí atención personalizada de nuestro equipo.
+        </p>
       </div>
+
+      <a
+        href={WHATSAPP_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="footer-cta-button"
+      >
+        <MessageCircle size={19} />
+        Consultar ahora
+      </a>
+    </div>
+  </div>
+)}
 
       {/* CONTENIDO PRINCIPAL */}
       <div className="footer-main">

@@ -184,3 +184,38 @@
   position: relative;
   z-index: 2;
 }
+@media (max-width: 700px) {
+  .brands-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .brand-card {
+    min-height: 340px;
+    width: 100%;
+  }
+
+  .brand-card-image {
+    min-height: 340px;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .brand-card-content {
+    padding: 26px 24px;
+  }
+
+  .brand-card-content h3 {
+    font-size: 34px;
+    line-height: 1;
+  }
+
+  .brand-card-content p {
+    font-size: 17px;
+    line-height: 1.5;
+  }
+
+  .brand-card-content small {
+    font-size: 15px;
+  }
+}

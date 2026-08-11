@@ -1,6 +1,5 @@
 .jawa-section {
   padding: 110px 0;
-
   background: #111111;
   color: #ffffff;
 }
@@ -8,87 +7,9 @@
 .jawa-section-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-
   gap: 64px;
-
   align-items: center;
 }
-
-/* =========================
-   IMAGEN
-========================= */
-
-.jawa-section-media {
-  width: 100%;
-}
-
-.jawa-section-image {
-  position: relative;
-
-  width: 100%;
-  aspect-ratio: 16 / 9;
-
-  overflow: hidden;
-
-  border-radius: 24px;
-
-  background: #080808;
-
-  box-shadow:
-    0 25px 60px rgba(0, 0, 0, 0.35);
-}
-
-.jawa-section-image img {
-  display: block;
-
-  width: 100%;
-  height: 100%;
-
-  object-fit: cover;
-  object-position: center;
-
-  transition: transform 0.45s ease;
-}
-
-.jawa-section-image:hover img {
-  transform: scale(1.035);
-}
-
-/* =========================
-   UBICACIÓN / REPRESENTACIÓN
-========================= */
-
-.jawa-section-location {
-  display: flex;
-  flex-direction: column;
-
-  gap: 5px;
-
-  margin-top: 18px;
-  padding-left: 4px;
-}
-
-.jawa-section-location span {
-  color: #a7a7a7;
-
-  font-size: 13px;
-  font-weight: 600;
-
-  letter-spacing: 0.8px;
-}
-
-.jawa-section-location strong {
-  color: #ffffff;
-
-  font-size: 17px;
-  font-weight: 800;
-
-  line-height: 1.25;
-}
-
-/* =========================
-   CONTENIDO
-========================= */
 
 .jawa-section-content {
   max-width: 560px;
@@ -96,16 +17,13 @@
 
 .jawa-section-eyebrow {
   display: inline-block;
-
   margin-bottom: 18px;
 
   color: #d7a54a;
 
   font-size: 13px;
   font-weight: 900;
-
   letter-spacing: 2px;
-
   text-transform: uppercase;
 }
 
@@ -116,9 +34,7 @@
 
   font-size: clamp(42px, 5vw, 68px);
   font-weight: 900;
-
   line-height: 0.98;
-
   letter-spacing: -2px;
 }
 
@@ -128,18 +44,12 @@
   color: #b7b7b7;
 
   font-size: 17px;
-
   line-height: 1.75;
 }
-
-/* =========================
-   CATEGORÍAS
-========================= */
 
 .jawa-section-categories {
   display: flex;
   flex-wrap: wrap;
-
   gap: 10px;
 
   margin-bottom: 34px;
@@ -147,12 +57,10 @@
 
 .jawa-section-categories span {
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
 
   min-height: 38px;
-
   padding: 0 17px;
 
   color: #ffffff;
@@ -165,16 +73,9 @@
   font-weight: 800;
 }
 
-/* =========================
-   BENEFICIOS
-========================= */
-
 .jawa-section-benefits {
   display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(180px, 1fr));
-
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
   gap: 18px 28px;
 
   margin: 38px 0;
@@ -182,9 +83,7 @@
 
 .jawa-section-benefits span {
   display: flex;
-
   align-items: center;
-
   gap: 10px;
 
   color: #ffffff;
@@ -197,14 +96,11 @@
   content: "✓";
 
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
 
   width: 22px;
   height: 22px;
-
-  flex-shrink: 0;
 
   color: #111111;
   background: #d7a54a;
@@ -213,20 +109,16 @@
 
   font-size: 13px;
   font-weight: 900;
-}
 
-/* =========================
-   BOTÓN
-========================= */
+  flex-shrink: 0;
+}
 
 .jawa-section-button {
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
 
   min-height: 52px;
-
   padding: 0 24px;
 
   color: #111111;
@@ -236,7 +128,6 @@
 
   font-size: 14px;
   font-weight: 900;
-
   text-decoration: none;
 
   transition:
@@ -247,27 +138,91 @@
 
 .jawa-section-button:hover {
   background: #e4b75e;
-
   transform: translateY(-2px);
-
-  box-shadow:
-    0 12px 28px
-    rgba(215, 165, 74, 0.20);
+  box-shadow: 0 12px 28px rgba(215, 165, 74, 0.2);
 }
 
-/* =========================
-   TABLET
-========================= */
+.jawa-section-image {
+  position: relative;
+
+  width: 100%;
+  aspect-ratio: 16 / 9;
+
+  overflow: hidden;
+
+  border-radius: 24px;
+  background: #080808;
+
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+}
+
+.jawa-section-image img {
+  position: absolute;
+  inset: 0;
+
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: center;
+
+  transition: transform 0.45s ease;
+}
+
+.jawa-section-image:hover img {
+  transform: scale(1.04);
+}
+
+.jawa-section-image-badge {
+  position: absolute;
+
+  left: 24px;
+  bottom: 20px;
+  
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  max-width: calc(100% - 48px);
+  padding: 14px 18px;
+
+ background: rgba(15, 15, 15, 0.94);
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.jawa-section-image-badge span {
+  color: #b5b5b5;
+
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.jawa-section-image-badge strong {
+  color: #ffffff;
+
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+/* TABLET */
 
 @media (max-width: 900px) {
   .jawa-section {
-    padding: 80px 0;
+    padding: 72px 0;
   }
 
   .jawa-section-grid {
     grid-template-columns: 1fr;
-
-    gap: 44px;
+    gap: 36px;
   }
 
   .jawa-section-content {
@@ -275,35 +230,56 @@
   }
 }
 
-/* =========================
-   MOBILE
-========================= */
+/* MOBILE */
 
 @media (max-width: 620px) {
   .jawa-section {
-    padding: 64px 0;
+    padding: 44px 0;
+  }
+
+  .jawa-section-grid {
+    gap: 30px;
   }
 
   .jawa-section h2 {
-    font-size:
-      clamp(38px, 12vw, 52px);
+    font-size: 42px;
+    line-height: 0.98;
   }
 
   .jawa-section p {
     font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .jawa-section-categories {
+    gap: 10px;
+    margin-bottom: 26px;
+  }
+
+  .jawa-section-categories span {
+    min-height: 36px;
+    padding: 0 14px;
+    font-size: 12px;
   }
 
   .jawa-section-benefits {
     grid-template-columns: 1fr;
+    gap: 14px;
+    margin: 22px 0;
   }
 
   .jawa-section-button {
-    width: 100%;
+    width: auto;
+    min-width: 190px;
+    padding: 0 24px;
   }
 
   .jawa-section-location {
-    margin-top: 14px;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 14px;
+}
 
   .jawa-section-location strong {
     font-size: 15px;

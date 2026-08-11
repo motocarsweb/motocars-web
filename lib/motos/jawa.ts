@@ -4,7 +4,7 @@ export const jawaData = {
   title: "La tradición continúa.",
 
   description:
-    "Con más de un siglo de historia, JAWA combina diseño clásico, tecnología moderna y una personalidad única. Una moto para disfrutar cada recorrido con estilo y autenticidad.",
+    "Con casi un siglo de historia, JAWA combina diseño clásico, tecnología moderna y una personalidad única. Una moto para disfrutar cada recorrido con estilo y autenticidad.",
 
   categories: [
     "Clásicas",

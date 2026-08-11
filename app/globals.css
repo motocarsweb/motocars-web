@@ -486,13 +486,22 @@ flex-shrink: 0;
   }
 
   .hero-buttons {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
   }
 
   .hero-primary-button,
   .hero-whatsapp-button {
-    width: 100%;
+    flex: 0 0 auto;
+    width: fit-content;
+    min-width: 0;
+    min-height: 46px;
+    padding: 0 16px;
+    font-size: 13px;
+    white-space: nowrap;
   }
 
   .hero-trust {
@@ -1653,25 +1662,10 @@ flex-shrink: 0;
 
 /* RESPONSIVE */
 @media (max-width: 950px) {
-  nav {
-    display: none;
-  }
-
   .header .btn {
     padding: 12px 18px;
   }
 
-  
-
-  
-
-  
-
-  
-
-  
-
-  
 
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1729,26 +1723,62 @@ flex-shrink: 0;
 
   
 
-  .btn,
-  .btn-outline {
-    width: 100%;
-  }
-
   .stats,
   .featured-cars,
   .about {
-    padding: 60px 0;
+    padding: 32px 0;
   }
 
-  .stats-grid,
-  .vehicles-grid,
-  .showroom-grid {
-    grid-template-columns: 1fr;
-  }
+  .stats-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.vehicles-grid,
+.showroom-grid {
+  grid-template-columns: 1fr;
+}
 
   .stat-card {
-    min-height: 0;
-  }
+  min-height: 210px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+
+  padding: 18px;
+}
+
+.stat-icon {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+}
+
+.stat-content strong {
+  margin-bottom: 6px;
+
+  font-size: 24px;
+  line-height: 1;
+  white-space: normal;
+}
+
+.stat-content strong.stat-value-long {
+  font-size: 20px;
+  line-height: 1.05;
+  white-space: normal;
+}
+
+.stat-content h2 {
+  margin-bottom: 6px;
+
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.stat-content p {
+  font-size: 12px;
+  line-height: 1.45;
+}
 
   .section-heading p,
   .section-title p {
@@ -1818,9 +1848,6 @@ flex-shrink: 0;
 }
 
 
-
-
-
 /* =========================================================
    RESPONSIVE - MÓVIL
    ========================================================= */
@@ -1849,39 +1876,20 @@ body {
     padding: 0 18px;
   }
 
-  .header-logo {
-    width: 120px;
-    height: auto;
-  }
-
   /* Ocultamos el menú de escritorio temporalmente */
   .header-nav,
   .header-actions {
     display: none;
   }
 
-  
 
-  
+  .stats-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
 
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  .stats-grid,
-  .vehicles-grid {
-    grid-template-columns: 1fr;
-  }
+.vehicles-grid {
+  grid-template-columns: 1fr;
+}
 }
 /* =========================================================
    MENÚ MÓVIL
@@ -1917,7 +1925,8 @@ body {
   }
 
   .header-logo {
-    width: 120px;
+    width: 165px;
+    height: auto;
     max-height: 72px;
     object-fit: contain;
   }
@@ -2016,8 +2025,10 @@ body {
 
 @media (max-width: 640px) {
   .stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
+
 }
 @supports (-webkit-touch-callout: none) {
   .stat-content strong.stat-value-long {
@@ -2025,53 +2036,6 @@ body {
     letter-spacing: -0.5px;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /* Tablet */
@@ -2086,7 +2050,9 @@ body {
    ========================================================= */
 
 .brands-section {
+  width: 100%;
   padding: 90px 0;
+
   background: #111111;
   color: #ffffff;
 }
@@ -2101,6 +2067,7 @@ body {
   margin-bottom: 14px;
 
   color: var(--mc-red);
+
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -2111,6 +2078,7 @@ body {
   margin: 0;
 
   color: #ffffff;
+
   font-size: clamp(38px, 5vw, 64px);
   font-weight: 800;
   line-height: 1.02;
@@ -2126,38 +2094,52 @@ body {
   max-width: 650px;
   margin: 22px 0 0;
 
-  color: rgba(255, 255, 255, 0.66);
+  color: rgba(255, 255, 255, 0.68);
+
   font-size: 17px;
   line-height: 1.65;
 }
 
+
+/* GRID */
+
 .brands-grid {
   display: grid;
+
   grid-template-columns: repeat(3, minmax(0, 1fr));
+
   gap: 18px;
+
+  width: 100%;
 }
+
+
+/* TARJETAS */
 
 .brand-card {
   position: relative;
 
-  min-height: 390px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 
+  min-width: 0;
+  min-height: 390px;
+
   padding: 34px;
+
+  overflow: hidden;
 
   border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 18px;
 
   background:
     linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.04),
-      rgba(255, 255, 255, 0.015)
-    );
-
-  overflow: hidden;
+      145deg,
+      rgba(255, 0, 50, 0.07),
+      rgba(255, 255, 255, 0.02) 55%
+    ),
+    #151515;
 
   transition:
     transform 220ms ease,
@@ -2167,31 +2149,31 @@ body {
 
 .brand-card::before {
   content: "";
-  position: absolute;
-  inset: auto -25% -45% auto;
 
-  width: 300px;
-  height: 300px;
+  position: absolute;
+  right: -80px;
+  bottom: -120px;
+
+  width: 280px;
+  height: 280px;
 
   border-radius: 50%;
 
   background: rgba(255, 0, 50, 0.08);
-  filter: blur(10px);
+
+  filter: blur(16px);
 
   pointer-events: none;
 }
 
 .brand-card:hover {
-  transform: translateY(-6px);
-  border-color: rgba(255, 0, 50, 0.55);
+  transform: translateY(-5px);
 
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 0, 50, 0.07),
-      rgba(255, 255, 255, 0.02)
-    );
+  border-color: rgba(255, 0, 50, 0.45);
 }
+
+
+/* LOGOS */
 
 .brand-logo-wrapper {
   position: relative;
@@ -2201,29 +2183,40 @@ body {
   align-items: center;
   justify-content: center;
 
-  min-height: 150px;
   width: 100%;
+  min-height: 145px;
 }
 
 .brand-logo {
   display: block;
 
   width: auto;
+  height: auto;
+
   max-width: 100%;
-  max-height: 150px;
+  max-height: 135px;
 
   object-fit: contain;
   object-position: center;
 }
+
+.brand-card-motocars .brand-logo {
+  max-width: 90%;
+  max-height: 120px;
+}
+
 .brand-card-rvm .brand-logo {
-  max-width: 100%;
-  max-height: 205px;
+  max-width: 95%;
+  max-height: 150px;
 }
 
 .brand-card-jawa .brand-logo {
-  max-width: 82%;
-  max-height: 128px;
+  max-width: 80%;
+  max-height: 115px;
 }
+
+
+/* CONTENIDO */
 
 .brand-content {
   position: relative;
@@ -2231,10 +2224,12 @@ body {
 }
 
 .brand-content p {
-  max-width: 320px;
-  margin: 0 0 26px;
+  max-width: 330px;
 
-  color: rgba(255, 255, 255, 0.66);
+  margin: 0 0 24px;
+
+  color: rgba(255, 255, 255, 0.67);
+
   font-size: 15px;
   line-height: 1.6;
 }
@@ -2242,11 +2237,14 @@ body {
 .brand-link {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+
+  gap: 9px;
 
   color: #ffffff;
+
   font-size: 14px;
   font-weight: 800;
+
   text-decoration: none;
 
   transition:
@@ -2255,42 +2253,50 @@ body {
 }
 
 .brand-link:hover {
-  gap: 14px;
+  gap: 13px;
   color: var(--mc-red);
 }
+
+
+/* VARIANTES */
 
 .brand-card-motocars {
   background:
     linear-gradient(
       145deg,
       rgba(255, 0, 50, 0.10),
-      rgba(255, 255, 255, 0.02) 55%
-    );
-}
-.brand-card-motocars .brand-logo {
-  max-width: 100%;
-  max-height: 165px;
+      rgba(255, 255, 255, 0.02) 58%
+    ),
+    #151515;
 }
 
 .brand-card-rvm {
   background:
     linear-gradient(
       145deg,
-      rgba(255, 0, 0, 0.10),
-      rgba(255, 255, 255, 0.02) 55%
-    );
+      rgba(180, 0, 20, 0.11),
+      rgba(255, 255, 255, 0.02) 58%
+    ),
+    #151515;
 }
 
 .brand-card-jawa {
   background:
     linear-gradient(
       145deg,
-      rgba(190, 0, 0, 0.12),
-      rgba(255, 255, 255, 0.02) 55%
-    );
+      rgba(150, 20, 20, 0.12),
+      rgba(255, 255, 255, 0.02) 58%
+    ),
+    #151515;
 }
 
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
 @media (max-width: 960px) {
+
   .brands-grid {
     grid-template-columns: 1fr;
   }
@@ -2304,13 +2310,19 @@ body {
   }
 }
 
-@media (max-width: 620px) {
+
+/* =========================================================
+   MÓVIL — TRIÁNGULO
+   MOTOCARS ARRIBA / RVM + JAWA ABAJO
+   ========================================================= */
+
+@media (max-width: 700px) {
   .brands-section {
-    padding: 64px 0;
+    padding: 48px 0;
   }
 
   .brands-heading {
-    margin-bottom: 34px;
+    margin-bottom: 30px;
   }
 
   .brands-heading h2 {
@@ -2319,16 +2331,131 @@ body {
 
   .brands-heading p {
     font-size: 15px;
+    line-height: 1.55;
   }
 
-  .brand-card {
-    min-height: 260px;
-    padding: 26px;
-    border-radius: 14px;
+  /* GRID TRIANGULAR */
+
+  .brands-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
   }
 
-  .brand-logo {
-    max-height: 90px;
+  /* =========================
+     MOTOCARS — ARRIBA
+     ========================= */
+
+  .brands-grid > .brand-card:first-child {
+    grid-column: 1 / -1;
+
+    min-height: 220px;
+    padding: 24px;
+
+    align-items: center;
+  }
+
+  .brands-grid > .brand-card:first-child .brand-logo-wrapper {
+    min-height: 90px;
+  }
+
+  .brand-card-motocars .brand-logo {
+  width: 380px;
+  max-width: 88%;
+  max-height: 135px;
+}
+
+  .brands-grid > .brand-card:first-child .brand-content {
+    width: 100%;
+    text-align: center;
+  }
+
+  .brands-grid > .brand-card:first-child .brand-content p {
+    max-width: 460px;
+
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 16px;
+  }
+
+  .brands-grid > .brand-card:first-child .brand-link {
+    justify-content: center;
+  }
+
+  /* =========================
+     RVM + JAWA — ABAJO
+     ========================= */
+
+  .brands-grid > .brand-card:nth-child(2),
+  .brands-grid > .brand-card:nth-child(3) {
+    min-height: 255px;
+    padding: 18px 16px;
+  }
+
+  .brands-grid > .brand-card:nth-child(2) .brand-logo-wrapper,
+  .brands-grid > .brand-card:nth-child(3) .brand-logo-wrapper {
+    min-height: 82px;
+  }
+
+  .brand-card-rvm .brand-logo {
+    width: 150px;
+    max-width: 92%;
+    max-height: 78px;
+  }
+
+  .brand-card-jawa .brand-logo {
+    width: 135px;
+    max-width: 86%;
+    max-height: 76px;
+  }
+
+  /* TEXTOS */
+
+  .brand-content p {
+    margin-bottom: 16px;
+
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .brand-link {
+    gap: 6px;
+
+    font-size: 11px;
+    line-height: 1.2;
+  }
+}
+
+
+/* =========================================================
+   CELULARES MUY ANGOSTOS
+   ========================================================= */
+
+@media (max-width: 360px) {
+
+  .brands-grid {
+    gap: 10px;
+  }
+
+  .brands-grid > .brand-card:nth-child(2),
+  .brands-grid > .brand-card:nth-child(3) {
+    padding: 16px 10px;
+  }
+
+  .brand-card-rvm .brand-logo {
+    max-width: 115px;
+  }
+
+  .brand-card-jawa .brand-logo {
+    max-width: 105px;
+  }
+
+  .brand-content p {
+    font-size: 11px;
+  }
+
+  .brand-link {
+    font-size: 10px;
   }
 }
 /* =========================================================
@@ -2341,7 +2468,10 @@ body {
   color: #ffffff;
 }
 
-/* CTA SUPERIOR */
+
+/* =========================================================
+   CTA SUPERIOR
+   ========================================================= */
 
 .footer-cta {
   background:
@@ -2403,10 +2533,10 @@ body {
   justify-content: center;
   gap: 9px;
 
+  flex-shrink: 0;
+
   min-height: 50px;
   padding: 0 22px;
-
-  flex-shrink: 0;
 
   color: #ffffff;
   background: var(--mc-red);
@@ -2419,9 +2549,9 @@ body {
   text-decoration: none;
 
   transition:
-    transform .2s ease,
-    background-color .2s ease,
-    box-shadow .2s ease;
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .footer-cta-button:hover {
@@ -2432,7 +2562,10 @@ body {
   box-shadow: 0 12px 26px rgba(255, 0, 50, 0.24);
 }
 
-/* CONTENIDO PRINCIPAL */
+
+/* =========================================================
+   CONTENIDO PRINCIPAL
+   ========================================================= */
 
 .footer-main {
   padding: 62px 0 22px;
@@ -2448,12 +2581,17 @@ body {
 
 .footer-grid {
   display: grid;
+
   grid-template-columns: 1.4fr 0.8fr 1.15fr 1fr;
+
   gap: 44px;
   align-items: start;
 }
 
-/* COLUMNA MARCA */
+
+/* =========================================================
+   MARCA PRINCIPAL
+   ========================================================= */
 
 .footer-brand {
   max-width: 320px;
@@ -2469,9 +2607,6 @@ body {
   width: min(260px, 100%);
   height: auto;
 }
-
-
-
 
 .footer-history {
   display: flex;
@@ -2509,7 +2644,10 @@ body {
   text-align: center;
 }
 
-/* COLUMNAS */
+
+/* =========================================================
+   COLUMNAS
+   ========================================================= */
 
 .footer-column h3 {
   margin: 0 0 20px;
@@ -2518,58 +2656,80 @@ body {
 
   font-size: 14px;
   font-weight: 900;
-  letter-spacing: .7px;
+  letter-spacing: 0.7px;
   text-transform: uppercase;
 }
+
+
+/* MARCAS */
 
 .footer-links {
   display: flex;
   flex-direction: column;
+
   gap: 12px;
 }
 
 .footer-links a {
   position: relative;
+
   width: fit-content;
   padding-left: 16px;
+
   color: rgba(255, 255, 255, 0.68);
+
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
-  transition: color .2s ease, transform .2s ease;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .footer-links a::before {
   content: "";
+
   position: absolute;
+
   left: 0;
   top: 50%;
+
   width: 5px;
   height: 5px;
+
   border-radius: 50%;
+
   background: var(--mc-red);
+
   transform: translateY(-50%);
 }
 
 .footer-links a:hover {
   color: var(--mc-red);
+
   transform: translateX(3px);
 }
 
-/* CONTACTO */
+
+/* =========================================================
+   CONTACTO
+   ========================================================= */
 
 .footer-contact-list {
   display: flex;
   flex-direction: column;
+
   gap: 16px;
 }
 
 .footer-contact-item {
   display: flex;
   align-items: flex-start;
+
   gap: 10px;
 
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.70);
 
   font-size: 13px;
   line-height: 1.5;
@@ -2586,6 +2746,8 @@ body {
 
 .footer-contact-item span {
   min-width: 0;
+
+  overflow-wrap: anywhere;
 }
 
 .footer-contact-item small {
@@ -2602,17 +2764,22 @@ a.footer-contact-item:hover {
   color: #ffffff;
 }
 
-/* HORARIOS */
+
+/* =========================================================
+   HORARIOS
+   ========================================================= */
 
 .footer-hours {
   display: flex;
   flex-direction: column;
+
   gap: 15px;
 }
 
 .footer-hours > div {
   display: flex;
   align-items: flex-start;
+
   gap: 10px;
 }
 
@@ -2627,6 +2794,7 @@ a.footer-contact-item:hover {
 .footer-hours span {
   display: flex;
   flex-direction: column;
+
   gap: 3px;
 }
 
@@ -2646,6 +2814,7 @@ a.footer-contact-item:hover {
 .footer-whatsapp-note {
   display: inline-flex;
   align-items: center;
+
   gap: 8px;
 
   margin-top: 20px;
@@ -2657,22 +2826,28 @@ a.footer-contact-item:hover {
   line-height: 1.45;
   text-decoration: none;
 
-  transition: color .2s ease;
+  transition: color 0.2s ease;
 }
 
 .footer-whatsapp-note svg {
-  color: #25D366;
+  flex: 0 0 auto;
+
+  color: #25d366;
 }
 
 .footer-whatsapp-note:hover {
   color: #ffffff;
 }
 
-/* REDES */
+
+/* =========================================================
+   REDES
+   ========================================================= */
 
 .footer-social {
   display: flex;
   align-items: center;
+
   gap: 10px;
 
   margin-top: 18px;
@@ -2691,7 +2866,7 @@ a.footer-contact-item:hover {
 
   background: rgba(255, 255, 255, 0.05);
 
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 10px;
 
   font-size: 12px;
@@ -2699,10 +2874,10 @@ a.footer-contact-item:hover {
   text-decoration: none;
 
   transition:
-    color .2s ease,
-    border-color .2s ease,
-    background-color .2s ease,
-    transform .2s ease;
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .footer-social a:hover {
@@ -2714,12 +2889,16 @@ a.footer-contact-item:hover {
   transform: translateY(-2px);
 }
 
-/* TRES LOGOS */
+
+/* =========================================================
+   TRES LOGOS
+   ========================================================= */
 
 .footer-brands-strip {
   display: flex;
   align-items: center;
   justify-content: center;
+
   gap: 56px;
 
   margin-top: 54px;
@@ -2737,15 +2916,16 @@ a.footer-contact-item:hover {
   min-width: 130px;
   min-height: 70px;
 
-  opacity: .72;
+  opacity: 0.72;
 
   transition:
-    opacity .2s ease,
-    transform .2s ease;
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .footer-brand-link:hover {
   opacity: 1;
+
   transform: translateY(-2px);
 }
 
@@ -2759,12 +2939,16 @@ a.footer-contact-item:hover {
   object-fit: contain;
 }
 
-/* PIE FINAL */
+
+/* =========================================================
+   PIE FINAL
+   ========================================================= */
 
 .footer-bottom {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 20px;
 
   padding-top: 28px;
@@ -2782,11 +2966,17 @@ a.footer-contact-item:hover {
   line-height: 1.5;
 }
 
-/* RESPONSIVE */
+
+/* =========================================================
+   TABLET
+   ========================================================= */
 
 @media (max-width: 1000px) {
+
   .footer-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 36px;
   }
 
   .footer-brand {
@@ -2794,69 +2984,187 @@ a.footer-contact-item:hover {
   }
 }
 
+
+/* =========================================================
+   MÓVIL
+   ========================================================= */
+
 @media (max-width: 700px) {
+
   .site-footer {
-    margin-top: 64px;
+    margin-top: 48px;
   }
+
+
+  /* CTA */
 
   .footer-cta-inner {
     flex-direction: column;
     align-items: flex-start;
 
-    padding-top: 34px;
-    padding-bottom: 34px;
+    gap: 20px;
+
+    padding-top: 28px;
+    padding-bottom: 28px;
+  }
+
+  .footer-cta h2 {
+    font-size: 30px;
+  }
+
+  .footer-cta p {
+    font-size: 14px;
   }
 
   .footer-cta-button {
-    width: 100%;
+    width: auto;
+    min-width: 190px;
+    min-height: 48px;
+
+    padding: 0 20px;
   }
 
+
+  /* CONTENIDO */
+
   .footer-main {
-    padding-top: 46px;
+    padding-top: 38px;
+    padding-bottom: 18px;
   }
 
   .footer-grid {
     grid-template-columns: 1fr;
-    gap: 36px;
+
+    gap: 28px;
   }
+
+
+  /* LOGO PRINCIPAL */
 
   .footer-brand {
     max-width: 100%;
   }
 
   .footer-main-logo {
-    width: 320px;
+    width: 240px;
   }
+
+  .footer-history {
+    align-items: flex-start;
+
+    margin-top: 16px;
+
+    text-align: left;
+  }
+
+  .footer-history-line {
+    width: 64px;
+  }
+
+  .footer-history strong {
+    max-width: 100%;
+
+    font-size: 16px;
+
+    text-align: left;
+  }
+
+
+  /* COLUMNAS */
+
+  .footer-column h3 {
+    margin-bottom: 16px;
+  }
+
+  .footer-links {
+    gap: 10px;
+  }
+
+  .footer-contact-list {
+    gap: 14px;
+  }
+
+  .footer-hours {
+    gap: 13px;
+  }
+
+  .footer-whatsapp-note {
+    margin-top: 16px;
+  }
+
+  .footer-social {
+    margin-top: 14px;
+  }
+
+
+  /* TRIÁNGULO DE MARCAS */
 
   .footer-brands-strip {
-    flex-direction: column;
-    gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 
-    margin-top: 42px;
-  }
+  gap: 16px 28px;
 
-  .footer-brand-link {
-    min-height: 56px;
-  }
+  margin-top: 28px;
+  padding: 22px 0;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-brand-link {
+  min-width: 0;
+  min-height: 64px;
+
+  opacity: 0.9;
+}
+
+.footer-brand-link:first-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
+.footer-brand-link:nth-child(2),
+.footer-brand-link:nth-child(3) {
+  justify-self: center;
+}
+
+.footer-brand-link:first-child img {
+  max-width: 250px;
+  max-height: 82px;
+}
+
+.footer-brand-link:nth-child(2) img {
+  max-width: 155px;
+  max-height: 68px;
+}
+
+.footer-brand-link:nth-child(3) img {
+  max-width: 145px;
+  max-height: 68px;
+}
+
+  /* PIE */
 
   .footer-bottom {
     flex-direction: column;
     align-items: flex-start;
 
-    padding-top: 20px;
+    gap: 6px;
+
+    padding-top: 18px;
+    padding-bottom: 4px;
+  }
+
+  .footer-bottom p,
+  .footer-bottom span {
+    font-size: 12px;
   }
 }
 
 
+/* FOOTER SIN CTA */
 
-
-
-
-
-
-
-
-
-
-
-
+.site-footer-no-cta {
+  margin-top: 0;
+}

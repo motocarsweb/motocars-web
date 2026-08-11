@@ -1,3 +1,4 @@
+import Footer from "@/componentes/layout/Footer";
 import {
   HeroMotos,
   BrandsSection,
@@ -7,11 +8,12 @@ import {
 
 export default function MotosPage() {
   return (
-    <main>
-      <HeroMotos />
-      <BrandsSection />
-      <RVMSection />
-      <JAWASection />
-    </main>
+
+      <><main>
+          <HeroMotos />
+          <BrandsSection />
+          <RVMSection />
+          <JAWASection />
+      </main><Footer showCta={false} /></>
   );
 }

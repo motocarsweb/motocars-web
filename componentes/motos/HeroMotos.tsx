@@ -8,6 +8,15 @@ export default function HeroMotos() {
   return (
     <section className="motos-hero">
       <div className="motos-overlay" />
+      <div className="motos-isotipo">
+  <Image
+    src="/images/showroom/patagonia-isotipo.png"
+    alt=""
+    width={700}
+    height={700}
+    unoptimized
+  />
+</div>
 
       <div className="container motos-content">
         <span className="motos-eyebrow">

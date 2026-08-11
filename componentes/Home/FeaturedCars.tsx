@@ -47,10 +47,10 @@ export default function FeaturedCars({ vehicles }: Props) {
 
   return (
     <section
-      id="vehiculos"
-      className="featured-cars"
-      style={{ marginTop: "-100px" }}
-    >
+  id="vehiculos"
+  className="featured-cars"
+>
+  
       <div className="container">
         <VehicleFilters
           searchTerm={searchTerm}
