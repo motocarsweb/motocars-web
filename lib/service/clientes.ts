@@ -1,6 +1,8 @@
 import { supabase } from "@/lib/supabase";
 
-export type TipoPersona = "fisica" | "juridica";
+export type TipoPersona =
+  | "fisica"
+  | "juridica";
 
 export type Cliente = {
   id: number;
@@ -21,6 +23,12 @@ export type Cliente = {
   provincia: string | null;
   ciudad: string | null;
   direccion: string | null;
+
+  fecha_nacimiento: string | null;
+  estado_civil: string | null;
+
+  conyuge_nombre: string | null;
+  conyuge_dni: string | null;
 
   observaciones: string | null;
 
@@ -48,6 +56,12 @@ export type ClienteFormulario = {
   ciudad: string;
   direccion: string;
 
+  fecha_nacimiento: string;
+  estado_civil: string;
+
+  conyuge_nombre: string;
+  conyuge_dni: string;
+
   observaciones: string;
 
   activo: boolean;
@@ -71,65 +85,174 @@ export const CLIENTE_FORMULARIO_INICIAL: ClienteFormulario = {
   ciudad: "Neuquén",
   direccion: "",
 
+  fecha_nacimiento: "",
+  estado_civil: "",
+
+  conyuge_nombre: "",
+  conyuge_dni: "",
+
   observaciones: "",
 
   activo: true,
 };
 
-function valorOpcional(valor: string): string | null {
-  const valorLimpio = valor.trim();
+function valorOpcional(
+  valor: string
+): string | null {
+  const valorLimpio =
+    valor.trim();
 
-  return valorLimpio ? valorLimpio : null;
+  return valorLimpio
+    ? valorLimpio
+    : null;
 }
 
-function prepararCliente(cliente: ClienteFormulario) {
+function prepararCliente(
+  cliente: ClienteFormulario
+) {
   return {
-    tipo_persona: cliente.tipo_persona,
+    tipo_persona:
+      cliente.tipo_persona,
 
     nombre:
-      cliente.tipo_persona === "fisica"
-        ? valorOpcional(cliente.nombre)
+      cliente.tipo_persona ===
+      "fisica"
+        ? valorOpcional(
+            cliente.nombre
+          )
         : null,
 
     apellido:
-      cliente.tipo_persona === "fisica"
-        ? valorOpcional(cliente.apellido)
+      cliente.tipo_persona ===
+      "fisica"
+        ? valorOpcional(
+            cliente.apellido
+          )
         : null,
 
     razon_social:
-      cliente.tipo_persona === "juridica"
-        ? valorOpcional(cliente.razon_social)
+      cliente.tipo_persona ===
+      "juridica"
+        ? valorOpcional(
+            cliente.razon_social
+          )
         : null,
 
     dni:
-      cliente.tipo_persona === "fisica"
-        ? valorOpcional(cliente.dni)
+      cliente.tipo_persona ===
+      "fisica"
+        ? valorOpcional(
+            cliente.dni
+          )
         : null,
 
-    cuit: valorOpcional(cliente.cuit),
+    cuit:
+      valorOpcional(
+        cliente.cuit
+      ),
 
-    telefono: valorOpcional(cliente.telefono),
-    whatsapp: valorOpcional(cliente.whatsapp),
-    email: valorOpcional(cliente.email),
+    telefono:
+      valorOpcional(
+        cliente.telefono
+      ),
 
-    provincia: valorOpcional(cliente.provincia),
-    ciudad: valorOpcional(cliente.ciudad),
-    direccion: valorOpcional(cliente.direccion),
+    whatsapp:
+      valorOpcional(
+        cliente.whatsapp
+      ),
 
-    observaciones: valorOpcional(cliente.observaciones),
+    email:
+      valorOpcional(
+        cliente.email
+      ),
 
-    activo: cliente.activo,
+    provincia:
+      valorOpcional(
+        cliente.provincia
+      ),
+
+    ciudad:
+      valorOpcional(
+        cliente.ciudad
+      ),
+
+    direccion:
+      valorOpcional(
+        cliente.direccion
+      ),
+
+    fecha_nacimiento:
+      cliente.tipo_persona ===
+        "fisica" &&
+      cliente.fecha_nacimiento
+        ? cliente.fecha_nacimiento
+        : null,
+
+    estado_civil:
+      cliente.tipo_persona ===
+      "fisica"
+        ? valorOpcional(
+            cliente.estado_civil
+          )
+        : null,
+
+    conyuge_nombre:
+      cliente.tipo_persona ===
+      "fisica"
+        ? valorOpcional(
+            cliente.conyuge_nombre
+          )
+        : null,
+
+    conyuge_dni:
+      cliente.tipo_persona ===
+      "fisica"
+        ? valorOpcional(
+            cliente.conyuge_dni
+          )
+        : null,
+
+    observaciones:
+      valorOpcional(
+        cliente.observaciones
+      ),
+
+    activo:
+      cliente.activo,
   };
 }
 
-export async function listarClientes(): Promise<Cliente[]> {
-  const { data, error } = await supabase
-    .from("clientes")
-    .select("*")
-    .order("activo", { ascending: false })
-    .order("apellido", { ascending: true })
-    .order("nombre", { ascending: true })
-    .order("razon_social", { ascending: true });
+export async function listarClientes(): Promise<
+  Cliente[]
+> {
+  const { data, error } =
+    await supabase
+      .from("clientes")
+      .select("*")
+      .order(
+        "activo",
+        {
+          ascending: false,
+        }
+      )
+      .order(
+        "apellido",
+        {
+          ascending: true,
+        }
+      )
+      .order(
+        "nombre",
+        {
+          ascending: true,
+        }
+      )
+      .order(
+        "razon_social",
+        {
+          ascending: true,
+        }
+      );
 
   if (error) {
     throw new Error(
@@ -143,13 +266,20 @@ export async function listarClientes(): Promise<Cliente[]> {
 export async function obtenerCliente(
   clienteId: number
 ): Promise<Cliente> {
-  const { data, error } = await supabase
-    .from("clientes")
-    .select("*")
-    .eq("id", clienteId)
-    .single();
+  const { data, error } =
+    await supabase
+      .from("clientes")
+      .select("*")
+      .eq(
+        "id",
+        clienteId
+      )
+      .single();
 
-  if (error || !data) {
+  if (
+    error ||
+    !data
+  ) {
     throw new Error(
       error?.message
         ? `No se pudo obtener el cliente: ${error.message}`
@@ -163,13 +293,21 @@ export async function obtenerCliente(
 export async function crearCliente(
   cliente: ClienteFormulario
 ): Promise<Cliente> {
-  const { data, error } = await supabase
-    .from("clientes")
-    .insert(prepararCliente(cliente))
-    .select("*")
-    .single();
+  const { data, error } =
+    await supabase
+      .from("clientes")
+      .insert(
+        prepararCliente(
+          cliente
+        )
+      )
+      .select("*")
+      .single();
 
-  if (error || !data) {
+  if (
+    error ||
+    !data
+  ) {
     throw new Error(
       error?.message
         ? `No se pudo crear el cliente: ${error.message}`
@@ -184,14 +322,25 @@ export async function actualizarCliente(
   clienteId: number,
   cliente: ClienteFormulario
 ): Promise<Cliente> {
-  const { data, error } = await supabase
-    .from("clientes")
-    .update(prepararCliente(cliente))
-    .eq("id", clienteId)
-    .select("*")
-    .single();
+  const { data, error } =
+    await supabase
+      .from("clientes")
+      .update(
+        prepararCliente(
+          cliente
+        )
+      )
+      .eq(
+        "id",
+        clienteId
+      )
+      .select("*")
+      .single();
 
-  if (error || !data) {
+  if (
+    error ||
+    !data
+  ) {
     throw new Error(
       error?.message
         ? `No se pudo actualizar el cliente: ${error.message}`
@@ -206,10 +355,16 @@ export async function cambiarEstadoCliente(
   clienteId: number,
   activo: boolean
 ): Promise<void> {
-  const { error } = await supabase
-    .from("clientes")
-    .update({ activo })
-    .eq("id", clienteId);
+  const { error } =
+    await supabase
+      .from("clientes")
+      .update({
+        activo,
+      })
+      .eq(
+        "id",
+        clienteId
+      );
 
   if (error) {
     throw new Error(
