@@ -1,0 +1,228 @@
+import { supabase } from "@/lib/supabase";
+
+export type TipoIngresoUsado =
+  | "compra"
+  | "permuta"
+  | "consignacion";
+
+export type IngresoUsado = {
+  id: number;
+
+  vehiculo_id: number;
+  titular_cliente_id: number;
+  operacion_id: number | null;
+
+  tipo_ingreso: TipoIngresoUsado;
+
+  valor_ingreso: number;
+  precio_base_consignacion: number;
+  plazo_consignacion_dias: number;
+
+  fecha_ingreso: string;
+
+  contrato_consignacion_emitido: boolean;
+  fecha_contrato_consignacion: string | null;
+
+  observaciones: string | null;
+
+  created_at: string;
+  updated_at: string;
+};
+
+export type IngresoUsadoFormulario = {
+  vehiculo_id: string;
+  titular_cliente_id: string;
+  operacion_id: string;
+
+  tipo_ingreso: TipoIngresoUsado;
+
+  valor_ingreso: string;
+  precio_base_consignacion: string;
+  plazo_consignacion_dias: string;
+
+  fecha_ingreso: string;
+
+  observaciones: string;
+};
+
+export const INGRESO_USADO_FORMULARIO_INICIAL: IngresoUsadoFormulario = {
+  vehiculo_id: "",
+  titular_cliente_id: "",
+  operacion_id: "",
+
+  tipo_ingreso: "permuta",
+
+  valor_ingreso: "0",
+  precio_base_consignacion: "0",
+  plazo_consignacion_dias: "90",
+
+  fecha_ingreso: new Date().toISOString().slice(0, 10),
+
+  observaciones: "",
+};
+
+function convertirNumero(valor: string): number {
+  const numero = Number(valor);
+
+  return Number.isFinite(numero) ? numero : 0;
+}
+
+function prepararIngresoUsado(
+  form: IngresoUsadoFormulario
+) {
+  return {
+    vehiculo_id: Number(form.vehiculo_id),
+    titular_cliente_id: Number(form.titular_cliente_id),
+
+    operacion_id:
+      form.operacion_id.trim() !== ""
+        ? Number(form.operacion_id)
+        : null,
+
+    tipo_ingreso: form.tipo_ingreso,
+
+    valor_ingreso: convertirNumero(
+      form.valor_ingreso
+    ),
+
+    precio_base_consignacion: convertirNumero(
+      form.precio_base_consignacion
+    ),
+
+    plazo_consignacion_dias: Math.max(
+      1,
+      Math.trunc(
+        convertirNumero(
+          form.plazo_consignacion_dias
+        )
+      )
+    ),
+
+    fecha_ingreso:
+      form.fecha_ingreso ||
+      new Date().toISOString().slice(0, 10),
+
+    observaciones:
+      form.observaciones.trim() || null,
+  };
+}
+
+export async function crearIngresoUsado(
+  form: IngresoUsadoFormulario
+): Promise<IngresoUsado> {
+  const { data, error } = await supabase
+    .from("ingresos_usados")
+    .insert(prepararIngresoUsado(form))
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    throw new Error(
+      error?.message
+        ? `No se pudo crear el ingreso del usado: ${error.message}`
+        : "No se pudo crear el ingreso del usado."
+    );
+  }
+
+  return data as IngresoUsado;
+}
+
+export async function obtenerIngresoUsado(
+  ingresoId: number
+): Promise<IngresoUsado> {
+  const { data, error } = await supabase
+    .from("ingresos_usados")
+    .select("*")
+    .eq("id", ingresoId)
+    .single();
+
+  if (error || !data) {
+    throw new Error(
+      error?.message
+        ? `No se pudo obtener el ingreso del usado: ${error.message}`
+        : "No se encontró el ingreso del usado."
+    );
+  }
+
+  return data as IngresoUsado;
+}
+
+export async function obtenerIngresoUsadoPorOperacion(
+  operacionId: number
+): Promise<IngresoUsado | null> {
+  const { data, error } = await supabase
+    .from("ingresos_usados")
+    .select("*")
+    .eq("operacion_id", operacionId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(
+      `No se pudo obtener el ingreso asociado a la operación: ${error.message}`
+    );
+  }
+
+  return data
+    ? (data as IngresoUsado)
+    : null;
+}
+
+export async function listarIngresosUsados(): Promise<
+  IngresoUsado[]
+> {
+  const { data, error } = await supabase
+    .from("ingresos_usados")
+    .select("*")
+    .order("created_at", {
+      ascending: false,
+    });
+
+  if (error) {
+    throw new Error(
+      `No se pudieron cargar los ingresos de usados: ${error.message}`
+    );
+  }
+
+  return (data ?? []) as IngresoUsado[];
+}
+
+export async function actualizarIngresoUsado(
+  ingresoId: number,
+  form: IngresoUsadoFormulario
+): Promise<IngresoUsado> {
+  const { data, error } = await supabase
+    .from("ingresos_usados")
+    .update(prepararIngresoUsado(form))
+    .eq("id", ingresoId)
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    throw new Error(
+      error?.message
+        ? `No se pudo actualizar el ingreso del usado: ${error.message}`
+        : "No se pudo actualizar el ingreso del usado."
+    );
+  }
+
+  return data as IngresoUsado;
+}
+
+export async function marcarContratoConsignacionEmitido(
+  ingresoId: number
+): Promise<void> {
+  const { error } = await supabase
+    .from("ingresos_usados")
+    .update({
+      contrato_consignacion_emitido: true,
+      fecha_contrato_consignacion:
+        new Date().toISOString(),
+    })
+    .eq("id", ingresoId);
+
+  if (error) {
+    throw new Error(
+      `No se pudo registrar la emisión del contrato de consignación: ${error.message}`
+    );
+  }
+}

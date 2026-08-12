@@ -329,12 +329,12 @@ export default function OperacionPage() {
             Nueva operación
           </Link>
 
-          <button
-            type="button"
-            className="rounded-lg bg-blue-600 px-5 py-2 font-medium text-white"
-          >
-            Generar presupuesto
-          </button>
+         <Link
+  href={`/admin/operaciones/${operacion.id}/presupuesto`}
+  className="rounded-lg bg-blue-600 px-5 py-2 font-medium text-white"
+>
+  Generar presupuesto
+</Link>
         </div>
       </div>
       <section className="rounded-xl border border-gray-200 bg-white p-6 mt-6">
