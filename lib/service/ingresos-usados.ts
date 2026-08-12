@@ -64,57 +64,72 @@ export const INGRESO_USADO_FORMULARIO_INICIAL: IngresoUsadoFormulario = {
 function convertirNumero(valor: string): number {
   const numero = Number(valor);
 
-  return Number.isFinite(numero) ? numero : 0;
+  return Number.isFinite(numero)
+    ? numero
+    : 0;
 }
 
 function prepararIngresoUsado(
   form: IngresoUsadoFormulario
 ) {
   return {
-    vehiculo_id: Number(form.vehiculo_id),
-    titular_cliente_id: Number(form.titular_cliente_id),
+    vehiculo_id:
+      Number(form.vehiculo_id),
+
+    titular_cliente_id:
+      Number(form.titular_cliente_id),
 
     operacion_id:
       form.operacion_id.trim() !== ""
         ? Number(form.operacion_id)
         : null,
 
-    tipo_ingreso: form.tipo_ingreso,
+    tipo_ingreso:
+      form.tipo_ingreso,
 
-    valor_ingreso: convertirNumero(
-      form.valor_ingreso
-    ),
+    valor_ingreso:
+      convertirNumero(
+        form.valor_ingreso
+      ),
 
-    precio_base_consignacion: convertirNumero(
-      form.precio_base_consignacion
-    ),
+    precio_base_consignacion:
+      convertirNumero(
+        form.precio_base_consignacion
+      ),
 
-    plazo_consignacion_dias: Math.max(
-      1,
-      Math.trunc(
-        convertirNumero(
-          form.plazo_consignacion_dias
+    plazo_consignacion_dias:
+      Math.max(
+        1,
+        Math.trunc(
+          convertirNumero(
+            form.plazo_consignacion_dias
+          )
         )
-      )
-    ),
+      ),
 
     fecha_ingreso:
       form.fecha_ingreso ||
-      new Date().toISOString().slice(0, 10),
+      new Date()
+        .toISOString()
+        .slice(0, 10),
 
     observaciones:
-      form.observaciones.trim() || null,
+      form.observaciones.trim() ||
+      null,
   };
 }
 
 export async function crearIngresoUsado(
   form: IngresoUsadoFormulario
 ): Promise<IngresoUsado> {
-  const { data, error } = await supabase
-    .from("ingresos_usados")
-    .insert(prepararIngresoUsado(form))
-    .select("*")
-    .single();
+  const { data, error } =
+    await supabase
+      .from("ingresos_usados")
+      .insert(
+        prepararIngresoUsado(form)
+      )
+      .select("*")
+      .single();
 
   if (error || !data) {
     throw new Error(
@@ -130,11 +145,12 @@ export async function crearIngresoUsado(
 export async function obtenerIngresoUsado(
   ingresoId: number
 ): Promise<IngresoUsado> {
-  const { data, error } = await supabase
-    .from("ingresos_usados")
-    .select("*")
-    .eq("id", ingresoId)
-    .single();
+  const { data, error } =
+    await supabase
+      .from("ingresos_usados")
+      .select("*")
+      .eq("id", ingresoId)
+      .single();
 
   if (error || !data) {
     throw new Error(
@@ -150,11 +166,15 @@ export async function obtenerIngresoUsado(
 export async function obtenerIngresoUsadoPorOperacion(
   operacionId: number
 ): Promise<IngresoUsado | null> {
-  const { data, error } = await supabase
-    .from("ingresos_usados")
-    .select("*")
-    .eq("operacion_id", operacionId)
-    .maybeSingle();
+  const { data, error } =
+    await supabase
+      .from("ingresos_usados")
+      .select("*")
+      .eq(
+        "operacion_id",
+        operacionId
+      )
+      .maybeSingle();
 
   if (error) {
     throw new Error(
@@ -170,12 +190,16 @@ export async function obtenerIngresoUsadoPorOperacion(
 export async function listarIngresosUsados(): Promise<
   IngresoUsado[]
 > {
-  const { data, error } = await supabase
-    .from("ingresos_usados")
-    .select("*")
-    .order("created_at", {
-      ascending: false,
-    });
+  const { data, error } =
+    await supabase
+      .from("ingresos_usados")
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending: false,
+        }
+      );
 
   if (error) {
     throw new Error(
@@ -190,12 +214,15 @@ export async function actualizarIngresoUsado(
   ingresoId: number,
   form: IngresoUsadoFormulario
 ): Promise<IngresoUsado> {
-  const { data, error } = await supabase
-    .from("ingresos_usados")
-    .update(prepararIngresoUsado(form))
-    .eq("id", ingresoId)
-    .select("*")
-    .single();
+  const { data, error } =
+    await supabase
+      .from("ingresos_usados")
+      .update(
+        prepararIngresoUsado(form)
+      )
+      .eq("id", ingresoId)
+      .select("*")
+      .single();
 
   if (error || !data) {
     throw new Error(
@@ -211,14 +238,20 @@ export async function actualizarIngresoUsado(
 export async function marcarContratoConsignacionEmitido(
   ingresoId: number
 ): Promise<void> {
-  const { error } = await supabase
-    .from("ingresos_usados")
-    .update({
-      contrato_consignacion_emitido: true,
-      fecha_contrato_consignacion:
-        new Date().toISOString(),
-    })
-    .eq("id", ingresoId);
+  const { error } =
+    await supabase
+      .from("ingresos_usados")
+      .update({
+        contrato_consignacion_emitido:
+          true,
+
+        fecha_contrato_consignacion:
+          new Date().toISOString(),
+      })
+      .eq(
+        "id",
+        ingresoId
+      );
 
   if (error) {
     throw new Error(
