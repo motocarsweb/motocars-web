@@ -42,10 +42,10 @@ const menuItems: MenuItem[] = [
     icon: <UserRound size={19} strokeWidth={2} />,
   },
   {
-    href: "/admin/operaciones/nueva",
-    label: "Operaciones",
-    icon: <Gauge size={19} strokeWidth={2} />,
-  },
+  href: "/admin/operaciones",
+  label: "Operaciones",
+  icon: <Gauge size={19} strokeWidth={2} />,
+},
   {
     href: "/admin/catalogos",
     label: "Catálogos",
@@ -96,9 +96,9 @@ export default function AdminLayout({
       return pathname === href;
     }
 
-    if (href === "/admin/operaciones/nueva") {
-      return pathname.startsWith("/admin/operaciones");
-    }
+   if (href === "/admin/operaciones") {
+  return pathname.startsWith("/admin/operaciones");
+}
 
     return pathname.startsWith(href);
   }

@@ -20,11 +20,11 @@ import {
   crearOperacion,
   OPERACION_FORMULARIO_INICIAL,
   type OperacionFormulario,
+  type TipoOperacion,
 } from "@/lib/service/operaciones";
 
 import {
   crearIngresoUsado,
-  type TipoIngresoUsado,
 } from "@/lib/service/ingresos-usados";
 
 import {
@@ -35,53 +35,72 @@ import {
 
 import { supabase } from "@/lib/supabase";
 
-type UsadoFormulario = {
+
+type CondicionIngreso =
+  | "0km"
+  | "usado";
+
+
+type VehiculoIngresoFormulario = {
+  condicion: CondicionIngreso;
+
   marca: string;
   modelo: string;
   version: string;
+
   anio: string;
   kilometros: string;
+
   color: string;
 
   dominio: string;
   numero_chasis: string;
   numero_motor: string;
 
-  titular_cliente_id: string;
-
   valor_ingreso: string;
+
   precio_venta: string;
+
   precio_base_consignacion: string;
   plazo_consignacion_dias: string;
 
   observaciones: string;
 };
 
-const USADO_FORMULARIO_INICIAL: UsadoFormulario = {
+
+const VEHICULO_INGRESO_INICIAL: VehiculoIngresoFormulario = {
+  condicion: "usado",
+
   marca: "",
   modelo: "",
   version: "",
+
   anio: "",
   kilometros: "",
+
   color: "",
 
   dominio: "",
   numero_chasis: "",
   numero_motor: "",
 
-  titular_cliente_id: "",
-
   valor_ingreso: "",
+
   precio_venta: "",
+
   precio_base_consignacion: "",
   plazo_consignacion_dias: "90",
 
   observaciones: "",
 };
 
+
 function obtenerNombreCliente(cliente: Cliente) {
   if (cliente.tipo_persona === "juridica") {
-    return cliente.razon_social || "Empresa sin razón social";
+    return (
+      cliente.razon_social ||
+      "Empresa sin razón social"
+    );
   }
 
   return (
@@ -89,6 +108,7 @@ function obtenerNombreCliente(cliente: Cliente) {
     "Cliente sin nombre"
   );
 }
+
 
 function obtenerNombreVehiculo(
   vehiculo: VehiculoSupabase
@@ -103,11 +123,15 @@ function obtenerNombreVehiculo(
     .join(" ");
 }
 
+
 function convertirNumero(valor: string) {
   const numero = Number(valor);
 
-  return Number.isFinite(numero) ? numero : 0;
+  return Number.isFinite(numero)
+    ? numero
+    : 0;
 }
+
 
 function numeroOpcional(valor: string) {
   if (!valor.trim()) {
@@ -116,8 +140,11 @@ function numeroOpcional(valor: string) {
 
   const numero = Number(valor);
 
-  return Number.isFinite(numero) ? numero : null;
+  return Number.isFinite(numero)
+    ? numero
+    : null;
 }
+
 
 function formatearImporte(valor: number) {
   return new Intl.NumberFormat("es-AR", {
@@ -126,6 +153,7 @@ function formatearImporte(valor: number) {
     maximumFractionDigits: 0,
   }).format(valor);
 }
+
 
 export default function NuevaOperacionPage() {
   const router = useRouter();
@@ -151,24 +179,56 @@ export default function NuevaOperacionPage() {
     useState("");
 
   /*
-   * INGRESO DE USADO
+   * =========================================================
+   * VEHÍCULO QUE ENTRA AL STOCK
+   * =========================================================
+   *
+   * Compra:
+   *   entra una unidad 0km o usada.
+   *
+   * Consignación:
+   *   entra una unidad 0km o usada.
+   *
+   * Venta con permuta:
+   *   entra un usado adicional.
    */
 
-  const [recibeUsado, setRecibeUsado] =
-    useState(false);
+  const [
+    vehiculoIngreso,
+    setVehiculoIngreso,
+  ] = useState<VehiculoIngresoFormulario>({
+    ...VEHICULO_INGRESO_INICIAL,
+  });
 
   const [
-    tipoIngresoUsado,
-    setTipoIngresoUsado,
-  ] = useState<TipoIngresoUsado>("permuta");
+    ventaConPermuta,
+    setVentaConPermuta,
+  ] = useState(false);
 
-  const [usadoForm, setUsadoForm] =
-    useState<UsadoFormulario>({
-      ...USADO_FORMULARIO_INICIAL,
-    });
+
+  const esVenta =
+    form.tipo_operacion === "venta";
+
+  const esCompra =
+    form.tipo_operacion === "compra";
+
+  const esConsignacion =
+    form.tipo_operacion === "consignacion";
+
+  const operacionHaceIngresarVehiculo =
+    esCompra || esConsignacion;
+
+  const hayPermuta =
+    esVenta && ventaConPermuta;
+
+  const vehiculoIngresoEsUsado =
+    vehiculoIngreso.condicion === "usado";
+
 
   /*
+   * =========================================================
    * CARGA INICIAL
+   * =========================================================
    */
 
   useEffect(() => {
@@ -197,7 +257,9 @@ export default function NuevaOperacionPage() {
           )
         );
 
-        setVehiculos(vehiculosCargados);
+        setVehiculos(
+          vehiculosCargados
+        );
       } catch (errorDesconocido) {
         if (!componenteActivo) {
           return;
@@ -222,24 +284,100 @@ export default function NuevaOperacionPage() {
     };
   }, []);
 
+
   /*
-   * TOTAL DE LA OPERACIÓN
+   * =========================================================
+   * TOTAL DE VENTA
+   * =========================================================
    */
 
-  const total = useMemo(() => {
+  const totalVenta = useMemo(() => {
+    if (!esVenta) {
+      return 0;
+    }
+
     return (
-      convertirNumero(form.precio_vehiculo) -
-      convertirNumero(form.bonificacion) +
-      convertirNumero(form.gastos)
+      convertirNumero(
+        form.precio_vehiculo
+      ) -
+      convertirNumero(
+        form.bonificacion
+      ) +
+      convertirNumero(
+        form.gastos
+      )
     );
   }, [
+    esVenta,
     form.precio_vehiculo,
     form.bonificacion,
     form.gastos,
   ]);
 
+
   /*
-   * CAMPOS DE OPERACIÓN
+   * =========================================================
+   * TIPO DE OPERACIÓN
+   * =========================================================
+   */
+
+  function seleccionarTipoOperacion(
+    tipo: TipoOperacion
+  ) {
+    setForm((anterior) => ({
+      ...anterior,
+
+      tipo_operacion: tipo,
+
+      /*
+       * Si cambiamos a Compra o Consignación,
+       * el vehículo principal todavía no existe:
+       * se creará al guardar.
+       */
+      vehiculo_id:
+        tipo === "venta"
+          ? anterior.vehiculo_id
+          : "",
+
+      /*
+       * Para Compra/Consignación se completará
+       * automáticamente antes de crear la operación.
+       */
+      precio_vehiculo:
+        tipo === "venta"
+          ? anterior.precio_vehiculo
+          : "0",
+
+      bonificacion:
+        tipo === "venta"
+          ? anterior.bonificacion
+          : "0",
+
+      gastos:
+        tipo === "venta"
+          ? anterior.gastos
+          : "0",
+    }));
+
+    if (tipo !== "venta") {
+      setVentaConPermuta(false);
+    }
+
+    /*
+     * Compra y Consignación pueden ser
+     * tanto 0 km como usados.
+     *
+     * No alteramos automáticamente la condición
+     * para permitir continuar lo que el usuario
+     * ya estaba cargando.
+     */
+  }
+
+
+  /*
+   * =========================================================
+   * CAMPOS DE LA OPERACIÓN
+   * =========================================================
    */
 
   function actualizarCampo(
@@ -249,196 +387,316 @@ export default function NuevaOperacionPage() {
       | HTMLTextAreaElement
     >
   ) {
-    const { name, value } = event.target;
+    const target =
+      event.target;
 
-    setForm((formAnterior) => ({
-      ...formAnterior,
-      [name]: value,
+    const nombre =
+      target.name;
+
+    const valor =
+      target instanceof HTMLInputElement &&
+      target.type === "checkbox"
+        ? target.checked
+        : target.value;
+
+    setForm((anterior) => ({
+      ...anterior,
+      [nombre]: valor,
     }));
-
-    /*
-     * Si todavía no elegimos titular del usado,
-     * usamos por defecto el cliente de la operación.
-     */
-    if (
-      name === "cliente_id" &&
-      !usadoForm.titular_cliente_id
-    ) {
-      setUsadoForm((anterior) => ({
-        ...anterior,
-        titular_cliente_id: value,
-      }));
-    }
   }
 
-  function seleccionarVehiculo(
+
+  /*
+   * =========================================================
+   * VEHÍCULO VENDIDO
+   * =========================================================
+   */
+
+  function seleccionarVehiculoVendido(
     event: React.ChangeEvent<HTMLSelectElement>
   ) {
-    const vehiculoId = event.target.value;
+    const vehiculoId =
+      event.target.value;
 
-    const vehiculoSeleccionado =
+    const seleccionado =
       vehiculos.find(
         (vehiculo) =>
-          String(vehiculo.id) === vehiculoId
+          String(vehiculo.id) ===
+          vehiculoId
       );
 
-    setForm((formAnterior) => ({
-      ...formAnterior,
+    setForm((anterior) => ({
+      ...anterior,
 
-      vehiculo_id: vehiculoId,
+      vehiculo_id:
+        vehiculoId,
 
       precio_vehiculo:
-        vehiculoSeleccionado?.precio !== null &&
-        vehiculoSeleccionado?.precio !== undefined
-          ? String(vehiculoSeleccionado.precio)
+        seleccionado?.precio !== null &&
+        seleccionado?.precio !== undefined
+          ? String(
+              seleccionado.precio
+            )
           : "",
     }));
   }
 
+
   /*
-   * CAMPOS DEL USADO
+   * =========================================================
+   * VEHÍCULO QUE INGRESA
+   * =========================================================
    */
 
-  function actualizarCampoUsado(
+  function actualizarCampoVehiculoIngreso(
     event: React.ChangeEvent<
       | HTMLInputElement
-      | HTMLSelectElement
       | HTMLTextAreaElement
     >
   ) {
-    const { name, value } = event.target;
+    const {
+      name,
+      value,
+    } = event.target;
 
-    setUsadoForm((anterior) => ({
+    setVehiculoIngreso((anterior) => ({
       ...anterior,
       [name]: value,
     }));
   }
 
-  /*
-   * Cuando se ingresa el precio de venta,
-   * si todavía no se definió el precio base
-   * del contrato de consignación,
-   * usamos inicialmente el mismo importe.
-   *
-   * Luego ambos valores quedan independientes.
-   */
 
-  function actualizarPrecioVentaUsado(
-    event: React.ChangeEvent<HTMLInputElement>
+  function seleccionarCondicionIngreso(
+    condicion: CondicionIngreso
   ) {
-    const value = event.target.value;
-
-    setUsadoForm((anterior) => ({
+    setVehiculoIngreso((anterior) => ({
       ...anterior,
 
-      precio_venta: value,
+      condicion,
 
-      precio_base_consignacion:
-        anterior.precio_base_consignacion
-          ? anterior.precio_base_consignacion
-          : value,
+      /*
+       * Un 0 km normalmente no necesita
+       * kilometraje ni dominio al ingreso.
+       */
+      kilometros:
+        condicion === "0km"
+          ? "0"
+          : anterior.kilometros,
+
+      dominio:
+        condicion === "0km"
+          ? ""
+          : anterior.dominio,
     }));
   }
 
+
+  function actualizarPrecioVentaIngreso(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const valor =
+      event.target.value;
+
+    setVehiculoIngreso((anterior) => ({
+      ...anterior,
+
+      precio_venta:
+        valor,
+
+      /*
+       * Para usados, utilizamos inicialmente
+       * el mismo importe como valor base
+       * del contrato de consignación.
+       *
+       * Después puede editarse de manera
+       * independiente.
+       */
+      precio_base_consignacion:
+        anterior.precio_base_consignacion
+          ? anterior.precio_base_consignacion
+          : valor,
+    }));
+  }
+
+
   /*
+   * =========================================================
    * VALIDACIÓN
+   * =========================================================
    */
 
-  function validarFormulario() {
-    if (!form.cliente_id) {
-      return "Seleccioná un cliente.";
-    }
-
-    if (!form.vehiculo_id) {
-      return "Seleccioná un vehículo.";
+  function validarDatosVehiculoIngreso() {
+    if (
+      !vehiculoIngreso.marca.trim()
+    ) {
+      return "Ingresá la marca del vehículo.";
     }
 
     if (
-      convertirNumero(form.precio_vehiculo) <= 0
+      !vehiculoIngreso.modelo.trim()
     ) {
-      return "Ingresá un precio válido.";
+      return "Ingresá el modelo del vehículo.";
     }
 
     if (
-      convertirNumero(form.bonificacion) < 0 ||
-      convertirNumero(form.gastos) < 0
+      convertirNumero(
+        vehiculoIngreso.precio_venta
+      ) <= 0
     ) {
-      return "Los importes no pueden ser negativos.";
-    }
-
-    if (total < 0) {
-      return "El total de la operación no puede ser negativo.";
+      return "Ingresá el precio de venta para el stock.";
     }
 
     /*
-     * Validaciones del usado.
+     * Compra:
+     * debe tener valor de compra.
+     *
+     * Permuta:
+     * el valor individual puede no existir.
+     *
+     * Consignación:
+     * tampoco requiere necesariamente un valor
+     * de compra.
      */
 
-    if (recibeUsado) {
-      if (!usadoForm.marca.trim()) {
-        return "Ingresá la marca del vehículo usado.";
-      }
+    if (
+      esCompra &&
+      convertirNumero(
+        vehiculoIngreso.valor_ingreso
+      ) <= 0
+    ) {
+      return "Ingresá el valor de compra del vehículo.";
+    }
 
-      if (!usadoForm.modelo.trim()) {
-        return "Ingresá el modelo del vehículo usado.";
-      }
+    if (
+      vehiculoIngreso.valor_ingreso &&
+      convertirNumero(
+        vehiculoIngreso.valor_ingreso
+      ) < 0
+    ) {
+      return "El valor de ingreso no puede ser negativo.";
+    }
 
-      if (!usadoForm.titular_cliente_id) {
-        return "Seleccioná el titular del vehículo usado.";
-      }
+    /*
+     * El contrato de consignación interno
+     * solamente corresponde al usado.
+     */
 
-      if (
-        convertirNumero(
-          usadoForm.precio_venta
-        ) <= 0
-      ) {
-        return "Ingresá el precio de venta del vehículo usado.";
-      }
+    if (
+      vehiculoIngresoEsUsado &&
+      convertirNumero(
+        vehiculoIngreso.precio_base_consignacion
+      ) <= 0
+    ) {
+      return "Ingresá el valor para el contrato de consignación.";
+    }
 
-      if (
-        convertirNumero(
-          usadoForm.precio_base_consignacion
-        ) <= 0
-      ) {
-        return "Ingresá el precio base para el contrato de consignación.";
-      }
-
-      if (
-        convertirNumero(
-          usadoForm.plazo_consignacion_dias
-        ) <= 0
-      ) {
-        return "Ingresá un plazo de consignación válido.";
-      }
-
-      if (
-        usadoForm.valor_ingreso &&
-        convertirNumero(
-          usadoForm.valor_ingreso
-        ) < 0
-      ) {
-        return "El valor de ingreso no puede ser negativo.";
-      }
+    if (
+      vehiculoIngresoEsUsado &&
+      convertirNumero(
+        vehiculoIngreso.plazo_consignacion_dias
+      ) <= 0
+    ) {
+      return "Ingresá un plazo válido para el contrato.";
     }
 
     return "";
   }
 
+
+  function validarFormulario() {
+    if (!form.cliente_id) {
+      if (esVenta) {
+        return "Seleccioná el cliente comprador.";
+      }
+
+      if (esCompra) {
+        return "Seleccioná el vendedor o proveedor.";
+      }
+
+      return "Seleccioná el consignante o proveedor.";
+    }
+
+    /*
+     * Venta
+     */
+
+    if (esVenta) {
+      if (!form.vehiculo_id) {
+        return "Seleccioná el vehículo vendido.";
+      }
+
+      if (
+        convertirNumero(
+          form.precio_vehiculo
+        ) <= 0
+      ) {
+        return "Ingresá un precio de venta válido.";
+      }
+
+      if (
+        convertirNumero(
+          form.bonificacion
+        ) < 0 ||
+        convertirNumero(
+          form.gastos
+        ) < 0
+      ) {
+        return "Los importes no pueden ser negativos.";
+      }
+
+      if (
+        totalVenta < 0
+      ) {
+        return "El total de la operación no puede ser negativo.";
+      }
+
+      if (hayPermuta) {
+        return validarDatosVehiculoIngreso();
+      }
+
+      return "";
+    }
+
+    /*
+     * Compra / Consignación
+     */
+
+    if (
+      operacionHaceIngresarVehiculo
+    ) {
+      return validarDatosVehiculoIngreso();
+    }
+
+    return "";
+  }
+
+
   /*
-   * OBTENER UUID DEL TIPO DE INGRESO
+   * =========================================================
+   * TIPO DE INGRESO — CATÁLOGO
+   * =========================================================
    */
 
   async function obtenerTipoIngresoId(
-    tipoIngreso: TipoIngresoUsado
+    slug:
+      | "compra"
+      | "permuta"
+      | "consignacion"
   ) {
-    const { data, error } = await supabase
+    const {
+      data,
+      error,
+    } = await supabase
       .from("tipos_ingreso")
       .select("id")
-      .eq("slug", tipoIngreso)
+      .eq("slug", slug)
       .eq("activo", true)
       .single();
 
-    if (error || !data) {
+    if (
+      error ||
+      !data
+    ) {
       throw new Error(
         error?.message
           ? `No se pudo obtener el tipo de ingreso: ${error.message}`
@@ -449,64 +707,86 @@ export default function NuevaOperacionPage() {
     return data.id as string;
   }
 
+
   /*
-   * CREAR VEHÍCULO USADO
+   * =========================================================
+   * CREAR VEHÍCULO QUE ENTRA AL STOCK
+   * =========================================================
    */
 
-  async function crearVehiculoUsado(
+  async function crearVehiculoDeIngreso(
     tipoIngresoId: string
   ) {
     const valorIngreso =
       numeroOpcional(
-        usadoForm.valor_ingreso
+        vehiculoIngreso.valor_ingreso
       );
 
-    const vehiculoCreado =
+    const resultado =
       await crearVehiculo({
         marca:
-          usadoForm.marca.trim(),
+          vehiculoIngreso.marca
+            .trim(),
 
         modelo:
-          usadoForm.modelo.trim(),
+          vehiculoIngreso.modelo
+            .trim(),
 
         version:
-          usadoForm.version.trim() || null,
+          vehiculoIngreso.version
+            .trim() ||
+          null,
 
         anio:
-          numeroOpcional(usadoForm.anio),
-
-        kilometros:
           numeroOpcional(
-            usadoForm.kilometros
+            vehiculoIngreso.anio
           ),
 
+        kilometros:
+          vehiculoIngreso.condicion ===
+          "0km"
+            ? 0
+            : numeroOpcional(
+                vehiculoIngreso.kilometros
+              ),
+
         color:
-          usadoForm.color.trim() || null,
+          vehiculoIngreso.color
+            .trim() ||
+          null,
 
         dominio:
-          usadoForm.dominio
-            .trim()
-            .toUpperCase() || null,
+          vehiculoIngreso.condicion ===
+          "0km"
+            ? null
+            : (
+                vehiculoIngreso.dominio
+                  .trim()
+                  .toUpperCase() ||
+                null
+              ),
 
         numero_chasis:
-          usadoForm.numero_chasis.trim() ||
+          vehiculoIngreso.numero_chasis
+            .trim() ||
           null,
 
         numero_motor:
-          usadoForm.numero_motor.trim() ||
+          vehiculoIngreso.numero_motor
+            .trim() ||
           null,
 
         /*
-         * Precio actual de venta del stock.
+         * Precio vigente del stock.
          */
         precio:
           convertirNumero(
-            usadoForm.precio_venta
+            vehiculoIngreso.precio_venta
           ),
 
         /*
-         * Valor de compra/toma.
-         * Puede no existir en una permuta.
+         * Valor de adquisición/toma
+         * solamente cuando exista.
          */
         precio_compra:
           valorIngreso !== null &&
@@ -517,40 +797,260 @@ export default function NuevaOperacionPage() {
         tipo_ingreso_id:
           tipoIngresoId,
 
-        condicion: "usado",
+        condicion:
+          vehiculoIngreso.condicion,
 
-        estado: "disponible",
+        estado:
+          "disponible",
 
-        destacado: false,
+        destacado:
+          false,
 
         /*
-         * El vehículo entra al stock,
-         * pero no se publica automáticamente.
+         * Toda Compra, Consignación o Permuta
+         * entra al stock administrativo.
+         *
+         * No se publica automáticamente
+         * en la web hasta completar la ficha.
          */
-        publicado: false,
+        publicado:
+          false,
 
-        descripcion: null,
-
-        observaciones_internas:
-          usadoForm.observaciones.trim() ||
+        descripcion:
           null,
 
-        imagen_principal: null,
+        observaciones_internas:
+          vehiculoIngreso.observaciones
+            .trim() ||
+          null,
 
-        imagenes: [],
+        imagen_principal:
+          null,
+
+        imagenes:
+          [],
       });
 
-    if (!vehiculoCreado) {
+    if (!resultado) {
       throw new Error(
-        "No se pudo crear el vehículo usado."
+        "No se pudo crear el vehículo que ingresa al stock."
       );
     }
 
-    return vehiculoCreado;
+    return resultado;
   }
 
+
   /*
+   * =========================================================
+   * REGISTRAR INGRESO DE USADO
+   * =========================================================
+   *
+   * ingresos_usados solamente se utiliza cuando
+   * la unidad que entra es efectivamente USADA.
+   *
+   * Compra 0km / Consignación 0km:
+   * no generan registro en esta tabla.
+   */
+
+  async function registrarIngresoUsado(
+    vehiculoId: number,
+    operacionId: number,
+    tipo:
+      | "compra"
+      | "permuta"
+      | "consignacion"
+  ) {
+    if (!vehiculoIngresoEsUsado) {
+      return;
+    }
+
+    await crearIngresoUsado({
+      vehiculo_id:
+        String(vehiculoId),
+
+      /*
+       * Para compra/consignación el cliente
+       * de la operación es quien entrega
+       * o provee la unidad.
+       *
+       * Para una permuta también es inicialmente
+       * el comprador.
+       *
+       * Más adelante podremos permitir
+       * seleccionar un titular diferente.
+       */
+      titular_cliente_id:
+        form.cliente_id,
+
+      operacion_id:
+        String(operacionId),
+
+      tipo_ingreso:
+        tipo,
+
+      valor_ingreso:
+        vehiculoIngreso.valor_ingreso ||
+        "0",
+
+      precio_base_consignacion:
+        vehiculoIngreso.precio_base_consignacion,
+
+      plazo_consignacion_dias:
+        vehiculoIngreso.plazo_consignacion_dias,
+
+      fecha_ingreso:
+        new Date()
+          .toISOString()
+          .slice(0, 10),
+
+      observaciones:
+        vehiculoIngreso.observaciones,
+    });
+  }
+
+
+  /*
+   * =========================================================
+   * GUARDAR VENTA
+   * =========================================================
+   */
+
+  async function guardarVenta() {
+    /*
+     * El vehículo principal ya existe
+     * en el stock.
+     */
+
+    const operacion =
+      await crearOperacion(form);
+
+    /*
+     * Venta simple.
+     */
+
+    if (!hayPermuta) {
+      return operacion;
+    }
+
+    /*
+     * Venta + Permuta:
+     * entra una segunda unidad usada.
+     */
+
+    const tipoIngresoId =
+      await obtenerTipoIngresoId(
+        "permuta"
+      );
+
+    /*
+     * La permuta siempre corresponde
+     * a un vehículo usado.
+     */
+
+    const vehiculoPermuta =
+      await crearVehiculoDeIngreso(
+        tipoIngresoId
+      );
+
+    await registrarIngresoUsado(
+      vehiculoPermuta.id,
+      operacion.id,
+      "permuta"
+    );
+
+    return operacion;
+  }
+
+
+  /*
+   * =========================================================
+   * GUARDAR COMPRA / CONSIGNACIÓN
+   * =========================================================
+   */
+
+  async function guardarIngresoPrincipal() {
+    const tipoIngreso =
+      esCompra
+        ? "compra"
+        : "consignacion";
+
+    /*
+     * 1. Crear primero el vehículo que entra.
+     */
+
+    const tipoIngresoId =
+      await obtenerTipoIngresoId(
+        tipoIngreso
+      );
+
+    const vehiculoCreado =
+      await crearVehiculoDeIngreso(
+        tipoIngresoId
+      );
+
+    /*
+     * 2. Ese vehículo pasa a ser el
+     *    vehículo principal de la operación.
+     */
+
+    const formOperacion: OperacionFormulario = {
+      ...form,
+
+      vehiculo_id:
+        String(
+          vehiculoCreado.id
+        ),
+
+      /*
+       * Para Compra/Consignación,
+       * guardamos como precio del vehículo
+       * el precio comercial inicial del stock.
+       *
+       * Más adelante la ficha podrá mostrar
+       * por separado precio de compra,
+       * precio base y precio de venta.
+       */
+      precio_vehiculo:
+        vehiculoIngreso.precio_venta,
+
+      bonificacion:
+        "0",
+
+      gastos:
+        "0",
+    };
+
+    /*
+     * 3. Crear operación.
+     */
+
+    const operacion =
+      await crearOperacion(
+        formOperacion
+      );
+
+    /*
+     * 4. Si es usado, registrar también
+     *    sus datos específicos.
+     *
+     *    Si es 0km, NO usamos ingresos_usados.
+     */
+
+    await registrarIngresoUsado(
+      vehiculoCreado.id,
+      operacion.id,
+      tipoIngreso
+    );
+
+    return operacion;
+  }
+
+
+  /*
+   * =========================================================
    * GUARDAR OPERACIÓN
+   * =========================================================
    */
 
   async function guardarOperacion(
@@ -566,7 +1066,10 @@ export default function NuevaOperacionPage() {
       validarFormulario();
 
     if (mensajeValidacion) {
-      setError(mensajeValidacion);
+      setError(
+        mensajeValidacion
+      );
+
       return;
     }
 
@@ -574,91 +1077,10 @@ export default function NuevaOperacionPage() {
     setError("");
 
     try {
-      /*
-       * Primero creamos la operación principal.
-       */
-
       const operacion =
-        await crearOperacion(form);
-
-      /*
-       * Si no entra un usado,
-       * el proceso termina acá.
-       */
-
-      if (!recibeUsado) {
-        router.push(
-          `/admin/operaciones/${operacion.id}`
-        );
-
-        router.refresh();
-
-        return;
-      }
-
-      /*
-       * Resolver tipo de ingreso:
-       * compra / permuta / consignación.
-       */
-
-      const tipoIngresoId =
-        await obtenerTipoIngresoId(
-          tipoIngresoUsado
-        );
-
-      /*
-       * Crear la unidad que ingresa al stock.
-       */
-
-      const vehiculoUsado =
-        await crearVehiculoUsado(
-          tipoIngresoId
-        );
-
-      /*
-       * Crear el registro comercial del ingreso.
-       */
-
-      await crearIngresoUsado({
-        vehiculo_id:
-          String(vehiculoUsado.id),
-
-        titular_cliente_id:
-          usadoForm.titular_cliente_id,
-
-        operacion_id:
-          String(operacion.id),
-
-        tipo_ingreso:
-          tipoIngresoUsado,
-
-        /*
-         * Puede ser 0.
-         * El boleto de venta con permuta
-         * no necesariamente asigna un
-         * valor individual al usado.
-         */
-        valor_ingreso:
-          usadoForm.valor_ingreso || "0",
-
-        /*
-         * Este valor queda registrado
-         * para el contrato de consignación.
-         */
-        precio_base_consignacion:
-          usadoForm.precio_base_consignacion,
-
-        plazo_consignacion_dias:
-          usadoForm.plazo_consignacion_dias,
-
-        fecha_ingreso:
-          new Date()
-            .toISOString()
-            .slice(0, 10),
-
-        observaciones:
-          usadoForm.observaciones,
-      });
+        esVenta
+          ? await guardarVenta()
+          : await guardarIngresoPrincipal();
 
       router.push(
         `/admin/operaciones/${operacion.id}`
@@ -681,52 +1103,162 @@ export default function NuevaOperacionPage() {
     }
   }
 
+
   return (
     <main className="p-6">
       <PageHeader
         titulo="Nueva operación"
-        descripcion="Seleccioná el cliente, el vehículo y las condiciones comerciales"
+        descripcion="Registrá una venta, compra o consignación"
       />
 
       <form
-        onSubmit={guardarOperacion}
+        onSubmit={
+          guardarOperacion
+        }
         className="mx-auto grid max-w-4xl gap-6 rounded-xl border bg-white p-6"
       >
         {cargandoDatos ? (
           <p className="text-gray-500">
-            Cargando clientes y vehículos...
+            Cargando datos...
           </p>
         ) : (
           <>
-            {/* CLIENTE Y VEHÍCULO VENDIDO */}
+            {/* =================================================
+                TIPO DE OPERACIÓN
+                ================================================= */}
 
-            <div className="grid gap-5 md:grid-cols-2">
+            <section>
+              <h2 className="text-lg font-semibold">
+                Tipo de operación
+              </h2>
+
+              <p className="mt-1 text-sm text-gray-500">
+                Seleccioná el movimiento principal de la unidad.
+              </p>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                {[
+                  {
+                    valor:
+                      "venta" as TipoOperacion,
+
+                    titulo:
+                      "Venta",
+
+                    descripcion:
+                      "Sale una unidad del stock.",
+                  },
+
+                  {
+                    valor:
+                      "compra" as TipoOperacion,
+
+                    titulo:
+                      "Compra",
+
+                    descripcion:
+                      "Ingresa una unidad al stock.",
+                  },
+
+                  {
+                    valor:
+                      "consignacion" as TipoOperacion,
+
+                    titulo:
+                      "Consignación",
+
+                    descripcion:
+                      "Ingresa una unidad de un tercero o proveedor.",
+                  },
+                ].map(
+                  (opcion) => (
+                    <button
+                      key={
+                        opcion.valor
+                      }
+                      type="button"
+                      onClick={() =>
+                        seleccionarTipoOperacion(
+                          opcion.valor
+                        )
+                      }
+                      className={`rounded-xl border p-4 text-left ${
+                        form.tipo_operacion ===
+                        opcion.valor
+                          ? "border-blue-600 bg-blue-600 text-white"
+                          : "bg-white text-gray-900"
+                      }`}
+                    >
+                      <strong className="block">
+                        {
+                          opcion.titulo
+                        }
+                      </strong>
+
+                      <span
+                        className={`mt-1 block text-xs ${
+                          form.tipo_operacion ===
+                          opcion.valor
+                            ? "text-blue-100"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        {
+                          opcion.descripcion
+                        }
+                      </span>
+                    </button>
+                  )
+                )}
+              </div>
+            </section>
+
+
+            {/* =================================================
+                CLIENTE / PROVEEDOR
+                ================================================= */}
+
+            <section className="grid gap-3 rounded-xl border p-5">
               <label className="grid gap-2">
                 <span className="font-medium">
-                  Cliente *
+                  {esVenta
+                    ? "Cliente comprador *"
+                    : esCompra
+                      ? "Vendedor / proveedor *"
+                      : "Consignante / proveedor *"}
                 </span>
 
                 <select
                   name="cliente_id"
-                  value={form.cliente_id}
-                  onChange={actualizarCampo}
+                  value={
+                    form.cliente_id
+                  }
+                  onChange={
+                    actualizarCampo
+                  }
                   className="rounded-lg border p-3"
                   required
                 >
                   <option value="">
-                    Seleccionar cliente
+                    Seleccionar
                   </option>
 
-                  {clientes.map((cliente) => (
-                    <option
-                      key={cliente.id}
-                      value={cliente.id}
-                    >
-                      {obtenerNombreCliente(
-                        cliente
-                      )}
-                    </option>
-                  ))}
+                  {clientes.map(
+                    (cliente) => (
+                      <option
+                        key={
+                          cliente.id
+                        }
+                        value={
+                          cliente.id
+                        }
+                      >
+                        {obtenerNombreCliente(
+                          cliente
+                        )}
+                      </option>
+                    )
+                  )}
                 </select>
 
                 <Link
@@ -736,153 +1268,226 @@ export default function NuevaOperacionPage() {
                   + Crear cliente nuevo
                 </Link>
               </label>
-
-              <label className="grid gap-2">
-                <span className="font-medium">
-                  Vehículo vendido *
-                </span>
-
-                <select
-                  name="vehiculo_id"
-                  value={form.vehiculo_id}
-                  onChange={seleccionarVehiculo}
-                  className="rounded-lg border p-3"
-                  required
-                >
-                  <option value="">
-                    Seleccionar vehículo
-                  </option>
-
-                  {vehiculos.map((vehiculo) => (
-                    <option
-                      key={vehiculo.id}
-                      value={vehiculo.id}
-                    >
-                      {obtenerNombreVehiculo(
-                        vehiculo
-                      )}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-
-            {/* INGRESO DE USADO */}
-
-            <section className="rounded-xl border bg-gray-50 p-5">
-              <p className="font-semibold">
-                ¿Se recibe un vehículo usado?
-              </p>
-
-              <p className="mt-1 text-sm text-gray-500">
-                Indicá si en esta operación ingresa otra unidad a MotoCars.
-              </p>
-
-              <div className="mt-4 flex gap-5">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="recibe_usado"
-                    checked={!recibeUsado}
-                    onChange={() =>
-                      setRecibeUsado(false)
-                    }
-                  />
-
-                  No
-                </label>
-
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="recibe_usado"
-                    checked={recibeUsado}
-                    onChange={() => {
-                      setRecibeUsado(true);
-
-                      if (
-                        !usadoForm.titular_cliente_id &&
-                        form.cliente_id
-                      ) {
-                        setUsadoForm(
-                          (anterior) => ({
-                            ...anterior,
-
-                            titular_cliente_id:
-                              form.cliente_id,
-                          })
-                        );
-                      }
-                    }}
-                  />
-
-                  Sí
-                </label>
-              </div>
             </section>
 
-            {recibeUsado && (
+
+            {/* =================================================
+                VENTA
+                ================================================= */}
+
+            {esVenta && (
+              <>
+                <section className="grid gap-5 rounded-xl border p-5 md:grid-cols-2">
+                  <label className="grid gap-2">
+                    <span className="font-medium">
+                      Vehículo que sale del stock *
+                    </span>
+
+                    <select
+                      name="vehiculo_id"
+                      value={
+                        form.vehiculo_id
+                      }
+                      onChange={
+                        seleccionarVehiculoVendido
+                      }
+                      className="rounded-lg border p-3"
+                      required
+                    >
+                      <option value="">
+                        Seleccionar vehículo
+                      </option>
+
+                      {vehiculos.map(
+                        (
+                          vehiculo
+                        ) => (
+                          <option
+                            key={
+                              vehiculo.id
+                            }
+                            value={
+                              vehiculo.id
+                            }
+                          >
+                            {obtenerNombreVehiculo(
+                              vehiculo
+                            )}
+                          </option>
+                        )
+                      )}
+                    </select>
+                  </label>
+
+                  <label className="grid gap-2">
+                    <span className="font-medium">
+                      Precio de venta *
+                    </span>
+
+                    <input
+                      type="number"
+                      name="precio_vehiculo"
+                      min="0"
+                      step="1"
+                      value={
+                        form.precio_vehiculo
+                      }
+                      onChange={
+                        actualizarCampo
+                      }
+                      className="rounded-lg border p-3"
+                      required
+                    />
+                  </label>
+                </section>
+
+
+                <section className="rounded-xl border bg-gray-50 p-5">
+                  <p className="font-semibold">
+                    ¿Se recibe un vehículo en permuta?
+                  </p>
+
+                  <p className="mt-1 text-sm text-gray-500">
+                    La permuta forma parte de la venta y la unidad recibida ingresará al stock.
+                  </p>
+
+                  <div className="mt-4 flex gap-5">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="venta_permuta"
+                        checked={
+                          !ventaConPermuta
+                        }
+                        onChange={() =>
+                          setVentaConPermuta(
+                            false
+                          )
+                        }
+                      />
+
+                      No
+                    </label>
+
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="venta_permuta"
+                        checked={
+                          ventaConPermuta
+                        }
+                        onChange={() => {
+                          setVentaConPermuta(
+                            true
+                          );
+
+                          /*
+                           * Una permuta siempre
+                           * es un usado.
+                           */
+                          seleccionarCondicionIngreso(
+                            "usado"
+                          );
+                        }}
+                      />
+
+                      Sí
+                    </label>
+                  </div>
+                </section>
+              </>
+            )}
+
+
+            {/* =================================================
+                VEHÍCULO PRINCIPAL QUE INGRESA
+                COMPRA / CONSIGNACIÓN
+                ================================================= */}
+
+            {operacionHaceIngresarVehiculo && (
+              <section className="rounded-xl border border-blue-200 bg-blue-50 p-5">
+                <h2 className="text-lg font-semibold">
+                  Vehículo que ingresa al stock
+                </h2>
+
+                <p className="mt-1 text-sm text-gray-600">
+                  Puede tratarse de una unidad 0 km o usada.
+                </p>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      seleccionarCondicionIngreso(
+                        "0km"
+                      )
+                    }
+                    className={`rounded-lg border p-4 text-left font-semibold ${
+                      vehiculoIngreso.condicion ===
+                      "0km"
+                        ? "border-blue-600 bg-blue-600 text-white"
+                        : "bg-white text-gray-900"
+                    }`}
+                  >
+                    0 km
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      seleccionarCondicionIngreso(
+                        "usado"
+                      )
+                    }
+                    className={`rounded-lg border p-4 text-left font-semibold ${
+                      vehiculoIngreso.condicion ===
+                      "usado"
+                        ? "border-blue-600 bg-blue-600 text-white"
+                        : "bg-white text-gray-900"
+                    }`}
+                  >
+                    Usado
+                  </button>
+                </div>
+              </section>
+            )}
+
+
+            {/* =================================================
+                FORMULARIO VEHÍCULO QUE INGRESA
+                ================================================= */}
+
+            {(operacionHaceIngresarVehiculo ||
+              hayPermuta) && (
               <section className="grid gap-6 rounded-xl border border-blue-200 bg-blue-50 p-5">
                 <div>
                   <h2 className="text-lg font-semibold">
-                    Vehículo usado que ingresa
+                    {hayPermuta
+                      ? "Unidad recibida en permuta"
+                      : esCompra
+                        ? "Unidad comprada por MotoCars"
+                        : "Unidad recibida en consignación"}
                   </h2>
 
                   <p className="mt-1 text-sm text-gray-600">
-                    Esta unidad se incorporará al stock de MotoCars.
+                    Esta unidad se incorporará al stock administrativo.
                   </p>
                 </div>
 
-                {/* TIPO DE INGRESO */}
 
-                <div>
-                  <p className="mb-3 font-medium">
-                    Tipo de ingreso *
-                  </p>
+                {/* CONDICIÓN EN PERMUTA */}
 
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    {(
-                      [
-                        {
-                          valor: "permuta",
-                          etiqueta: "Permuta",
-                        },
-                        {
-                          valor: "compra",
-                          etiqueta: "Compra",
-                        },
-                        {
-                          valor: "consignacion",
-                          etiqueta:
-                            "Consignación",
-                        },
-                      ] as {
-                        valor: TipoIngresoUsado;
-                        etiqueta: string;
-                      }[]
-                    ).map((opcion) => (
-                      <button
-                        key={opcion.valor}
-                        type="button"
-                        onClick={() =>
-                          setTipoIngresoUsado(
-                            opcion.valor
-                          )
-                        }
-                        className={`rounded-lg border p-4 text-left font-semibold ${
-                          tipoIngresoUsado ===
-                          opcion.valor
-                            ? "border-blue-600 bg-blue-600 text-white"
-                            : "bg-white text-gray-900"
-                        }`}
-                      >
-                        {opcion.etiqueta}
-                      </button>
-                    ))}
+                {hayPermuta && (
+                  <div className="rounded-lg border border-blue-200 bg-white p-3 text-sm">
+                    Condición:{" "}
+                    <strong>
+                      Usado
+                    </strong>
                   </div>
-                </div>
+                )}
 
-                {/* IDENTIFICACIÓN */}
+
+                {/* DATOS PRINCIPALES */}
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <label className="grid gap-2">
@@ -893,12 +1498,13 @@ export default function NuevaOperacionPage() {
                     <input
                       type="text"
                       name="marca"
-                      value={usadoForm.marca}
+                      value={
+                        vehiculoIngreso.marca
+                      }
                       onChange={
-                        actualizarCampoUsado
+                        actualizarCampoVehiculoIngreso
                       }
                       className="rounded-lg border bg-white p-3"
-                      placeholder="Ej. Toyota"
                     />
                   </label>
 
@@ -910,12 +1516,13 @@ export default function NuevaOperacionPage() {
                     <input
                       type="text"
                       name="modelo"
-                      value={usadoForm.modelo}
+                      value={
+                        vehiculoIngreso.modelo
+                      }
                       onChange={
-                        actualizarCampoUsado
+                        actualizarCampoVehiculoIngreso
                       }
                       className="rounded-lg border bg-white p-3"
-                      placeholder="Ej. Corolla"
                     />
                   </label>
 
@@ -927,9 +1534,11 @@ export default function NuevaOperacionPage() {
                     <input
                       type="text"
                       name="version"
-                      value={usadoForm.version}
+                      value={
+                        vehiculoIngreso.version
+                      }
                       onChange={
-                        actualizarCampoUsado
+                        actualizarCampoVehiculoIngreso
                       }
                       className="rounded-lg border bg-white p-3"
                     />
@@ -945,32 +1554,36 @@ export default function NuevaOperacionPage() {
                       name="anio"
                       min="1900"
                       max="2100"
-                      value={usadoForm.anio}
-                      onChange={
-                        actualizarCampoUsado
-                      }
-                      className="rounded-lg border bg-white p-3"
-                    />
-                  </label>
-
-                  <label className="grid gap-2">
-                    <span className="font-medium">
-                      Kilómetros
-                    </span>
-
-                    <input
-                      type="number"
-                      name="kilometros"
-                      min="0"
                       value={
-                        usadoForm.kilometros
+                        vehiculoIngreso.anio
                       }
                       onChange={
-                        actualizarCampoUsado
+                        actualizarCampoVehiculoIngreso
                       }
                       className="rounded-lg border bg-white p-3"
                     />
                   </label>
+
+                  {vehiculoIngresoEsUsado && (
+                    <label className="grid gap-2">
+                      <span className="font-medium">
+                        Kilómetros
+                      </span>
+
+                      <input
+                        type="number"
+                        name="kilometros"
+                        min="0"
+                        value={
+                          vehiculoIngreso.kilometros
+                        }
+                        onChange={
+                          actualizarCampoVehiculoIngreso
+                        }
+                        className="rounded-lg border bg-white p-3"
+                      />
+                    </label>
+                  )}
 
                   <label className="grid gap-2">
                     <span className="font-medium">
@@ -980,33 +1593,40 @@ export default function NuevaOperacionPage() {
                     <input
                       type="text"
                       name="color"
-                      value={usadoForm.color}
+                      value={
+                        vehiculoIngreso.color
+                      }
                       onChange={
-                        actualizarCampoUsado
+                        actualizarCampoVehiculoIngreso
                       }
                       className="rounded-lg border bg-white p-3"
                     />
                   </label>
                 </div>
 
-                {/* IDENTIFICADORES REGISTRALES */}
+
+                {/* IDENTIFICADORES */}
 
                 <div className="grid gap-4 md:grid-cols-3">
-                  <label className="grid gap-2">
-                    <span className="font-medium">
-                      Dominio
-                    </span>
+                  {vehiculoIngresoEsUsado && (
+                    <label className="grid gap-2">
+                      <span className="font-medium">
+                        Dominio
+                      </span>
 
-                    <input
-                      type="text"
-                      name="dominio"
-                      value={usadoForm.dominio}
-                      onChange={
-                        actualizarCampoUsado
-                      }
-                      className="rounded-lg border bg-white p-3 uppercase"
-                    />
-                  </label>
+                      <input
+                        type="text"
+                        name="dominio"
+                        value={
+                          vehiculoIngreso.dominio
+                        }
+                        onChange={
+                          actualizarCampoVehiculoIngreso
+                        }
+                        className="rounded-lg border bg-white p-3 uppercase"
+                      />
+                    </label>
+                  )}
 
                   <label className="grid gap-2">
                     <span className="font-medium">
@@ -1017,10 +1637,10 @@ export default function NuevaOperacionPage() {
                       type="text"
                       name="numero_chasis"
                       value={
-                        usadoForm.numero_chasis
+                        vehiculoIngreso.numero_chasis
                       }
                       onChange={
-                        actualizarCampoUsado
+                        actualizarCampoVehiculoIngreso
                       }
                       className="rounded-lg border bg-white p-3"
                     />
@@ -1035,85 +1655,54 @@ export default function NuevaOperacionPage() {
                       type="text"
                       name="numero_motor"
                       value={
-                        usadoForm.numero_motor
+                        vehiculoIngreso.numero_motor
                       }
                       onChange={
-                        actualizarCampoUsado
+                        actualizarCampoVehiculoIngreso
                       }
                       className="rounded-lg border bg-white p-3"
                     />
                   </label>
                 </div>
 
-                {/* TITULAR */}
-
-                <label className="grid gap-2">
-                  <span className="font-medium">
-                    Titular del usado *
-                  </span>
-
-                  <select
-                    name="titular_cliente_id"
-                    value={
-                      usadoForm.titular_cliente_id
-                    }
-                    onChange={
-                      actualizarCampoUsado
-                    }
-                    className="rounded-lg border bg-white p-3"
-                  >
-                    <option value="">
-                      Seleccionar titular
-                    </option>
-
-                    {clientes.map((cliente) => (
-                      <option
-                        key={cliente.id}
-                        value={cliente.id}
-                      >
-                        {obtenerNombreCliente(
-                          cliente
-                        )}
-                      </option>
-                    ))}
-                  </select>
-
-                  <p className="text-xs text-gray-500">
-                    Por defecto se utiliza el cliente de la operación. Podés seleccionar otro titular si corresponde.
-                  </p>
-                </label>
 
                 {/* VALORES */}
 
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-2">
+                  {(esCompra ||
+                    hayPermuta) && (
+                    <label className="grid gap-2">
+                      <span className="font-medium">
+                        {esCompra
+                          ? "Valor de compra *"
+                          : "Valor de ingreso"}
+                      </span>
+
+                      <input
+                        type="number"
+                        name="valor_ingreso"
+                        min="0"
+                        step="1"
+                        value={
+                          vehiculoIngreso.valor_ingreso
+                        }
+                        onChange={
+                          actualizarCampoVehiculoIngreso
+                        }
+                        className="rounded-lg border bg-white p-3"
+                      />
+
+                      {hayPermuta && (
+                        <span className="text-xs text-gray-500">
+                          Puede quedar vacío si en el boleto la permuta no tiene un valor individual asignado.
+                        </span>
+                      )}
+                    </label>
+                  )}
+
                   <label className="grid gap-2">
                     <span className="font-medium">
-                      Valor de ingreso
-                    </span>
-
-                    <input
-                      type="number"
-                      name="valor_ingreso"
-                      min="0"
-                      step="1"
-                      value={
-                        usadoForm.valor_ingreso
-                      }
-                      onChange={
-                        actualizarCampoUsado
-                      }
-                      className="rounded-lg border bg-white p-3"
-                      placeholder="Opcional"
-                    />
-
-                    <span className="text-xs text-gray-500">
-                      Puede quedar vacío si la permuta no tiene un valor individual determinado.
-                    </span>
-                  </label>
-
-                  <label className="grid gap-2">
-                    <span className="font-medium">
-                      Precio de venta *
+                      Precio de venta del stock *
                     </span>
 
                     <input
@@ -1122,68 +1711,82 @@ export default function NuevaOperacionPage() {
                       min="0"
                       step="1"
                       value={
-                        usadoForm.precio_venta
+                        vehiculoIngreso.precio_venta
                       }
                       onChange={
-                        actualizarPrecioVentaUsado
+                        actualizarPrecioVentaIngreso
                       }
                       className="rounded-lg border bg-white p-3"
                     />
 
                     <span className="text-xs text-gray-500">
-                      Precio con el que la unidad ingresará al stock.
-                    </span>
-                  </label>
-
-                  <label className="grid gap-2">
-                    <span className="font-medium">
-                      Valor contrato consignación *
-                    </span>
-
-                    <input
-                      type="number"
-                      name="precio_base_consignacion"
-                      min="0"
-                      step="1"
-                      value={
-                        usadoForm.precio_base_consignacion
-                      }
-                      onChange={
-                        actualizarCampoUsado
-                      }
-                      className="rounded-lg border bg-white p-3"
-                    />
-
-                    <span className="text-xs text-gray-500">
-                      Quedará registrado como valor histórico del contrato.
+                      Será el precio comercial inicial de la unidad en stock.
                     </span>
                   </label>
                 </div>
 
-                <label className="grid gap-2 md:max-w-xs">
-                  <span className="font-medium">
-                    Plazo de consignación
-                  </span>
 
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      name="plazo_consignacion_dias"
-                      min="1"
-                      value={
-                        usadoForm.plazo_consignacion_dias
-                      }
-                      onChange={
-                        actualizarCampoUsado
-                      }
-                      className="w-full rounded-lg border bg-white p-3"
-                    />
+                {/* DATOS ESPECÍFICOS DE USADOS */}
 
-                    <span className="text-sm">
-                      días
-                    </span>
-                  </div>
-                </label>
+                {vehiculoIngresoEsUsado && (
+                  <section className="grid gap-4 rounded-lg border border-blue-200 bg-white p-4">
+                    <h3 className="font-semibold">
+                      Contrato de consignación del usado
+                    </h3>
+
+                    <p className="text-sm text-gray-500">
+                      Todo usado ingresado al salón queda preparado para emitir su contrato de consignación.
+                    </p>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <label className="grid gap-2">
+                        <span className="font-medium">
+                          Valor del contrato *
+                        </span>
+
+                        <input
+                          type="number"
+                          name="precio_base_consignacion"
+                          min="0"
+                          step="1"
+                          value={
+                            vehiculoIngreso.precio_base_consignacion
+                          }
+                          onChange={
+                            actualizarCampoVehiculoIngreso
+                          }
+                          className="rounded-lg border p-3"
+                        />
+                      </label>
+
+                      <label className="grid gap-2">
+                        <span className="font-medium">
+                          Plazo
+                        </span>
+
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            name="plazo_consignacion_dias"
+                            min="1"
+                            value={
+                              vehiculoIngreso.plazo_consignacion_dias
+                            }
+                            onChange={
+                              actualizarCampoVehiculoIngreso
+                            }
+                            className="w-full rounded-lg border p-3"
+                          />
+
+                          <span className="text-sm">
+                            días
+                          </span>
+                        </div>
+                      </label>
+                    </div>
+                  </section>
+                )}
+
 
                 <label className="grid gap-2">
                   <span className="font-medium">
@@ -1193,114 +1796,232 @@ export default function NuevaOperacionPage() {
                   <textarea
                     name="observaciones"
                     value={
-                      usadoForm.observaciones
+                      vehiculoIngreso.observaciones
                     }
                     onChange={
-                      actualizarCampoUsado
+                      actualizarCampoVehiculoIngreso
                     }
                     rows={3}
                     className="rounded-lg border bg-white p-3"
-                    placeholder="Observaciones internas del vehículo recibido"
                   />
                 </label>
               </section>
             )}
 
-            {/* CONDICIONES DE LA VENTA */}
 
-            <div className="grid gap-5 md:grid-cols-3">
+            {/* =================================================
+                CONDICIONES DE LA VENTA
+                ================================================= */}
+
+            {esVenta && (
+              <>
+                <div className="grid gap-5 md:grid-cols-2">
+                  <label className="grid gap-2">
+                    <span className="font-medium">
+                      Bonificación
+                    </span>
+
+                    <input
+                      type="number"
+                      name="bonificacion"
+                      min="0"
+                      step="1"
+                      value={
+                        form.bonificacion
+                      }
+                      onChange={
+                        actualizarCampo
+                      }
+                      className="rounded-lg border p-3"
+                    />
+                  </label>
+
+                  <label className="grid gap-2">
+                    <span className="font-medium">
+                      Otros gastos
+                    </span>
+
+                    <input
+                      type="number"
+                      name="gastos"
+                      min="0"
+                      step="1"
+                      value={
+                        form.gastos
+                      }
+                      onChange={
+                        actualizarCampo
+                      }
+                      className="rounded-lg border p-3"
+                    />
+                  </label>
+                </div>
+
+                <section className="rounded-xl bg-gray-50 p-5">
+                  <p className="text-sm font-medium text-gray-500">
+                    Total de la operación
+                  </p>
+
+                  <p className="mt-1 text-3xl font-bold">
+                    {formatearImporte(
+                      totalVenta
+                    )}
+                  </p>
+
+                  <p className="mt-2 text-sm text-gray-500">
+                    Precio − bonificación + gastos
+                  </p>
+                </section>
+              </>
+            )}
+
+
+            {/* =================================================
+                DATOS COMERCIALES
+                ================================================= */}
+
+            <section className="grid gap-5 rounded-xl border p-5">
+              <h2 className="text-lg font-semibold">
+                Datos comerciales
+              </h2>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="grid gap-2">
+                  <span className="font-medium">
+                    Asesor comercial
+                  </span>
+
+                  <input
+                    type="text"
+                    name="asesor_comercial"
+                    value={
+                      form.asesor_comercial
+                    }
+                    onChange={
+                      actualizarCampo
+                    }
+                    className="rounded-lg border p-3"
+                  />
+                </label>
+
+                <label className="grid gap-2">
+                  <span className="font-medium">
+                    Gastos de gestoría
+                  </span>
+
+                  <input
+                    type="number"
+                    name="gastos_gestoria"
+                    min="0"
+                    step="1"
+                    value={
+                      form.gastos_gestoria
+                    }
+                    onChange={
+                      actualizarCampo
+                    }
+                    className="rounded-lg border p-3"
+                  />
+                </label>
+              </div>
+
+
               <label className="grid gap-2">
                 <span className="font-medium">
-                  Precio del vehículo *
+                  Forma de pago / condiciones
                 </span>
 
                 <input
-                  type="number"
-                  name="precio_vehiculo"
-                  min="0"
-                  step="1"
+                  type="text"
+                  name="forma_pago"
                   value={
-                    form.precio_vehiculo
+                    form.forma_pago
                   }
-                  onChange={actualizarCampo}
+                  onChange={
+                    actualizarCampo
+                  }
                   className="rounded-lg border p-3"
-                  required
+                  placeholder={
+                    esVenta
+                      ? "Ej. transferencia + crédito + vehículo en permuta"
+                      : esCompra
+                        ? "Ej. transferencia al proveedor"
+                        : "Ej. condiciones pactadas con consignante/proveedor"
+                  }
                 />
               </label>
+
 
               <label className="grid gap-2">
                 <span className="font-medium">
-                  Bonificación
+                  Detalle
                 </span>
 
-                <input
-                  type="number"
-                  name="bonificacion"
-                  min="0"
-                  step="1"
-                  value={form.bonificacion}
-                  onChange={actualizarCampo}
+                <textarea
+                  name="detalle_pago"
+                  value={
+                    form.detalle_pago
+                  }
+                  onChange={
+                    actualizarCampo
+                  }
+                  rows={3}
                   className="rounded-lg border p-3"
                 />
               </label>
+
 
               <label className="grid gap-2">
                 <span className="font-medium">
-                  Gastos
+                  Observaciones comerciales
                 </span>
 
-                <input
-                  type="number"
-                  name="gastos"
-                  min="0"
-                  step="1"
-                  value={form.gastos}
-                  onChange={actualizarCampo}
+                <textarea
+                  name="observaciones"
+                  value={
+                    form.observaciones
+                  }
+                  onChange={
+                    actualizarCampo
+                  }
+                  rows={4}
                   className="rounded-lg border p-3"
                 />
               </label>
-            </div>
 
-            {/* TOTAL */}
 
-            <section className="rounded-xl bg-gray-50 p-5">
-              <p className="text-sm font-medium text-gray-500">
-                Total de la operación
-              </p>
+              <label className="grid gap-2">
+                <span className="font-medium">
+                  Observaciones internas
+                </span>
 
-              <p className="mt-1 text-3xl font-bold">
-                {formatearImporte(total)}
-              </p>
-
-              <p className="mt-2 text-sm text-gray-500">
-                Precio − bonificación + gastos
-              </p>
+                <textarea
+                  name="observaciones_internas"
+                  value={
+                    form.observaciones_internas
+                  }
+                  onChange={
+                    actualizarCampo
+                  }
+                  rows={3}
+                  className="rounded-lg border p-3"
+                />
+              </label>
             </section>
-
-            {/* OBSERVACIONES */}
-
-            <label className="grid gap-2">
-              <span className="font-medium">
-                Observaciones comerciales
-              </span>
-
-              <textarea
-                name="observaciones"
-                value={form.observaciones}
-                onChange={actualizarCampo}
-                rows={5}
-                className="rounded-lg border p-3"
-                placeholder="Forma de pago, crédito, vehículo recibido en permuta y demás condiciones de la operación"
-              />
-            </label>
           </>
         )}
+
+
+        {/* ERROR */}
 
         {error && (
           <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-red-700">
             {error}
           </div>
         )}
+
+
+        {/* ACCIONES */}
 
         <div className="flex justify-end gap-3">
           <Link

@@ -1,5 +1,10 @@
 import { supabase } from "@/lib/supabase";
 
+export type TipoOperacion =
+  | "venta"
+  | "compra"
+  | "consignacion";
+
 export type EstadoOperacion =
   | "borrador"
   | "presupuesto_emitido"
@@ -12,7 +17,17 @@ export type Operacion = {
   id: number;
   numero: string | null;
 
+  tipo_operacion: TipoOperacion;
+
   cliente_id: number;
+
+  /*
+   * Vehículo principal de la operación:
+   *
+   * Venta        → unidad que sale del stock.
+   * Compra       → unidad que entra al stock.
+   * Consignación → unidad que entra al stock.
+   */
   vehiculo_id: number;
 
   estado: EstadoOperacion;
@@ -22,24 +37,58 @@ export type Operacion = {
   gastos: number;
   total: number;
 
+  asesor_comercial: string | null;
+
+  forma_pago: string | null;
+  detalle_pago: string | null;
+
+  gastos_gestoria: number;
+
+  fecha_entrega: string | null;
+  hora_entrega: string | null;
+
+  entrega_sin_patentar: boolean;
+
   observaciones: string | null;
+  observaciones_internas: string | null;
 
   created_at: string;
   updated_at: string;
 };
 
 export type OperacionFormulario = {
+  tipo_operacion: TipoOperacion;
+
   cliente_id: string;
+
+  /*
+   * Siempre corresponde al vehículo principal.
+   */
   vehiculo_id: string;
 
   precio_vehiculo: string;
   bonificacion: string;
   gastos: string;
 
+  asesor_comercial: string;
+
+  forma_pago: string;
+  detalle_pago: string;
+
+  gastos_gestoria: string;
+
+  fecha_entrega: string;
+  hora_entrega: string;
+
+  entrega_sin_patentar: boolean;
+
   observaciones: string;
+  observaciones_internas: string;
 };
 
 export const OPERACION_FORMULARIO_INICIAL: OperacionFormulario = {
+  tipo_operacion: "venta",
+
   cliente_id: "",
   vehiculo_id: "",
 
@@ -47,25 +96,93 @@ export const OPERACION_FORMULARIO_INICIAL: OperacionFormulario = {
   bonificacion: "0",
   gastos: "0",
 
+  asesor_comercial: "",
+
+  forma_pago: "",
+  detalle_pago: "",
+
+  gastos_gestoria: "0",
+
+  fecha_entrega: "",
+  hora_entrega: "",
+
+  entrega_sin_patentar: false,
+
   observaciones: "",
+  observaciones_internas: "",
 };
 
 function convertirImporte(valor: string): number {
   const numero = Number(valor);
 
-  return Number.isFinite(numero) ? numero : 0;
+  return Number.isFinite(numero)
+    ? numero
+    : 0;
 }
 
-function prepararOperacion(form: OperacionFormulario) {
+function prepararOperacion(
+  form: OperacionFormulario
+) {
   return {
-    cliente_id: Number(form.cliente_id),
-    vehiculo_id: Number(form.vehiculo_id),
+    tipo_operacion:
+      form.tipo_operacion,
 
-    precio_vehiculo: convertirImporte(form.precio_vehiculo),
-    bonificacion: convertirImporte(form.bonificacion),
-    gastos: convertirImporte(form.gastos),
+    cliente_id:
+      Number(form.cliente_id),
 
-    observaciones: form.observaciones.trim() || null,
+    vehiculo_id:
+      Number(form.vehiculo_id),
+
+    precio_vehiculo:
+      convertirImporte(
+        form.precio_vehiculo
+      ),
+
+    bonificacion:
+      convertirImporte(
+        form.bonificacion
+      ),
+
+    gastos:
+      convertirImporte(
+        form.gastos
+      ),
+
+    asesor_comercial:
+      form.asesor_comercial.trim() ||
+      null,
+
+    forma_pago:
+      form.forma_pago.trim() ||
+      null,
+
+    detalle_pago:
+      form.detalle_pago.trim() ||
+      null,
+
+    gastos_gestoria:
+      convertirImporte(
+        form.gastos_gestoria
+      ),
+
+    fecha_entrega:
+      form.fecha_entrega ||
+      null,
+
+    hora_entrega:
+      form.hora_entrega ||
+      null,
+
+    entrega_sin_patentar:
+      form.entrega_sin_patentar,
+
+    observaciones:
+      form.observaciones.trim() ||
+      null,
+
+    observaciones_internas:
+      form.observaciones_internas.trim() ||
+      null,
   };
 }
 
@@ -74,7 +191,9 @@ export async function crearOperacion(
 ): Promise<Operacion> {
   const { data, error } = await supabase
     .from("operaciones")
-    .insert(prepararOperacion(form))
+    .insert(
+      prepararOperacion(form)
+    )
     .select("*")
     .single();
 
@@ -89,11 +208,15 @@ export async function crearOperacion(
   return data as Operacion;
 }
 
-export async function listarOperaciones(): Promise<Operacion[]> {
+export async function listarOperaciones(): Promise<
+  Operacion[]
+> {
   const { data, error } = await supabase
     .from("operaciones")
     .select("*")
-    .order("created_at", { ascending: false });
+    .order("created_at", {
+      ascending: false,
+    });
 
   if (error) {
     throw new Error(
@@ -130,7 +253,9 @@ export async function actualizarOperacion(
 ): Promise<Operacion> {
   const { data, error } = await supabase
     .from("operaciones")
-    .update(prepararOperacion(form))
+    .update(
+      prepararOperacion(form)
+    )
     .eq("id", operacionId)
     .select("*")
     .single();
