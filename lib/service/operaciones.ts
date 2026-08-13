@@ -112,8 +112,11 @@ export const OPERACION_FORMULARIO_INICIAL: OperacionFormulario = {
   observaciones_internas: "",
 };
 
-function convertirImporte(valor: string): number {
-  const numero = Number(valor);
+function convertirImporte(
+  valor: string
+): number {
+  const numero =
+    Number(valor);
 
   return Number.isFinite(numero)
     ? numero
@@ -189,15 +192,24 @@ function prepararOperacion(
 export async function crearOperacion(
   form: OperacionFormulario
 ): Promise<Operacion> {
-  const { data, error } = await supabase
-    .from("operaciones")
-    .insert(
-      prepararOperacion(form)
-    )
-    .select("*")
-    .single();
+  const {
+    data,
+    error,
+  } =
+    await supabase
+      .from("operaciones")
+      .insert(
+        prepararOperacion(
+          form
+        )
+      )
+      .select("*")
+      .single();
 
-  if (error || !data) {
+  if (
+    error ||
+    !data
+  ) {
     throw new Error(
       error?.message
         ? `No se pudo crear la operación: ${error.message}`
@@ -211,12 +223,19 @@ export async function crearOperacion(
 export async function listarOperaciones(): Promise<
   Operacion[]
 > {
-  const { data, error } = await supabase
-    .from("operaciones")
-    .select("*")
-    .order("created_at", {
-      ascending: false,
-    });
+  const {
+    data,
+    error,
+  } =
+    await supabase
+      .from("operaciones")
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending: false,
+        }
+      );
 
   if (error) {
     throw new Error(
@@ -224,19 +243,31 @@ export async function listarOperaciones(): Promise<
     );
   }
 
-  return (data ?? []) as Operacion[];
+  return (
+    data ?? []
+  ) as Operacion[];
 }
 
 export async function obtenerOperacion(
   operacionId: number
 ): Promise<Operacion> {
-  const { data, error } = await supabase
-    .from("operaciones")
-    .select("*")
-    .eq("id", operacionId)
-    .single();
+  const {
+    data,
+    error,
+  } =
+    await supabase
+      .from("operaciones")
+      .select("*")
+      .eq(
+        "id",
+        operacionId
+      )
+      .single();
 
-  if (error || !data) {
+  if (
+    error ||
+    !data
+  ) {
     throw new Error(
       error?.message
         ? `No se pudo obtener la operación: ${error.message}`
@@ -251,16 +282,28 @@ export async function actualizarOperacion(
   operacionId: number,
   form: OperacionFormulario
 ): Promise<Operacion> {
-  const { data, error } = await supabase
-    .from("operaciones")
-    .update(
-      prepararOperacion(form)
-    )
-    .eq("id", operacionId)
-    .select("*")
-    .single();
+  const {
+    data,
+    error,
+  } =
+    await supabase
+      .from("operaciones")
+      .update(
+        prepararOperacion(
+          form
+        )
+      )
+      .eq(
+        "id",
+        operacionId
+      )
+      .select("*")
+      .single();
 
-  if (error || !data) {
+  if (
+    error ||
+    !data
+  ) {
     throw new Error(
       error?.message
         ? `No se pudo actualizar la operación: ${error.message}`
@@ -275,14 +318,82 @@ export async function cambiarEstadoOperacion(
   operacionId: number,
   estado: EstadoOperacion
 ): Promise<void> {
-  const { error } = await supabase
-    .from("operaciones")
-    .update({ estado })
-    .eq("id", operacionId);
+  const {
+    error,
+  } =
+    await supabase
+      .from("operaciones")
+      .update({
+        estado,
+      })
+      .eq(
+        "id",
+        operacionId
+      );
 
   if (error) {
     throw new Error(
       `No se pudo cambiar el estado: ${error.message}`
+    );
+  }
+}
+
+/*
+ * ===========================================================
+ * ELIMINAR OPERACIÓN COMPLETA
+ * ===========================================================
+ *
+ * La eliminación real se ejecuta dentro de PostgreSQL mediante
+ * public.eliminar_operacion_completa().
+ *
+ * La función SQL aplica las reglas de stock:
+ *
+ * Venta simple
+ *   → elimina la operación.
+ *   → NO elimina el vehículo vendido.
+ *
+ * Compra / Consignación
+ *   → elimina la operación.
+ *   → elimina el ingreso asociado.
+ *   → elimina el vehículo incorporado por esa operación.
+ *
+ * Venta con permuta
+ *   → elimina la operación.
+ *   → NO elimina el vehículo vendido.
+ *   → elimina la unidad recibida en permuta.
+ *
+ * documentos_operacion y pagos_compra se eliminan por las
+ * relaciones ON DELETE CASCADE existentes en Supabase.
+ */
+
+export async function eliminarOperacionCompleta(
+  operacionId: number
+): Promise<void> {
+  if (
+    !Number.isInteger(
+      operacionId
+    ) ||
+    operacionId <= 0
+  ) {
+    throw new Error(
+      "El identificador de la operación no es válido."
+    );
+  }
+
+  const {
+    error,
+  } =
+    await supabase.rpc(
+      "eliminar_operacion_completa",
+      {
+        p_operacion_id:
+          operacionId,
+      }
+    );
+
+  if (error) {
+    throw new Error(
+      `No se pudo eliminar la operación: ${error.message}`
     );
   }
 }
