@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEvent,
+} from "react";
 import { useParams } from "next/navigation";
 
 import PageHeader from "@/componentes/admin/PageHeader";
@@ -31,9 +36,21 @@ import {
 } from "@/lib/service/documentos-operacion";
 
 import {
+  listarPagosCompra,
+  obtenerTotalPagosCompraFormulario,
+  PAGO_COMPRA_FORMULARIO_INICIAL,
+  reemplazarPagosCompra,
+  validarTotalPagosCompra,
+  type MedioPagoCompra,
+  type PagoCompra,
+  type PagoCompraFormulario,
+} from "@/lib/service/pagos-compra";
+
+import {
   obtenerVehiculoPorId,
   type VehiculoSupabase,
 } from "@/lib/supabase-vehicles";
+
 
 type DocumentoEsperado = {
   tipo: TipoDocumentoOperacion;
@@ -42,8 +59,14 @@ type DocumentoEsperado = {
   aclaracion?: string;
 };
 
-function obtenerNombreCliente(cliente: Cliente) {
-  if (cliente.tipo_persona === "juridica") {
+
+function obtenerNombreCliente(
+  cliente: Cliente
+) {
+  if (
+    cliente.tipo_persona ===
+    "juridica"
+  ) {
     return (
       cliente.razon_social ||
       "Empresa sin razón social"
@@ -51,10 +74,13 @@ function obtenerNombreCliente(cliente: Cliente) {
   }
 
   return (
-    `${cliente.nombre ?? ""} ${cliente.apellido ?? ""}`.trim() ||
+    `${cliente.nombre ?? ""} ${
+      cliente.apellido ?? ""
+    }`.trim() ||
     "Cliente sin nombre"
   );
 }
+
 
 function obtenerNombreVehiculo(
   vehiculo: VehiculoSupabase
@@ -69,6 +95,7 @@ function obtenerNombreVehiculo(
     .join(" ");
 }
 
+
 function formatearImporte(
   valor: number
 ) {
@@ -81,6 +108,7 @@ function formatearImporte(
     }
   ).format(valor);
 }
+
 
 function formatearFecha(
   fecha: string
@@ -95,6 +123,7 @@ function formatearFecha(
     new Date(fecha)
   );
 }
+
 
 function obtenerEstadoLegible(
   estado: Operacion["estado"]
@@ -122,6 +151,7 @@ function obtenerEstadoLegible(
   return estados[estado];
 }
 
+
 function obtenerEstadoDocumentoLegible(
   estado: EstadoDocumentoOperacion
 ) {
@@ -145,6 +175,7 @@ function obtenerEstadoDocumentoLegible(
   return estados[estado];
 }
 
+
 function obtenerClasesEstadoDocumento(
   estado: EstadoDocumentoOperacion
 ) {
@@ -167,6 +198,7 @@ function obtenerClasesEstadoDocumento(
   }
 }
 
+
 function obtenerTipoOperacionLegible(
   tipo: Operacion["tipo_operacion"]
 ) {
@@ -185,17 +217,20 @@ function obtenerTipoOperacionLegible(
   }
 }
 
+
 function obtenerCondicionVehiculo(
   vehiculo: VehiculoSupabase
 ) {
   if (
-    vehiculo.condicion === "0km"
+    vehiculo.condicion ===
+    "0km"
   ) {
     return "0 km";
   }
 
   if (
-    vehiculo.condicion === "usado"
+    vehiculo.condicion ===
+    "usado"
   ) {
     return "Usado";
   }
@@ -205,6 +240,74 @@ function obtenerCondicionVehiculo(
     "Sin especificar"
   );
 }
+
+
+function obtenerNombreMedioPago(
+  medio: MedioPagoCompra
+) {
+  switch (medio) {
+    case "efectivo":
+      return "Efectivo";
+
+    case "transferencia":
+      return "Transferencia / depósito";
+
+    case "cheque":
+      return "Cheque";
+
+    case "otro":
+      return "Otro";
+
+    default:
+      return medio;
+  }
+}
+
+
+function crearPagoVacio():
+  PagoCompraFormulario {
+  return {
+    ...PAGO_COMPRA_FORMULARIO_INICIAL,
+  };
+}
+
+
+function convertirPagoAFormulario(
+  pago: PagoCompra
+): PagoCompraFormulario {
+  return {
+    medio_pago:
+      pago.medio_pago,
+
+    importe:
+      String(pago.importe),
+
+    banco:
+      pago.banco ?? "",
+
+    titular:
+      pago.titular ?? "",
+
+    cuil_cuit:
+      pago.cuil_cuit ?? "",
+
+    tipo_cuenta:
+      pago.tipo_cuenta ?? "",
+
+    numero_cuenta:
+      pago.numero_cuenta ?? "",
+
+    alias:
+      pago.alias ?? "",
+
+    cbu_cvu:
+      pago.cbu_cvu ?? "",
+
+    detalle:
+      pago.detalle ?? "",
+  };
+}
+
 
 function obtenerUltimoDocumento(
   documentos: DocumentoOperacion[],
@@ -224,6 +327,7 @@ function obtenerUltimoDocumento(
       )[0] ?? null
   );
 }
+
 
 function obtenerDocumentosUnicos(
   documentos: DocumentoOperacion[]
@@ -248,9 +352,13 @@ function obtenerDocumentosUnicos(
   );
 }
 
+
 export default function OperacionPage() {
   const params =
-    useParams<{ id: string }>();
+    useParams<{
+      id: string;
+    }>();
+
 
   const [
     operacion,
@@ -260,6 +368,7 @@ export default function OperacionPage() {
       null
     );
 
+
   const [
     cliente,
     setCliente,
@@ -267,6 +376,7 @@ export default function OperacionPage() {
     useState<Cliente | null>(
       null
     );
+
 
   const [
     vehiculo,
@@ -276,6 +386,7 @@ export default function OperacionPage() {
       null
     );
 
+
   const [
     ingresoUsado,
     setIngresoUsado,
@@ -283,6 +394,7 @@ export default function OperacionPage() {
     useState<IngresoUsado | null>(
       null
     );
+
 
   const [
     vehiculoIngresado,
@@ -292,6 +404,7 @@ export default function OperacionPage() {
       null
     );
 
+
   const [
     documentosOperacion,
     setDocumentosOperacion,
@@ -299,6 +412,7 @@ export default function OperacionPage() {
     useState<DocumentoOperacion[]>(
       []
     );
+
 
   const [
     documentosIngreso,
@@ -308,11 +422,55 @@ export default function OperacionPage() {
       []
     );
 
+
+  /*
+   * =========================================================
+   * PAGOS DE COMPRA
+   * =========================================================
+   */
+
+  const [
+    pagosCompra,
+    setPagosCompra,
+  ] =
+    useState<
+      PagoCompraFormulario[]
+    >([]);
+
+
+  const [
+    guardandoPagos,
+    setGuardandoPagos,
+  ] =
+    useState(false);
+
+
+  const [
+    mensajePagos,
+    setMensajePagos,
+  ] =
+    useState("");
+
+
+  const [
+    errorPagos,
+    setErrorPagos,
+  ] =
+    useState("");
+
+
+  /*
+   * =========================================================
+   * UI GENERAL
+   * =========================================================
+   */
+
   const [
     cargando,
     setCargando,
   ] =
     useState(true);
+
 
   const [
     error,
@@ -320,11 +478,13 @@ export default function OperacionPage() {
   ] =
     useState("");
 
+
   const [
     generandoDocumentacion,
     setGenerandoDocumentacion,
   ] =
     useState(false);
+
 
   const [
     mensajeDocumentacion,
@@ -332,11 +492,13 @@ export default function OperacionPage() {
   ] =
     useState("");
 
+
   const [
     errorDocumentacion,
     setErrorDocumentacion,
   ] =
     useState("");
+
 
   /*
    * =========================================================
@@ -345,11 +507,14 @@ export default function OperacionPage() {
    */
 
   useEffect(() => {
-    let componenteActivo = true;
+    let componenteActivo =
+      true;
+
 
     async function cargarOperacion() {
       const operacionId =
         Number(params.id);
+
 
       if (
         !Number.isInteger(
@@ -361,24 +526,42 @@ export default function OperacionPage() {
           "El identificador de la operación no es válido."
         );
 
-        setCargando(false);
+        setCargando(
+          false
+        );
 
         return;
       }
 
+
       try {
-        setCargando(true);
+        setCargando(
+          true
+        );
+
         setError("");
+
+
+        /*
+         * 1. Operación
+         */
 
         const operacionCargada =
           await obtenerOperacion(
             operacionId
           );
 
+
+        /*
+         * 2. Cliente, vehículo,
+         * documentos y pagos.
+         */
+
         const [
           clienteCargado,
           vehiculoCargado,
           documentosOperacionCargados,
+          pagosCompraCargados,
         ] =
           await Promise.all([
             obtenerCliente(
@@ -392,31 +575,55 @@ export default function OperacionPage() {
             listarDocumentosOperacion(
               operacionId
             ),
+
+            operacionCargada.tipo_operacion ===
+            "compra"
+              ? listarPagosCompra(
+                  operacionId
+                )
+              : Promise.resolve(
+                  [] as PagoCompra[]
+                ),
           ]);
 
-        if (!vehiculoCargado) {
+
+        if (
+          !vehiculoCargado
+        ) {
           throw new Error(
             "No se encontró el vehículo principal de la operación."
           );
         }
+
+
+        /*
+         * 3. Ingreso asociado
+         */
 
         const ingreso =
           await obtenerIngresoUsadoPorOperacion(
             operacionId
           );
 
+
         let vehiculoIngreso:
           | VehiculoSupabase
           | null = null;
 
-        let documentosIngresoCargados:
-          DocumentoOperacion[] = [];
 
-        if (ingreso) {
+        let documentosIngresoCargados:
+          DocumentoOperacion[] =
+            [];
+
+
+        if (
+          ingreso
+        ) {
           documentosIngresoCargados =
             await listarDocumentosIngresoUsado(
               ingreso.id
             );
+
 
           if (
             ingreso.vehiculo_id !==
@@ -429,43 +636,84 @@ export default function OperacionPage() {
           }
         }
 
-        if (!componenteActivo) {
+
+        if (
+          !componenteActivo
+        ) {
           return;
         }
+
 
         setOperacion(
           operacionCargada
         );
 
+
         setCliente(
           clienteCargado
         );
+
 
         setVehiculo(
           vehiculoCargado
         );
 
+
         setIngresoUsado(
           ingreso
         );
+
 
         setVehiculoIngresado(
           vehiculoIngreso
         );
 
+
         setDocumentosOperacion(
           documentosOperacionCargados
         );
 
+
         setDocumentosIngreso(
           documentosIngresoCargados
         );
+
+
+        /*
+         * Si la Compra todavía no tiene
+         * pagos (caso OP-000006),
+         * dejamos una línea vacía lista
+         * para completar.
+         */
+
+        if (
+          operacionCargada.tipo_operacion ===
+          "compra"
+        ) {
+          setPagosCompra(
+            pagosCompraCargados.length >
+              0
+              ? pagosCompraCargados.map(
+                  convertirPagoAFormulario
+                )
+              : [
+                  crearPagoVacio(),
+                ]
+          );
+        } else {
+          setPagosCompra(
+            []
+          );
+        }
       } catch (
         errorDesconocido
       ) {
-        if (!componenteActivo) {
+        if (
+          !componenteActivo
+        ) {
           return;
         }
+
 
         setError(
           errorDesconocido instanceof
@@ -474,26 +722,310 @@ export default function OperacionPage() {
             : "No se pudo cargar la operación."
         );
       } finally {
-        if (componenteActivo) {
-          setCargando(false);
+        if (
+          componenteActivo
+        ) {
+          setCargando(
+            false
+          );
         }
       }
     }
 
+
     cargarOperacion();
 
+
     return () => {
-      componenteActivo = false;
+      componenteActivo =
+        false;
     };
   }, [params.id]);
 
+
   /*
    * =========================================================
-   * CARGANDO / ERROR GENERAL
+   * TOTALES DE PAGOS
    * =========================================================
    */
 
-  if (cargando) {
+  const totalPagosCompra =
+    useMemo(
+      () =>
+        obtenerTotalPagosCompraFormulario(
+          pagosCompra
+        ),
+      [
+        pagosCompra,
+      ]
+    );
+
+
+  const valorCompra =
+    vehiculo?.precio_compra ??
+    0;
+
+
+  const diferenciaPagos =
+    valorCompra -
+    totalPagosCompra;
+
+
+  const pagosCoinciden =
+    valorCompra > 0 &&
+    Math.abs(
+      diferenciaPagos
+    ) <= 0.01;
+
+
+  /*
+   * =========================================================
+   * EDICIÓN DE PAGOS
+   * =========================================================
+   */
+
+  function agregarPagoCompra() {
+    setPagosCompra(
+      (anteriores) => [
+        ...anteriores,
+        crearPagoVacio(),
+      ]
+    );
+
+
+    setMensajePagos("");
+    setErrorPagos("");
+  }
+
+
+  function eliminarPagoCompra(
+    indice: number
+  ) {
+    setPagosCompra(
+      (anteriores) => {
+        const nuevos =
+          anteriores.filter(
+            (
+              _,
+              indiceActual
+            ) =>
+              indiceActual !==
+              indice
+          );
+
+
+        return nuevos.length >
+          0
+          ? nuevos
+          : [
+              crearPagoVacio(),
+            ];
+      }
+    );
+
+
+    setMensajePagos("");
+    setErrorPagos("");
+  }
+
+
+  function actualizarMedioPago(
+    indice: number,
+    medioPago: MedioPagoCompra
+  ) {
+    setPagosCompra(
+      (anteriores) =>
+        anteriores.map(
+          (
+            pago,
+            indiceActual
+          ) => {
+            if (
+              indiceActual !==
+              indice
+            ) {
+              return pago;
+            }
+
+
+            return {
+              ...pago,
+              medio_pago:
+                medioPago,
+            };
+          }
+        )
+    );
+
+
+    setMensajePagos("");
+    setErrorPagos("");
+  }
+
+
+  function actualizarCampoPago(
+    indice: number,
+    campo:
+      keyof PagoCompraFormulario,
+    valor: string
+  ) {
+    setPagosCompra(
+      (anteriores) =>
+        anteriores.map(
+          (
+            pago,
+            indiceActual
+          ) => {
+            if (
+              indiceActual !==
+              indice
+            ) {
+              return pago;
+            }
+
+
+            return {
+              ...pago,
+              [campo]:
+                valor,
+            };
+          }
+        )
+    );
+
+
+    setMensajePagos("");
+    setErrorPagos("");
+  }
+
+
+  async function guardarPagosCompra() {
+    if (
+      !operacion ||
+      !vehiculo ||
+      operacion.tipo_operacion !==
+        "compra"
+    ) {
+      return;
+    }
+
+
+    if (
+      guardandoPagos
+    ) {
+      return;
+    }
+
+
+    setGuardandoPagos(
+      true
+    );
+
+    setMensajePagos("");
+    setErrorPagos("");
+
+
+    try {
+      if (
+        vehiculo.precio_compra ===
+          null ||
+        vehiculo.precio_compra <=
+          0
+      ) {
+        throw new Error(
+          "La operación no tiene un valor de compra válido."
+        );
+      }
+
+
+      if (
+        pagosCompra.length ===
+        0
+      ) {
+        throw new Error(
+          "Agregá al menos un pago."
+        );
+      }
+
+
+      /*
+       * Valida que la suma coincida
+       * exactamente con el valor
+       * de compra.
+       */
+
+      validarTotalPagosCompra(
+        pagosCompra,
+        vehiculo.precio_compra
+      );
+
+
+      /*
+       * Reemplaza solamente los pagos
+       * de ESTA operación.
+       *
+       * No crea otra operación.
+       * No toca el vehículo.
+       * No toca el ingreso usado.
+       */
+
+      await reemplazarPagosCompra(
+        operacion.id,
+        pagosCompra
+      );
+
+
+      /*
+       * Recargamos desde Supabase.
+       */
+
+      const pagosActualizados =
+        await listarPagosCompra(
+          operacion.id
+        );
+
+
+      setPagosCompra(
+        pagosActualizados.length >
+          0
+          ? pagosActualizados.map(
+              convertirPagoAFormulario
+            )
+          : [
+              crearPagoVacio(),
+            ]
+      );
+
+
+      setMensajePagos(
+        "Pagos de la compra guardados correctamente."
+      );
+    } catch (
+      errorDesconocido
+    ) {
+      setErrorPagos(
+        errorDesconocido instanceof
+        Error
+          ? errorDesconocido.message
+          : "No se pudieron guardar los pagos de la compra."
+      );
+    } finally {
+      setGuardandoPagos(
+        false
+      );
+    }
+  }
+
+
+  /*
+   * =========================================================
+   * ESTADOS GENERALES
+   * =========================================================
+   */
+
+  if (
+    cargando
+  ) {
     return (
       <main className="p-6">
         <p className="text-gray-500">
@@ -502,6 +1034,7 @@ export default function OperacionPage() {
       </main>
     );
   }
+
 
   if (
     error ||
@@ -526,6 +1059,7 @@ export default function OperacionPage() {
     );
   }
 
+
   /*
    * =========================================================
    * REGLAS DE OPERACIÓN
@@ -536,23 +1070,29 @@ export default function OperacionPage() {
     operacion.tipo_operacion ===
     "venta";
 
+
   const esCompra =
     operacion.tipo_operacion ===
     "compra";
+
 
   const esConsignacion =
     operacion.tipo_operacion ===
     "consignacion";
 
+
   const tienePermuta =
     esVenta &&
     ingresoUsado?.tipo_ingreso ===
       "permuta" &&
-    vehiculoIngresado !== null;
+    vehiculoIngresado !==
+      null;
+
 
   const vehiculoPrincipalEsUsado =
     vehiculo.condicion ===
     "usado";
+
 
   const tituloPersona =
     esVenta
@@ -561,12 +1101,14 @@ export default function OperacionPage() {
         ? "Vendedor / proveedor"
         : "Consignante / proveedor";
 
+
   const tituloVehiculo =
     esVenta
       ? "Vehículo vendido"
       : esCompra
         ? "Vehículo comprado"
         : "Vehículo en consignación";
+
 
   /*
    * =========================================================
@@ -575,13 +1117,17 @@ export default function OperacionPage() {
    */
 
   const documentosEsperados:
-    DocumentoEsperado[] = [];
+    DocumentoEsperado[] =
+      [];
+
 
   /*
    * VENTA
    */
 
-  if (esVenta) {
+  if (
+    esVenta
+  ) {
     documentosEsperados.push({
       tipo:
         "presupuesto",
@@ -592,6 +1138,7 @@ export default function OperacionPage() {
       origen:
         "operacion",
     });
+
 
     if (
       vehiculoPrincipalEsUsado
@@ -627,6 +1174,7 @@ export default function OperacionPage() {
       });
     }
 
+
     documentosEsperados.push({
       tipo:
         "responsabilidad_civil",
@@ -637,6 +1185,7 @@ export default function OperacionPage() {
       origen:
         "operacion",
     });
+
 
     documentosEsperados.push({
       tipo:
@@ -651,6 +1200,7 @@ export default function OperacionPage() {
       aclaracion:
         "Corresponde a usados y a 0 km entregados antes del patentamiento.",
     });
+
 
     if (
       tienePermuta &&
@@ -672,11 +1222,14 @@ export default function OperacionPage() {
     }
   }
 
+
   /*
    * COMPRA
    */
 
-  if (esCompra) {
+  if (
+    esCompra
+  ) {
     documentosEsperados.push({
       tipo:
         "boleto_compra",
@@ -690,6 +1243,7 @@ export default function OperacionPage() {
       aclaracion:
         "Aplica tanto a vehículos 0 km como usados.",
     });
+
 
     documentosEsperados.push({
       tipo:
@@ -708,11 +1262,14 @@ export default function OperacionPage() {
     });
   }
 
+
   /*
    * CONSIGNACIÓN
    */
 
-  if (esConsignacion) {
+  if (
+    esConsignacion
+  ) {
     documentosEsperados.push({
       tipo:
         "contrato_consignacion",
@@ -729,6 +1286,7 @@ export default function OperacionPage() {
         "Documento principal de la operación.",
     });
   }
+
 
   /*
    * =========================================================
@@ -747,30 +1305,47 @@ export default function OperacionPage() {
       return;
     }
 
-    if (generandoDocumentacion) {
+
+    if (
+      generandoDocumentacion
+    ) {
       return;
     }
+
 
     setGenerandoDocumentacion(
       true
     );
 
-    setMensajeDocumentacion(
-      ""
-    );
+    setMensajeDocumentacion("");
+    setErrorDocumentacion("");
 
-    setErrorDocumentacion(
-      ""
-    );
 
     try {
       /*
-       * SNAPSHOT
-       *
-       * Congelamos los datos utilizados
-       * en el momento de emitir los
-       * documentos.
+       * Antes de congelar el documento,
+       * exigimos que el detalle de pagos
+       * esté completo y coincida con el
+       * valor de compra.
        */
+
+      if (
+        vehiculo.precio_compra ===
+          null ||
+        vehiculo.precio_compra <=
+          0
+      ) {
+        throw new Error(
+          "La compra no tiene un valor de compra válido."
+        );
+      }
+
+
+      validarTotalPagosCompra(
+        pagosCompra,
+        vehiculo.precio_compra
+      );
+
 
       const snapshot: Record<
         string,
@@ -822,6 +1397,7 @@ export default function OperacionPage() {
           created_at:
             operacion.created_at,
         },
+
 
         cliente: {
           id:
@@ -876,6 +1452,7 @@ export default function OperacionPage() {
             cliente.conyuge_dni,
         },
 
+
         vehiculo: {
           id:
             vehiculo.id,
@@ -923,6 +1500,7 @@ export default function OperacionPage() {
             vehiculo.precio,
         },
 
+
         ingreso:
           ingresoUsado
             ? {
@@ -936,10 +1514,12 @@ export default function OperacionPage() {
                   ingresoUsado.valor_ingreso,
 
                 precio_base_consignacion:
-                  ingresoUsado.precio_base_consignacion,
+                  ingresoUsado
+                    .precio_base_consignacion,
 
                 plazo_consignacion_dias:
-                  ingresoUsado.plazo_consignacion_dias,
+                  ingresoUsado
+                    .plazo_consignacion_dias,
 
                 fecha_ingreso:
                   ingresoUsado.fecha_ingreso,
@@ -949,16 +1529,73 @@ export default function OperacionPage() {
               }
             : null,
 
+
+        /*
+         * El boleto de compra queda
+         * congelado con el detalle de
+         * pagos utilizado al emitirlo.
+         */
+
+        pagos_compra:
+          pagosCompra.map(
+            (pago) => ({
+              medio_pago:
+                pago.medio_pago,
+
+              medio_pago_descripcion:
+                obtenerNombreMedioPago(
+                  pago.medio_pago
+                ),
+
+              importe:
+                Number(
+                  pago.importe
+                ),
+
+              banco:
+                pago.banco ||
+                null,
+
+              titular:
+                pago.titular ||
+                null,
+
+              cuil_cuit:
+                pago.cuil_cuit ||
+                null,
+
+              tipo_cuenta:
+                pago.tipo_cuenta ||
+                null,
+
+              numero_cuenta:
+                pago.numero_cuenta ||
+                null,
+
+              alias:
+                pago.alias ||
+                null,
+
+              cbu_cvu:
+                pago.cbu_cvu ||
+                null,
+
+              detalle:
+                pago.detalle ||
+                null,
+            })
+          ),
+
+
+        total_pagos_compra:
+          totalPagosCompra,
+
+
         snapshot_generado_at:
-          new Date().toISOString(),
+          new Date()
+            .toISOString(),
       };
 
-      /*
-       * Genera:
-       *
-       * 1. boleto_compra
-       * 2. contrato_consignacion
-       */
 
       await generarDocumentacionCompra({
         operacion_id:
@@ -972,32 +1609,37 @@ export default function OperacionPage() {
           snapshot,
       });
 
-      /*
-       * Recargar documentos reales.
-       */
 
       const documentosOperacionActualizados =
         await listarDocumentosOperacion(
           operacion.id
         );
 
-      let documentosIngresoActualizados:
-        DocumentoOperacion[] = [];
 
-      if (ingresoUsado) {
+      let documentosIngresoActualizados:
+        DocumentoOperacion[] =
+          [];
+
+
+      if (
+        ingresoUsado
+      ) {
         documentosIngresoActualizados =
           await listarDocumentosIngresoUsado(
             ingresoUsado.id
           );
       }
 
+
       setDocumentosOperacion(
         documentosOperacionActualizados
       );
 
+
       setDocumentosIngreso(
         documentosIngresoActualizados
       );
+
 
       setMensajeDocumentacion(
         "Documentación de compra generada correctamente."
@@ -1018,16 +1660,11 @@ export default function OperacionPage() {
     }
   }
 
+
   /*
    * =========================================================
-   * DOCUMENTOS ÚNICOS PARA HISTORIAL
+   * HISTORIAL DOCUMENTAL
    * =========================================================
-   *
-   * Un contrato puede estar relacionado
-   * tanto con operacion_id como con
-   * ingreso_usado_id.
-   *
-   * Evitamos mostrarlo dos veces.
    */
 
   const documentosHistoricos =
@@ -1035,7 +1672,10 @@ export default function OperacionPage() {
       ...documentosOperacion,
       ...documentosIngreso,
     ]).sort(
-      (a, b) =>
+      (
+        a,
+        b
+      ) =>
         new Date(
           b.generado_at
         ).getTime() -
@@ -1043,6 +1683,7 @@ export default function OperacionPage() {
           a.generado_at
         ).getTime()
     );
+
 
   /*
    * =========================================================
@@ -1078,6 +1719,7 @@ export default function OperacionPage() {
           </div>
         }
       />
+
 
       <div className="mx-auto grid max-w-5xl gap-6">
 
@@ -1133,6 +1775,7 @@ export default function OperacionPage() {
               </p>
             </div>
           </article>
+
 
           <article className="rounded-xl border bg-white p-5">
             <div className="flex items-start justify-between gap-3">
@@ -1199,6 +1842,7 @@ export default function OperacionPage() {
           </article>
         </section>
 
+
         {/* =================================================
             PERMUTA
             ================================================= */}
@@ -1225,6 +1869,7 @@ export default function OperacionPage() {
                 </span>
               </div>
 
+
               <div className="mt-5 grid gap-4 md:grid-cols-3">
                 <div>
                   <p className="text-sm text-gray-500">
@@ -1241,6 +1886,7 @@ export default function OperacionPage() {
                   </p>
                 </div>
 
+
                 <div>
                   <p className="text-sm text-gray-500">
                     Precio de venta en stock
@@ -1256,6 +1902,7 @@ export default function OperacionPage() {
                   </p>
                 </div>
 
+
                 <div>
                   <p className="text-sm text-gray-500">
                     Valor contrato consignación
@@ -1263,11 +1910,13 @@ export default function OperacionPage() {
 
                   <p className="mt-1 font-semibold">
                     {formatearImporte(
-                      ingresoUsado.precio_base_consignacion
+                      ingresoUsado
+                        .precio_base_consignacion
                     )}
                   </p>
                 </div>
               </div>
+
 
               <div className="mt-4 grid gap-2 text-sm">
                 <p>
@@ -1283,13 +1932,15 @@ export default function OperacionPage() {
                     Plazo:
                   </strong>{" "}
                   {
-                    ingresoUsado.plazo_consignacion_dias
+                    ingresoUsado
+                      .plazo_consignacion_dias
                   }{" "}
                   días
                 </p>
               </div>
             </section>
           )}
+
 
         {/* =================================================
             CONDICIONES COMERCIALES
@@ -1303,6 +1954,7 @@ export default function OperacionPage() {
                 ? "Condiciones de compra"
                 : "Condiciones de consignación"}
           </h2>
+
 
           {esVenta && (
             <>
@@ -1319,6 +1971,7 @@ export default function OperacionPage() {
                   </p>
                 </div>
 
+
                 <div>
                   <p className="text-sm text-gray-500">
                     Bonificación
@@ -1331,6 +1984,7 @@ export default function OperacionPage() {
                     )}
                   </p>
                 </div>
+
 
                 <div>
                   <p className="text-sm text-gray-500">
@@ -1346,6 +2000,7 @@ export default function OperacionPage() {
                 </div>
               </div>
 
+
               <div className="mt-6 border-t pt-5">
                 <p className="text-sm font-medium text-gray-500">
                   Total
@@ -1359,6 +2014,7 @@ export default function OperacionPage() {
               </div>
             </>
           )}
+
 
           {esCompra && (
             <div className="mt-5 grid gap-5 md:grid-cols-3">
@@ -1377,6 +2033,7 @@ export default function OperacionPage() {
                 </p>
               </div>
 
+
               <div>
                 <p className="text-sm text-gray-500">
                   Valor de compra
@@ -1392,6 +2049,7 @@ export default function OperacionPage() {
                 </p>
               </div>
 
+
               <div>
                 <p className="text-sm text-gray-500">
                   Condición
@@ -1405,6 +2063,7 @@ export default function OperacionPage() {
               </div>
             </div>
           )}
+
 
           {esConsignacion && (
             <div className="mt-5 grid gap-5 md:grid-cols-3">
@@ -1423,6 +2082,7 @@ export default function OperacionPage() {
                 </p>
               </div>
 
+
               <div>
                 <p className="text-sm text-gray-500">
                   Condición
@@ -1435,6 +2095,7 @@ export default function OperacionPage() {
                 </p>
               </div>
 
+
               {ingresoUsado && (
                 <div>
                   <p className="text-sm text-gray-500">
@@ -1443,7 +2104,8 @@ export default function OperacionPage() {
 
                   <p className="mt-1 text-lg font-semibold">
                     {
-                      ingresoUsado.plazo_consignacion_dias
+                      ingresoUsado
+                        .plazo_consignacion_dias
                     }{" "}
                     días
                   </p>
@@ -1451,6 +2113,7 @@ export default function OperacionPage() {
               )}
             </div>
           )}
+
 
           {(operacion.forma_pago ||
             operacion.detalle_pago ||
@@ -1469,6 +2132,7 @@ export default function OperacionPage() {
                 </p>
               </div>
 
+
               <div>
                 <p className="text-sm text-gray-500">
                   Gastos de gestoría
@@ -1481,6 +2145,7 @@ export default function OperacionPage() {
                 </p>
               </div>
 
+
               <div>
                 <p className="text-sm text-gray-500">
                   Forma de pago / condiciones
@@ -1491,6 +2156,7 @@ export default function OperacionPage() {
                     "—"}
                 </p>
               </div>
+
 
               <div>
                 <p className="text-sm text-gray-500">
@@ -1505,6 +2171,478 @@ export default function OperacionPage() {
             </div>
           )}
         </section>
+
+
+        {/* =================================================
+            PAGOS DE COMPRA
+            ================================================= */}
+
+        {esCompra && (
+          <section className="grid gap-5 rounded-xl border border-green-200 bg-green-50 p-5">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold">
+                  Pagos de la compra
+                </h2>
+
+                <p className="mt-1 text-sm text-gray-600">
+                  Podés completar o modificar el detalle de pagos de esta operación.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={
+                  agregarPagoCompra
+                }
+                className="rounded-lg border border-green-700 bg-white px-4 py-2 text-sm font-semibold text-green-700"
+              >
+                + Agregar pago
+              </button>
+            </div>
+
+
+            <div className="grid gap-4">
+              {pagosCompra.map(
+                (
+                  pago,
+                  indice
+                ) => (
+                  <article
+                    key={
+                      indice
+                    }
+                    className="grid gap-4 rounded-xl border bg-white p-4"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <h3 className="font-semibold">
+                        Pago{" "}
+                        {
+                          indice +
+                          1
+                        }
+                      </h3>
+
+                      {pagosCompra.length >
+                        1 && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            eliminarPagoCompra(
+                              indice
+                            )
+                          }
+                          className="text-sm font-semibold text-red-600"
+                        >
+                          Eliminar
+                        </button>
+                      )}
+                    </div>
+
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <label className="grid gap-2">
+                        <span className="font-medium">
+                          Medio de pago *
+                        </span>
+
+                        <select
+                          value={
+                            pago.medio_pago
+                          }
+                          onChange={(
+                            event:
+                              ChangeEvent<HTMLSelectElement>
+                          ) =>
+                            actualizarMedioPago(
+                              indice,
+                              event
+                                .target
+                                .value as MedioPagoCompra
+                            )
+                          }
+                          className="rounded-lg border p-3"
+                        >
+                          <option value="efectivo">
+                            Efectivo
+                          </option>
+
+                          <option value="transferencia">
+                            Transferencia / depósito
+                          </option>
+
+                          <option value="cheque">
+                            Cheque
+                          </option>
+
+                          <option value="otro">
+                            Otro
+                          </option>
+                        </select>
+                      </label>
+
+
+                      <label className="grid gap-2">
+                        <span className="font-medium">
+                          Importe *
+                        </span>
+
+                        <input
+                          type="number"
+                          min="0"
+                          step="1"
+                          value={
+                            pago.importe
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            actualizarCampoPago(
+                              indice,
+                              "importe",
+                              event
+                                .target
+                                .value
+                            )
+                          }
+                          className="rounded-lg border p-3"
+                        />
+                      </label>
+                    </div>
+
+
+                    {pago.medio_pago ===
+                      "transferencia" && (
+                      <div className="grid gap-4 rounded-lg bg-gray-50 p-4 md:grid-cols-2">
+
+                        <label className="grid gap-2">
+                          <span className="font-medium">
+                            Banco
+                          </span>
+
+                          <input
+                            type="text"
+                            value={
+                              pago.banco
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              actualizarCampoPago(
+                                indice,
+                                "banco",
+                                event
+                                  .target
+                                  .value
+                              )
+                            }
+                            className="rounded-lg border bg-white p-3"
+                          />
+                        </label>
+
+
+                        <label className="grid gap-2">
+                          <span className="font-medium">
+                            Titular *
+                          </span>
+
+                          <input
+                            type="text"
+                            value={
+                              pago.titular
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              actualizarCampoPago(
+                                indice,
+                                "titular",
+                                event
+                                  .target
+                                  .value
+                              )
+                            }
+                            className="rounded-lg border bg-white p-3"
+                          />
+                        </label>
+
+
+                        <label className="grid gap-2">
+                          <span className="font-medium">
+                            CUIT / CUIL
+                          </span>
+
+                          <input
+                            type="text"
+                            value={
+                              pago.cuil_cuit
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              actualizarCampoPago(
+                                indice,
+                                "cuil_cuit",
+                                event
+                                  .target
+                                  .value
+                              )
+                            }
+                            className="rounded-lg border bg-white p-3"
+                          />
+                        </label>
+
+
+                        <label className="grid gap-2">
+                          <span className="font-medium">
+                            Tipo de cuenta
+                          </span>
+
+                          <input
+                            type="text"
+                            value={
+                              pago.tipo_cuenta
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              actualizarCampoPago(
+                                indice,
+                                "tipo_cuenta",
+                                event
+                                  .target
+                                  .value
+                              )
+                            }
+                            placeholder="Ej. Caja de ahorro $"
+                            className="rounded-lg border bg-white p-3"
+                          />
+                        </label>
+
+
+                        <label className="grid gap-2">
+                          <span className="font-medium">
+                            Nº de cuenta
+                          </span>
+
+                          <input
+                            type="text"
+                            value={
+                              pago.numero_cuenta
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              actualizarCampoPago(
+                                indice,
+                                "numero_cuenta",
+                                event
+                                  .target
+                                  .value
+                              )
+                            }
+                            className="rounded-lg border bg-white p-3"
+                          />
+                        </label>
+
+
+                        <label className="grid gap-2">
+                          <span className="font-medium">
+                            Alias
+                          </span>
+
+                          <input
+                            type="text"
+                            value={
+                              pago.alias
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              actualizarCampoPago(
+                                indice,
+                                "alias",
+                                event
+                                  .target
+                                  .value
+                              )
+                            }
+                            className="rounded-lg border bg-white p-3"
+                          />
+                        </label>
+
+
+                        <label className="grid gap-2 md:col-span-2">
+                          <span className="font-medium">
+                            CBU / CVU
+                          </span>
+
+                          <input
+                            type="text"
+                            value={
+                              pago.cbu_cvu
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              actualizarCampoPago(
+                                indice,
+                                "cbu_cvu",
+                                event
+                                  .target
+                                  .value
+                              )
+                            }
+                            className="rounded-lg border bg-white p-3"
+                          />
+                        </label>
+                      </div>
+                    )}
+
+
+                    {(pago.medio_pago ===
+                      "cheque" ||
+                      pago.medio_pago ===
+                        "otro") && (
+                      <label className="grid gap-2">
+                        <span className="font-medium">
+                          Detalle *
+                        </span>
+
+                        <textarea
+                          value={
+                            pago.detalle
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            actualizarCampoPago(
+                              indice,
+                              "detalle",
+                              event
+                                .target
+                                .value
+                            )
+                          }
+                          rows={3}
+                          placeholder={
+                            pago.medio_pago ===
+                            "cheque"
+                              ? "Banco, número de cheque, fecha, titular, etc."
+                              : "Describí la forma de pago."
+                          }
+                          className="rounded-lg border p-3"
+                        />
+                      </label>
+                    )}
+
+
+                    {pago.medio_pago ===
+                      "efectivo" && (
+                      <p className="text-sm text-gray-500">
+                        No se requieren datos adicionales para efectivo.
+                      </p>
+                    )}
+                  </article>
+                )
+              )}
+            </div>
+
+
+            <div className="rounded-xl border bg-white p-5">
+              <div className="grid gap-4 sm:grid-cols-3">
+
+                <div>
+                  <p className="text-sm text-gray-500">
+                    Valor de compra
+                  </p>
+
+                  <p className="mt-1 text-xl font-bold">
+                    {formatearImporte(
+                      valorCompra
+                    )}
+                  </p>
+                </div>
+
+
+                <div>
+                  <p className="text-sm text-gray-500">
+                    Total de pagos
+                  </p>
+
+                  <p className="mt-1 text-xl font-bold">
+                    {formatearImporte(
+                      totalPagosCompra
+                    )}
+                  </p>
+                </div>
+
+
+                <div>
+                  <p className="text-sm text-gray-500">
+                    Diferencia
+                  </p>
+
+                  <p
+                    className={`mt-1 text-xl font-bold ${
+                      pagosCoinciden
+                        ? "text-green-700"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {formatearImporte(
+                      diferenciaPagos
+                    )}
+                  </p>
+                </div>
+              </div>
+
+
+              {pagosCoinciden ? (
+                <div className="mt-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm font-semibold text-green-700">
+                  ✓ El total de pagos coincide con el valor de compra.
+                </div>
+              ) : (
+                <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                  El total de pagos debe coincidir con el valor de compra.
+                </div>
+              )}
+
+
+              {mensajePagos && (
+                <div className="mt-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm font-semibold text-green-700">
+                  {mensajePagos}
+                </div>
+              )}
+
+
+              {errorPagos && (
+                <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700">
+                  {errorPagos}
+                </div>
+              )}
+
+
+              <div className="mt-5 flex justify-end">
+                <button
+                  type="button"
+                  onClick={
+                    guardarPagosCompra
+                  }
+                  disabled={
+                    guardandoPagos
+                  }
+                  className="rounded-lg bg-green-700 px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {guardandoPagos
+                    ? "Guardando pagos..."
+                    : "Guardar pagos"}
+                </button>
+              </div>
+            </div>
+          </section>
+        )}
+
 
         {/* =================================================
             DOCUMENTACIÓN
@@ -1530,7 +2668,6 @@ export default function OperacionPage() {
             </div>
           </div>
 
-          {/* GENERACIÓN DOCUMENTACIÓN DE COMPRA */}
 
           {esCompra && (
             <div className="mt-5 rounded-xl border border-blue-200 bg-blue-50 p-4">
@@ -1561,6 +2698,7 @@ export default function OperacionPage() {
                 </button>
               </div>
 
+
               {mensajeDocumentacion && (
                 <div className="mt-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm font-medium text-green-700">
                   {
@@ -1568,6 +2706,7 @@ export default function OperacionPage() {
                   }
                 </div>
               )}
+
 
               {errorDocumentacion && (
                 <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-700">
@@ -1579,7 +2718,6 @@ export default function OperacionPage() {
             </div>
           )}
 
-          {/* DOCUMENTOS ESPERADOS */}
 
           <div className="mt-5 grid gap-4">
             {documentosEsperados.map(
@@ -1592,11 +2730,13 @@ export default function OperacionPage() {
                     ? documentosIngreso
                     : documentosOperacion;
 
+
                 const documentoReal =
                   obtenerUltimoDocumento(
                     origenDocumentos,
                     documentoEsperado.tipo
                   );
+
 
                 return (
                   <article
@@ -1620,6 +2760,7 @@ export default function OperacionPage() {
                         )}
                       </div>
 
+
                       {!documentoReal ? (
                         <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
                           Pendiente
@@ -1637,6 +2778,7 @@ export default function OperacionPage() {
                       )}
                     </div>
 
+
                     {documentoReal && (
                       <div className="mt-4 grid gap-3 border-t pt-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
                         <div>
@@ -1652,6 +2794,7 @@ export default function OperacionPage() {
                           </p>
                         </div>
 
+
                         <div>
                           <p className="text-xs text-gray-500">
                             Generado
@@ -1663,6 +2806,7 @@ export default function OperacionPage() {
                             )}
                           </p>
                         </div>
+
 
                         <div>
                           <p className="text-xs text-gray-500">
@@ -1676,6 +2820,7 @@ export default function OperacionPage() {
                               : "Operación"}
                           </p>
                         </div>
+
 
                         <div>
                           <p className="text-xs text-gray-500">
@@ -1707,7 +2852,6 @@ export default function OperacionPage() {
             )}
           </div>
 
-          {/* HISTORIAL */}
 
           {documentosHistoricos.length >
             0 && (
@@ -1718,7 +2862,9 @@ export default function OperacionPage() {
 
               <div className="border-t">
                 {documentosHistoricos.map(
-                  (documento) => (
+                  (
+                    documento
+                  ) => (
                     <div
                       key={
                         documento.id
@@ -1763,6 +2909,7 @@ export default function OperacionPage() {
           )}
         </section>
 
+
         {/* =================================================
             OBSERVACIONES
             ================================================= */}
@@ -1779,6 +2926,7 @@ export default function OperacionPage() {
             </p>
           </div>
 
+
           {operacion.observaciones_internas && (
             <div className="border-t pt-5">
               <h3 className="font-semibold">
@@ -1794,6 +2942,7 @@ export default function OperacionPage() {
           )}
         </section>
 
+
         {/* =================================================
             ACCIONES
             ================================================= */}
@@ -1806,6 +2955,7 @@ export default function OperacionPage() {
             ← Volver a operaciones
           </Link>
 
+
           <div className="flex flex-wrap gap-3">
             <Link
               href="/admin/operaciones/nueva"
@@ -1813,6 +2963,7 @@ export default function OperacionPage() {
             >
               Nueva operación
             </Link>
+
 
             {esVenta && (
               <Link
@@ -1825,6 +2976,7 @@ export default function OperacionPage() {
           </div>
         </div>
 
+
         {/* =================================================
             EXPEDIENTE
             ================================================= */}
@@ -1833,6 +2985,7 @@ export default function OperacionPage() {
           <h2 className="mb-4 text-xl font-semibold">
             Expediente de la operación
           </h2>
+
 
           <div className="mb-6 border-b border-gray-200">
             <nav className="flex flex-wrap gap-2">
@@ -1879,6 +3032,7 @@ export default function OperacionPage() {
               </button>
             </nav>
           </div>
+
 
           <div className="rounded-lg border border-dashed border-gray-300 p-8 text-center text-gray-500">
             El expediente está conectado al motor documental. Las próximas etapas incorporarán las plantillas, impresión, descarga, envío y firma.
