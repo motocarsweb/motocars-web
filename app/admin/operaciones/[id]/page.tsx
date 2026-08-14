@@ -1035,87 +1035,87 @@ const [
   }
   /*
    * =========================================================
-   * ELIMINAR OPERACIÃ“N
+   * ELIMINAR OPERACIÓN
    * =========================================================
    */
 
   async function eliminarOperacion() {
-    if (
-      !operacion ||
-      eliminandoOperacion
-    ) {
-      return;
-    }
-
-    const identificacion =
-      operacion.numero ||
-      `OperaciÃ³n ${operacion.id}`;
-
-    let detalleEliminacion =
-      "Se eliminarÃ¡ la operaciÃ³n y sus datos asociados.";
-
-    if (
-      operacion.tipo_operacion === "compra" ||
-      operacion.tipo_operacion === "consignacion"
-    ) {
-      detalleEliminacion =
-        "TambiÃ©n se eliminarÃ¡ del stock el vehÃ­culo que ingresÃ³ mediante esta operaciÃ³n.";
-    } else if (
-      operacion.tipo_operacion === "venta" &&
-      ingresoUsado?.tipo_ingreso === "permuta"
-    ) {
-      detalleEliminacion =
-        "La unidad vendida NO se eliminarÃ¡. SÃ­ se eliminarÃ¡ del stock el vehÃ­culo recibido en permuta.";
-    } else if (
-      operacion.tipo_operacion === "venta"
-    ) {
-      detalleEliminacion =
-        "La operaciÃ³n se eliminarÃ¡, pero el vehÃ­culo vendido NO se eliminarÃ¡ del stock.";
-    }
-
-    const primeraConfirmacion =
-      window.confirm(
-        `Â¿Eliminar ${identificacion}?\n\n${detalleEliminacion}\n\nEsta acciÃ³n no se puede deshacer.`
-      );
-
-    if (!primeraConfirmacion) {
-      return;
-    }
-
-    const segundaConfirmacion =
-      window.confirm(
-        `ConfirmaciÃ³n final:\n\nÂ¿EstÃ¡s seguro de que querÃ©s eliminar definitivamente ${identificacion}?`
-      );
-
-    if (!segundaConfirmacion) {
-      return;
-    }
-
-    setEliminandoOperacion(true);
-    setErrorEliminacion("");
-
-    try {
-      await eliminarOperacionCompleta(
-        operacion.id
-      );
-
-      router.push(
-        "/admin/operaciones"
-      );
-
-      router.refresh();
-    } catch (
-      errorDesconocido
-    ) {
-      setErrorEliminacion(
-        errorDesconocido instanceof Error
-          ? errorDesconocido.message
-          : "No se pudo eliminar la operaciÃ³n."
-      );
-    } finally {
-      setEliminandoOperacion(false);
-    }
+  if (
+    !operacion ||
+    eliminandoOperacion
+  ) {
+    return;
   }
+
+  const identificacion =
+    operacion.numero ||
+    `Operación ${operacion.id}`;
+
+  let detalleEliminacion =
+    "Se eliminará la operación y sus datos asociados.";
+
+  if (
+    operacion.tipo_operacion === "compra" ||
+    operacion.tipo_operacion === "consignacion"
+  ) {
+    detalleEliminacion =
+      "También se eliminará del stock el vehículo que ingresó mediante esta operación.";
+  } else if (
+    operacion.tipo_operacion === "venta" &&
+    ingresoUsado?.tipo_ingreso === "permuta"
+  ) {
+    detalleEliminacion =
+      "La unidad vendida NO se eliminará. Sí se eliminará del stock el vehículo recibido en permuta.";
+  } else if (
+    operacion.tipo_operacion === "venta"
+  ) {
+    detalleEliminacion =
+      "La operación se eliminará, pero el vehículo vendido NO se eliminará del stock.";
+  }
+
+  const primeraConfirmacion =
+    window.confirm(
+      `¿Eliminar ${identificacion}?\n\n${detalleEliminacion}\n\nEsta acción no se puede deshacer.`
+    );
+
+  if (!primeraConfirmacion) {
+    return;
+  }
+
+  const segundaConfirmacion =
+    window.confirm(
+      `Confirmación final:\n\n¿Estás seguro de que querés eliminar definitivamente ${identificacion}?`
+    );
+
+  if (!segundaConfirmacion) {
+    return;
+  }
+
+  setEliminandoOperacion(true);
+  setErrorEliminacion("");
+
+  try {
+    await eliminarOperacionCompleta(
+      operacion.id
+    );
+
+    router.push(
+      "/admin/operaciones"
+    );
+
+    router.refresh();
+  } catch (
+    errorDesconocido
+  ) {
+    setErrorEliminacion(
+      errorDesconocido instanceof Error
+        ? errorDesconocido.message
+        : "No se pudo eliminar la operación."
+    );
+  } finally {
+    setEliminandoOperacion(false);
+  }
+}
 
 
 
@@ -3073,7 +3073,7 @@ const [
             >
               {eliminandoOperacion
                 ? "Eliminando..."
-                : "Eliminar operaciÃ³n"}
+                : "Eliminar Operación"}
             </button>
 
             <Link
