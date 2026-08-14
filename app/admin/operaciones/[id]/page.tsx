@@ -7,7 +7,7 @@ import {
   useState,
   type ChangeEvent,
 } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import PageHeader from "@/componentes/admin/PageHeader";
 
@@ -17,6 +17,7 @@ import {
 } from "@/lib/service/clientes";
 
 import {
+  eliminarOperacionCompleta,
   obtenerOperacion,
   type Operacion,
 } from "@/lib/service/operaciones";
@@ -360,7 +361,11 @@ export default function OperacionPage() {
     }>();
 
 
-  const [
+  
+
+  const router =
+    useRouter();
+const [
     operacion,
     setOperacion,
   ] =
@@ -500,7 +505,20 @@ export default function OperacionPage() {
     useState("");
 
 
-  /*
+  
+
+  const [
+    eliminandoOperacion,
+    setEliminandoOperacion,
+  ] =
+    useState(false);
+
+  const [
+    errorEliminacion,
+    setErrorEliminacion,
+  ] =
+    useState("");
+/*
    * =========================================================
    * CARGA GENERAL DEL EXPEDIENTE
    * =========================================================
@@ -1015,6 +1033,92 @@ export default function OperacionPage() {
       );
     }
   }
+  /*
+   * =========================================================
+   * ELIMINAR OPERACIÃ“N
+   * =========================================================
+   */
+
+  async function eliminarOperacion() {
+    if (
+      !operacion ||
+      eliminandoOperacion
+    ) {
+      return;
+    }
+
+    const identificacion =
+      operacion.numero ||
+      `OperaciÃ³n ${operacion.id}`;
+
+    let detalleEliminacion =
+      "Se eliminarÃ¡ la operaciÃ³n y sus datos asociados.";
+
+    if (
+      operacion.tipo_operacion === "compra" ||
+      operacion.tipo_operacion === "consignacion"
+    ) {
+      detalleEliminacion =
+        "TambiÃ©n se eliminarÃ¡ del stock el vehÃ­culo que ingresÃ³ mediante esta operaciÃ³n.";
+    } else if (
+      operacion.tipo_operacion === "venta" &&
+      ingresoUsado?.tipo_ingreso === "permuta"
+    ) {
+      detalleEliminacion =
+        "La unidad vendida NO se eliminarÃ¡. SÃ­ se eliminarÃ¡ del stock el vehÃ­culo recibido en permuta.";
+    } else if (
+      operacion.tipo_operacion === "venta"
+    ) {
+      detalleEliminacion =
+        "La operaciÃ³n se eliminarÃ¡, pero el vehÃ­culo vendido NO se eliminarÃ¡ del stock.";
+    }
+
+    const primeraConfirmacion =
+      window.confirm(
+        `Â¿Eliminar ${identificacion}?\n\n${detalleEliminacion}\n\nEsta acciÃ³n no se puede deshacer.`
+      );
+
+    if (!primeraConfirmacion) {
+      return;
+    }
+
+    const segundaConfirmacion =
+      window.confirm(
+        `ConfirmaciÃ³n final:\n\nÂ¿EstÃ¡s seguro de que querÃ©s eliminar definitivamente ${identificacion}?`
+      );
+
+    if (!segundaConfirmacion) {
+      return;
+    }
+
+    setEliminandoOperacion(true);
+    setErrorEliminacion("");
+
+    try {
+      await eliminarOperacionCompleta(
+        operacion.id
+      );
+
+      router.push(
+        "/admin/operaciones"
+      );
+
+      router.refresh();
+    } catch (
+      errorDesconocido
+    ) {
+      setErrorEliminacion(
+        errorDesconocido instanceof Error
+          ? errorDesconocido.message
+          : "No se pudo eliminar la operaciÃ³n."
+      );
+    } finally {
+      setEliminandoOperacion(false);
+    }
+  }
+
+
+
 
 
   /*
@@ -2957,6 +3061,21 @@ export default function OperacionPage() {
 
 
           <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={
+                eliminarOperacion
+              }
+              disabled={
+                eliminandoOperacion
+              }
+              className="rounded-lg border border-red-300 bg-red-50 px-4 py-2 font-medium text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {eliminandoOperacion
+                ? "Eliminando..."
+                : "Eliminar operaciÃ³n"}
+            </button>
+
             <Link
               href="/admin/operaciones/nueva"
               className="rounded-lg border px-4 py-2 font-medium"
@@ -2977,7 +3096,15 @@ export default function OperacionPage() {
         </div>
 
 
-        {/* =================================================
+        
+
+        {errorEliminacion && (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
+            {errorEliminacion}
+          </div>
+        )}
+
+{/* =================================================
             EXPEDIENTE
             ================================================= */}
 
