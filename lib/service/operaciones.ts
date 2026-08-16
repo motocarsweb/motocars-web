@@ -5,6 +5,8 @@ export type TipoOperacion =
   | "compra"
   | "consignacion";
 
+  export type MonedaOperacion = "ARS" | "USD";
+
 export type EstadoOperacion =
   | "borrador"
   | "presupuesto_emitido"
@@ -33,6 +35,7 @@ export type Operacion = {
   estado: EstadoOperacion;
 
   precio_vehiculo: number;
+  moneda: MonedaOperacion;
   bonificacion: number;
   gastos: number;
   total: number;
@@ -43,6 +46,7 @@ export type Operacion = {
   detalle_pago: string | null;
 
   gastos_gestoria: number;
+  gastos_gestoria_incluidos: boolean;
 
   fecha_entrega: string | null;
   hora_entrega: string | null;
@@ -67,6 +71,7 @@ export type OperacionFormulario = {
   vehiculo_id: string;
 
   precio_vehiculo: string;
+  moneda: MonedaOperacion;
   bonificacion: string;
   gastos: string;
 
@@ -76,6 +81,7 @@ export type OperacionFormulario = {
   detalle_pago: string;
 
   gastos_gestoria: string;
+  gastos_gestoria_incluidos: boolean;
 
   fecha_entrega: string;
   hora_entrega: string;
@@ -93,6 +99,7 @@ export const OPERACION_FORMULARIO_INICIAL: OperacionFormulario = {
   vehiculo_id: "",
 
   precio_vehiculo: "",
+  moneda: "ARS",
   bonificacion: "0",
   gastos: "0",
 
@@ -102,6 +109,7 @@ export const OPERACION_FORMULARIO_INICIAL: OperacionFormulario = {
   detalle_pago: "",
 
   gastos_gestoria: "0",
+  gastos_gestoria_incluidos: false,
 
   fecha_entrega: "",
   hora_entrega: "",
@@ -140,6 +148,8 @@ function prepararOperacion(
       convertirImporte(
         form.precio_vehiculo
       ),
+moneda:
+  form.moneda,
 
     bonificacion:
       convertirImporte(
@@ -167,6 +177,8 @@ function prepararOperacion(
       convertirImporte(
         form.gastos_gestoria
       ),
+      gastos_gestoria_incluidos:
+  form.gastos_gestoria_incluidos,
 
     fecha_entrega:
       form.fecha_entrega ||

@@ -3061,6 +3061,31 @@ const [
 
 
           <div className="flex flex-wrap gap-3">
+            {esConsignacion && (
+  <Link
+    href={`/admin/operaciones/${operacion.id}/consignacion`}
+    className="rounded-lg bg-gray-900 px-5 py-2 font-medium text-white"
+  >
+    Ver / Imprimir contrato
+  </Link>
+)}
+            {esVenta && (
+  <>
+    <Link
+      href={`/admin/operaciones/${operacion.id}/responsabilidad-civil`}
+      className="rounded-lg bg-blue-600 px-5 py-2 font-medium text-white"
+    >
+      Responsabilidad Civil
+    </Link>
+
+    <Link
+      href={`/admin/operaciones/${operacion.id}/constancia-gestoria`}
+      className="rounded-lg bg-blue-600 px-5 py-2 font-medium text-white"
+    >
+      Constancia de Gestoría en Trámite
+    </Link>
+  </>
+)}
             <button
               type="button"
               onClick={

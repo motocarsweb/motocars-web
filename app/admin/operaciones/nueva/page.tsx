@@ -1638,26 +1638,40 @@ export default function NuevaOperacionPage() {
                     </select>
                   </label>
 
-                  <label className="grid gap-2">
+                        <div className="grid gap-2">
                     <span className="font-medium">
                       Precio de venta *
                     </span>
 
-                    <input
-                      type="number"
-                      name="precio_vehiculo"
-                      min="0"
-                      step="1"
-                      value={
-                        form.precio_vehiculo
-                      }
-                      onChange={
-                        actualizarCampo
-                      }
-                      className="rounded-lg border p-3"
-                      required
-                    />
-                  </label>
+                    <div className="grid grid-cols-[130px_1fr] gap-2">
+                      <select
+                        name="moneda"
+                        value={form.moneda}
+                        onChange={actualizarCampo}
+                        className="rounded-lg border bg-white p-3"
+                      >
+                        <option value="ARS">
+                          ARS - Pesos
+                        </option>
+
+                        <option value="USD">
+                          USD - Dólares
+                        </option>
+                      </select>
+
+                      <input
+                        type="number"
+                        name="precio_vehiculo"
+                        min="0"
+                        step="1"
+                        value={form.precio_vehiculo}
+                        onChange={actualizarCampo}
+                        className="rounded-lg border p-3"
+                        required
+                      />
+                    </div>
+                  </div>
+
                 </section>
 
 
