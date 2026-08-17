@@ -13,7 +13,6 @@ import {
 
 import {
   obtenerIngresoUsadoPorOperacion,
-  type IngresoUsado,
 } from "@/lib/service/ingresos-usados";
 
 import {
@@ -88,47 +87,7 @@ function formatearFecha(
   );
 }
 
-function formatearKilometros(
-  kilometros:
-    | number
-    | null
-) {
-  if (
-    kilometros === null
-  ) {
-    return "—";
-  }
-
-  return new Intl.NumberFormat(
-    "es-AR"
-  ).format(
-    kilometros
-  );
-}
-
-function CasilleroDocumento({
-  marcado,
-  texto,
-}: {
-  marcado: boolean;
-  texto: string;
-}) {
-  return (
-    <div className="item-documentacion">
-      <span className="casillero-documentacion">
-        {marcado
-          ? "☑"
-          : "☐"}
-      </span>
-
-      <span>
-        {texto}
-      </span>
-    </div>
-  );
-}
-
-export default function BoletoUsadoPermutaPage() {
+export default function Boleto0KmPage() {
   const params =
     useParams<{
       id: string;
@@ -153,22 +112,6 @@ export default function BoletoUsadoPermutaPage() {
   const [
     vehiculo,
     setVehiculo,
-  ] =
-    useState<VehiculoSupabase | null>(
-      null
-    );
-
-  const [
-    ingresoUsado,
-    setIngresoUsado,
-  ] =
-    useState<IngresoUsado | null>(
-      null
-    );
-
-  const [
-    vehiculoPermuta,
-    setVehiculoPermuta,
   ] =
     useState<VehiculoSupabase | null>(
       null
@@ -254,33 +197,19 @@ export default function BoletoUsadoPermutaPage() {
 
         if (
           vehiculoCargado.condicion !==
-          "usado"
+          "0km"
         ) {
           throw new Error(
-            "El vehículo vendido no corresponde a un usado."
+            "El vehículo vendido no corresponde a un 0 km."
           );
         }
 
         if (
-          !ingresoCargado ||
-          ingresoCargado.tipo_ingreso !==
-            "permuta"
+          ingresoCargado?.tipo_ingreso ===
+          "permuta"
         ) {
           throw new Error(
-            "Esta venta no tiene una unidad usada recibida en permuta."
-          );
-        }
-
-        const permutaCargada =
-          await obtenerVehiculoPorId(
-            ingresoCargado.vehiculo_id
-          );
-
-        if (
-          !permutaCargada
-        ) {
-          throw new Error(
-            "No se encontró el vehículo recibido en permuta."
+            "Esta venta posee una unidad recibida en permuta. Corresponde utilizar el boleto 0 km con permuta."
           );
         }
 
@@ -299,14 +228,6 @@ export default function BoletoUsadoPermutaPage() {
         setVehiculo(
           vehiculoCargado
         );
-
-        setIngresoUsado(
-          ingresoCargado
-        );
-
-        setVehiculoPermuta(
-          permutaCargada
-        );
       } catch (
         errorDesconocido
       ) {
@@ -318,7 +239,7 @@ export default function BoletoUsadoPermutaPage() {
           errorDesconocido instanceof
           Error
             ? errorDesconocido.message
-            : "No se pudo cargar el boleto de venta con permuta."
+            : "No se pudo cargar el boleto de venta 0 km."
         );
       } finally {
         if (activo) {
@@ -341,7 +262,7 @@ export default function BoletoUsadoPermutaPage() {
           padding: 32,
         }}
       >
-        Cargando boleto de venta con permuta...
+        Cargando boleto de venta 0 km...
       </main>
     );
   }
@@ -350,9 +271,7 @@ export default function BoletoUsadoPermutaPage() {
     error ||
     !operacion ||
     !cliente ||
-    !vehiculo ||
-    !ingresoUsado ||
-    !vehiculoPermuta
+    !vehiculo
   ) {
     return (
       <main
@@ -366,7 +285,7 @@ export default function BoletoUsadoPermutaPage() {
           }}
         >
           {error ||
-            "No se pudo cargar el boleto de venta con permuta."}
+            "No se pudo cargar el boleto de venta 0 km."}
         </p>
 
         <Link
@@ -431,25 +350,25 @@ export default function BoletoUsadoPermutaPage() {
           color: white;
         }
 
-        .boleto-usado-texto {
+        .boleto-0km-texto {
           margin-top: 16px;
 
           font-size: 12.5px;
-          line-height: 1.38;
+          line-height: 1.42;
 
           text-align: justify;
         }
 
-        .boleto-usado-texto p {
-          margin: 0 0 8px;
+        .boleto-0km-texto p {
+          margin: 0 0 9px;
         }
 
-        .boleto-usado-texto strong {
+        .boleto-0km-texto strong {
           font-weight: 800;
         }
 
-        .titulo-seccion-usado {
-          margin: 11px 0 6px;
+        .titulo-seccion-0km {
+          margin: 12px 0 6px;
 
           padding-bottom: 4px;
 
@@ -464,7 +383,7 @@ export default function BoletoUsadoPermutaPage() {
           text-transform: uppercase;
         }
 
-        .datos-usado {
+        .datos-0km {
           display: grid;
 
           grid-template-columns:
@@ -478,7 +397,7 @@ export default function BoletoUsadoPermutaPage() {
           font-size: 11.5px;
         }
 
-        .dato-usado {
+        .dato-0km {
           display: grid;
 
           grid-template-columns:
@@ -500,57 +419,7 @@ export default function BoletoUsadoPermutaPage() {
           white-space: pre-wrap;
         }
 
-        .bloque-permuta {
-          margin: 8px 0 10px;
-
-          padding: 9px 10px;
-
-          border: 1px solid #d4d4d4;
-          border-radius: 6px;
-
-          background: #fafafa;
-        }
-
-        .documentacion-permuta {
-          margin: 6px 0 10px;
-
-          display: grid;
-
-          grid-template-columns:
-            repeat(
-              2,
-              minmax(0, 1fr)
-            );
-
-          column-gap: 22px;
-          row-gap: 3px;
-
-          padding: 8px 10px;
-
-          border: 1px solid #d4d4d4;
-          border-radius: 6px;
-
-          font-size: 11.2px;
-          line-height: 1.25;
-        }
-
-        .item-documentacion {
-          display: flex;
-          align-items: flex-start;
-
-          gap: 6px;
-
-          min-width: 0;
-        }
-
-        .casillero-documentacion {
-          flex: 0 0 auto;
-
-          font-size: 13px;
-          line-height: 1;
-        }
-
-        .firmas-usado {
+        .firmas-0km {
           display: grid;
 
           grid-template-columns:
@@ -558,11 +427,11 @@ export default function BoletoUsadoPermutaPage() {
 
           gap: 70px;
 
-          margin-top: 90px;
+          margin-top: 100px;
           margin-bottom: 10px;
         }
 
-        .firma-usado {
+        .firma-0km {
           padding-top: 7px;
 
           border-top:
@@ -581,12 +450,11 @@ export default function BoletoUsadoPermutaPage() {
         }
 
         @media screen and (max-width: 850px) {
-          .datos-usado,
-          .documentacion-permuta {
+          .datos-0km {
             grid-template-columns: 1fr;
           }
 
-          .firmas-usado {
+          .firmas-0km {
             gap: 30px;
           }
         }
@@ -621,7 +489,7 @@ export default function BoletoUsadoPermutaPage() {
           operacion.created_at
         )}
       >
-        <section className="boleto-usado-texto">
+        <section className="boleto-0km-texto">
           <p>
             Entre{" "}
             <strong>
@@ -668,15 +536,15 @@ export default function BoletoUsadoPermutaPage() {
             </strong>
             , se celebra el presente
             contrato de compraventa de
-            automotor usado con permuta.
+            automotor 0 km.
           </p>
 
-          <h2 className="titulo-seccion-usado">
+          <h2 className="titulo-seccion-0km">
             Datos del comprador
           </h2>
 
-          <div className="datos-usado">
-            <div className="dato-usado">
+          <div className="datos-0km">
+            <div className="dato-0km">
               <strong>
                 Comprador:
               </strong>
@@ -688,7 +556,7 @@ export default function BoletoUsadoPermutaPage() {
               </span>
             </div>
 
-            <div className="dato-usado">
+            <div className="dato-0km">
               <strong>
                 DNI/CUIT:
               </strong>
@@ -700,7 +568,7 @@ export default function BoletoUsadoPermutaPage() {
               </span>
             </div>
 
-            <div className="dato-usado">
+            <div className="dato-0km">
               <strong>
                 Domicilio:
               </strong>
@@ -711,7 +579,7 @@ export default function BoletoUsadoPermutaPage() {
               </span>
             </div>
 
-            <div className="dato-usado">
+            <div className="dato-0km">
               <strong>
                 Localidad:
               </strong>
@@ -727,7 +595,7 @@ export default function BoletoUsadoPermutaPage() {
               </span>
             </div>
 
-            <div className="dato-usado">
+            <div className="dato-0km">
               <strong>
                 Teléfono:
               </strong>
@@ -739,7 +607,7 @@ export default function BoletoUsadoPermutaPage() {
               </span>
             </div>
 
-            <div className="dato-usado">
+            <div className="dato-0km">
               <strong>
                 Email:
               </strong>
@@ -751,12 +619,12 @@ export default function BoletoUsadoPermutaPage() {
             </div>
           </div>
 
-          <h2 className="titulo-seccion-usado">
+          <h2 className="titulo-seccion-0km">
             Vehículo vendido
           </h2>
 
-          <div className="datos-usado">
-            <div className="dato-usado">
+          <div className="datos-0km">
+            <div className="dato-0km">
               <strong>
                 Vehículo:
               </strong>
@@ -768,7 +636,7 @@ export default function BoletoUsadoPermutaPage() {
               </span>
             </div>
 
-            <div className="dato-usado">
+            <div className="dato-0km">
               <strong>
                 Año:
               </strong>
@@ -779,18 +647,17 @@ export default function BoletoUsadoPermutaPage() {
               </span>
             </div>
 
-            <div className="dato-usado">
+            <div className="dato-0km">
               <strong>
-                Dominio:
+                Condición:
               </strong>
 
               <span>
-                {vehiculo.dominio ||
-                  "—"}
+                0 km
               </span>
             </div>
 
-            <div className="dato-usado">
+            <div className="dato-0km">
               <strong>
                 Color:
               </strong>
@@ -801,7 +668,7 @@ export default function BoletoUsadoPermutaPage() {
               </span>
             </div>
 
-            <div className="dato-usado">
+            <div className="dato-0km">
               <strong>
                 Chasis:
               </strong>
@@ -812,7 +679,7 @@ export default function BoletoUsadoPermutaPage() {
               </span>
             </div>
 
-            <div className="dato-usado">
+            <div className="dato-0km">
               <strong>
                 Motor:
               </strong>
@@ -820,28 +687,6 @@ export default function BoletoUsadoPermutaPage() {
               <span>
                 {vehiculo.numero_motor ||
                   "—"}
-              </span>
-            </div>
-
-            <div className="dato-usado">
-              <strong>
-                Kilómetros:
-              </strong>
-
-              <span>
-                {formatearKilometros(
-                  vehiculo.kilometros
-                )}
-              </span>
-            </div>
-
-            <div className="dato-usado">
-              <strong>
-                Condición:
-              </strong>
-
-              <span>
-                Usado
               </span>
             </div>
           </div>
@@ -855,14 +700,11 @@ export default function BoletoUsadoPermutaPage() {
               1)
             </strong>{" "}
             EL VENDEDOR vende a EL
-            COMPRADOR el vehículo usado
+            COMPRADOR el vehículo 0 km
             individualizado
-            precedentemente, el cual ha
-            sido examinado, probado y
-            verificado por el adquirente,
-            quien manifiesta conocer su
-            estado general de uso y
-            conservación.
+            precedentemente, con su
+            correspondiente garantía de
+            fábrica.
           </p>
 
           <p>
@@ -878,7 +720,7 @@ export default function BoletoUsadoPermutaPage() {
             .
           </p>
 
-          <h2 className="titulo-seccion-usado">
+          <h2 className="titulo-seccion-0km">
             Forma de pago
           </h2>
 
@@ -902,34 +744,6 @@ export default function BoletoUsadoPermutaPage() {
                 }
               </>
             )}
-
-            <br />
-            <br />
-
-            <strong>
-              Unidad recibida en permuta:
-            </strong>{" "}
-            {nombreVehiculo(
-              vehiculoPermuta
-            )}
-            {vehiculoPermuta.dominio
-              ? ` - Dominio ${vehiculoPermuta.dominio}`
-              : ""}
-
-            {ingresoUsado.valor_ingreso >
-              0 && (
-              <>
-                <br />
-
-                <strong>
-                  Valor asignado:
-                </strong>{" "}
-                {formatearImporteCompleto(
-                  ingresoUsado.valor_ingreso,
-                  "ARS"
-                )}
-              </>
-            )}
           </div>
 
           <p
@@ -940,254 +754,20 @@ export default function BoletoUsadoPermutaPage() {
             <strong>
               2)
             </strong>{" "}
-            EL COMPRADOR declara que la
-            unidad entregada en permuta,
-            individualizada en el punto
-            siguiente, es de su entera
-            propiedad y que, salvo lo
-            expresamente informado en el
-            presente contrato, no registra
-            embargos, inhibiciones ni
-            deudas que impidan su
-            transferencia.
+            Una vez inscripta la unidad
+            0 km se entregará a EL
+            COMPRADOR, según corresponda,
+            la siguiente documentación y
+            elementos: a) Constancia de
+            Cédula de identificación del
+            titular digital; b) CAT o
+            Título digital; c) Manuales;
+            d) Duplicado de llave.
           </p>
 
           <p>
             <strong>
               3)
-            </strong>{" "}
-            La unidad entregada en
-            permuta se individualiza con
-            los siguientes datos:
-          </p>
-
-          <div className="bloque-permuta">
-            <div className="datos-usado">
-              <div className="dato-usado">
-                <strong>
-                  Vehículo:
-                </strong>
-
-                <span>
-                  {nombreVehiculo(
-                    vehiculoPermuta
-                  )}
-                </span>
-              </div>
-
-              <div className="dato-usado">
-                <strong>
-                  Año:
-                </strong>
-
-                <span>
-                  {vehiculoPermuta.anio ??
-                    "—"}
-                </span>
-              </div>
-
-              <div className="dato-usado">
-                <strong>
-                  Dominio:
-                </strong>
-
-                <span>
-                  {vehiculoPermuta.dominio ||
-                    "—"}
-                </span>
-              </div>
-
-              <div className="dato-usado">
-                <strong>
-                  Color:
-                </strong>
-
-                <span>
-                  {vehiculoPermuta.color ||
-                    "—"}
-                </span>
-              </div>
-
-              <div className="dato-usado">
-                <strong>
-                  Chasis:
-                </strong>
-
-                <span>
-                  {vehiculoPermuta.numero_chasis ||
-                    "—"}
-                </span>
-              </div>
-
-              <div className="dato-usado">
-                <strong>
-                  Motor:
-                </strong>
-
-                <span>
-                  {vehiculoPermuta.numero_motor ||
-                    "—"}
-                </span>
-              </div>
-
-              <div className="dato-usado">
-                <strong>
-                  Kilómetros:
-                </strong>
-
-                <span>
-                  {formatearKilometros(
-                    vehiculoPermuta.kilometros
-                  )}
-                </span>
-              </div>
-
-              <div className="dato-usado">
-                <strong>
-                  Valor:
-                </strong>
-
-                <span>
-                  {ingresoUsado.valor_ingreso >
-                  0
-                    ? formatearImporteCompleto(
-                        ingresoUsado.valor_ingreso,
-                        "ARS"
-                      )
-                    : "—"}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <p>
-            <strong>
-              4)
-            </strong>{" "}
-            DOCUMENTACIÓN Y ELEMENTOS
-            RECIBIDOS DE LA UNIDAD
-            ENTREGADA EN PERMUTA:
-          </p>
-
-          <div className="documentacion-permuta">
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_titulo_propiedad
-              }
-              texto="Título de Propiedad"
-            />
-
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_cat
-              }
-              texto="CAT"
-            />
-
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_cedula
-              }
-              texto="Cédula de identificación"
-            />
-
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_cedulas_adicionales
-              }
-              texto="Cédulas adicionales"
-            />
-
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_formulario_08
-              }
-              texto="Formulario 08 firmado/certificado"
-            />
-
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_verificacion_policial
-              }
-              texto="Verificación policial / Formulario 12"
-            />
-
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_libre_deuda_patentes
-              }
-              texto="Libre deuda de patentes"
-            />
-
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_libre_deuda_infracciones
-              }
-              texto="Libre deuda de infracciones"
-            />
-
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_informe_dominio
-              }
-              texto="Informe de dominio"
-            />
-
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_manuales
-              }
-              texto="Manuales"
-            />
-
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_duplicado_llave
-              }
-              texto="Duplicado de llave"
-            />
-
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_prenda_03
-              }
-              texto="Prenda 03"
-            />
-
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_otros
-              }
-              texto={
-                ingresoUsado.doc_otros &&
-                ingresoUsado.doc_otros_detalle
-                  ? `Otros: ${ingresoUsado.doc_otros_detalle}`
-                  : "Otros"
-              }
-            />
-          </div>
-
-          <p>
-            <strong>
-              5)
-            </strong>{" "}
-            En este acto se entregará al
-            COMPRADOR la siguiente
-            documentación y elementos,
-            según corresponda: a) Cédula
-            de identificación del titular
-            anterior; b) Seguro provisorio
-            (optativo); c) Copia del
-            Título de Propiedad; d)
-            Duplicado de llaves; e)
-            Manuales; f) Verificación
-            vehicular; g) Detalle de
-            servicios.
-          </p>
-
-          <p>
-            <strong>
-              6)
             </strong>{" "}
             Los gastos de gestoría
             correspondientes a la
@@ -1235,7 +815,7 @@ export default function BoletoUsadoPermutaPage() {
 
           <p>
             <strong>
-              7)
+              4)
             </strong>{" "}
             A todos los efectos legales,
             las partes constituyen
@@ -1279,8 +859,8 @@ export default function BoletoUsadoPermutaPage() {
             .
           </p>
 
-          <div className="firmas-usado">
-            <div className="firma-usado">
+          <div className="firmas-0km">
+            <div className="firma-0km">
               EL COMPRADOR
               <br />
 
@@ -1296,7 +876,7 @@ export default function BoletoUsadoPermutaPage() {
               )}
             </div>
 
-            <div className="firma-usado">
+            <div className="firma-0km">
               EL VENDEDOR
               <br />
 

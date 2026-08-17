@@ -1,0 +1,15 @@
+alter table public.ingresos_usados
+add column if not exists doc_titulo_propiedad boolean not null default false,
+add column if not exists doc_cat boolean not null default false,
+add column if not exists doc_cedula boolean not null default false,
+add column if not exists doc_cedulas_adicionales boolean not null default false,
+add column if not exists doc_formulario_08 boolean not null default false,
+add column if not exists doc_verificacion_policial boolean not null default false,
+add column if not exists doc_libre_deuda_patentes boolean not null default false,
+add column if not exists doc_libre_deuda_infracciones boolean not null default false,
+add column if not exists doc_informe_dominio boolean not null default false,
+add column if not exists doc_manuales boolean not null default false,
+add column if not exists doc_duplicado_llave boolean not null default false,
+add column if not exists doc_prenda_03 boolean not null default false,
+add column if not exists doc_otros boolean not null default false,
+add column if not exists doc_otros_detalle text;

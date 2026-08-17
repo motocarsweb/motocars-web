@@ -3086,6 +3086,8 @@ const [
     </Link>
   </>
 )}
+
+
             <button
               type="button"
               onClick={
@@ -3108,6 +3110,22 @@ const [
               Nueva operación
             </Link>
 
+{esVenta && (
+  <Link
+    href={
+      vehiculo.condicion === "usado"
+        ? tienePermuta
+          ? `/admin/operaciones/${operacion.id}/boleto-usado-permuta`
+          : `/admin/operaciones/${operacion.id}/boleto-usado`
+        : tienePermuta
+          ? `/admin/operaciones/${operacion.id}/boleto-0km-permuta`
+          : `/admin/operaciones/${operacion.id}/boleto-0km`
+    }
+    className="rounded-lg bg-blue-600 px-5 py-2 font-medium text-white"
+  >
+    Ver / Imprimir boleto
+  </Link>
+)}
 
             {esVenta && (
               <Link

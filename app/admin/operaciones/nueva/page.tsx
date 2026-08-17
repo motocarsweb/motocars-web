@@ -44,11 +44,9 @@ import {
 
 import { supabase } from "@/lib/supabase";
 
-
 type CondicionIngreso =
   | "0km"
   | "usado";
-
 
 type VehiculoIngresoFormulario = {
   condicion: CondicionIngreso;
@@ -67,15 +65,28 @@ type VehiculoIngresoFormulario = {
   numero_motor: string;
 
   valor_ingreso: string;
-
   precio_venta: string;
 
   precio_base_consignacion: string;
   plazo_consignacion_dias: string;
 
   observaciones: string;
-};
 
+  doc_titulo_propiedad: boolean;
+  doc_cat: boolean;
+  doc_cedula: boolean;
+  doc_cedulas_adicionales: boolean;
+  doc_formulario_08: boolean;
+  doc_verificacion_policial: boolean;
+  doc_libre_deuda_patentes: boolean;
+  doc_libre_deuda_infracciones: boolean;
+  doc_informe_dominio: boolean;
+  doc_manuales: boolean;
+  doc_duplicado_llave: boolean;
+  doc_prenda_03: boolean;
+  doc_otros: boolean;
+  doc_otros_detalle: string;
+};
 
 const VEHICULO_INGRESO_INICIAL: VehiculoIngresoFormulario = {
   condicion: "usado",
@@ -94,21 +105,35 @@ const VEHICULO_INGRESO_INICIAL: VehiculoIngresoFormulario = {
   numero_motor: "",
 
   valor_ingreso: "",
-
   precio_venta: "",
 
   precio_base_consignacion: "",
   plazo_consignacion_dias: "90",
 
   observaciones: "",
-};
 
+  doc_titulo_propiedad: false,
+  doc_cat: false,
+  doc_cedula: false,
+  doc_cedulas_adicionales: false,
+  doc_formulario_08: false,
+  doc_verificacion_policial: false,
+  doc_libre_deuda_patentes: false,
+  doc_libre_deuda_infracciones: false,
+  doc_informe_dominio: false,
+  doc_manuales: false,
+  doc_duplicado_llave: false,
+  doc_prenda_03: false,
+  doc_otros: false,
+  doc_otros_detalle: "",
+};
 
 function obtenerNombreCliente(
   cliente: Cliente
 ) {
   if (
-    cliente.tipo_persona === "juridica"
+    cliente.tipo_persona ===
+    "juridica"
   ) {
     return (
       cliente.razon_social ||
@@ -117,11 +142,12 @@ function obtenerNombreCliente(
   }
 
   return (
-    `${cliente.nombre ?? ""} ${cliente.apellido ?? ""}`.trim() ||
+    `${cliente.nombre ?? ""} ${
+      cliente.apellido ?? ""
+    }`.trim() ||
     "Cliente sin nombre"
   );
 }
-
 
 function obtenerNombreVehiculo(
   vehiculo: VehiculoSupabase
@@ -136,7 +162,6 @@ function obtenerNombreVehiculo(
     .join(" ");
 }
 
-
 function convertirNumero(
   valor: string
 ) {
@@ -147,7 +172,6 @@ function convertirNumero(
     ? numero
     : 0;
 }
-
 
 function numeroOpcional(
   valor: string
@@ -164,7 +188,6 @@ function numeroOpcional(
     : null;
 }
 
-
 function formatearImporte(
   valor: number
 ) {
@@ -177,7 +200,6 @@ function formatearImporte(
     }
   ).format(valor);
 }
-
 
 function obtenerNombreMedioPago(
   medio: MedioPagoCompra
@@ -200,13 +222,66 @@ function obtenerNombreMedioPago(
   }
 }
 
-
 function crearPagoVacio(): PagoCompraFormulario {
   return {
     ...PAGO_COMPRA_FORMULARIO_INICIAL,
   };
 }
 
+const DOCUMENTOS_PERMUTA = [
+  {
+    nombre: "doc_titulo_propiedad",
+    etiqueta: "Título de Propiedad",
+  },
+  {
+    nombre: "doc_cat",
+    etiqueta: "CAT",
+  },
+  {
+    nombre: "doc_cedula",
+    etiqueta: "Cédula de identificación",
+  },
+  {
+    nombre: "doc_cedulas_adicionales",
+    etiqueta: "Cédulas adicionales",
+  },
+  {
+    nombre: "doc_formulario_08",
+    etiqueta: "Formulario 08 firmado/certificado",
+  },
+  {
+    nombre: "doc_verificacion_policial",
+    etiqueta: "Verificación policial / Formulario 12",
+  },
+  {
+    nombre: "doc_libre_deuda_patentes",
+    etiqueta: "Libre deuda de patentes",
+  },
+  {
+    nombre: "doc_libre_deuda_infracciones",
+    etiqueta: "Libre deuda de infracciones",
+  },
+  {
+    nombre: "doc_informe_dominio",
+    etiqueta: "Informe de dominio",
+  },
+  {
+    nombre: "doc_manuales",
+    etiqueta: "Manuales",
+  },
+  {
+    nombre: "doc_duplicado_llave",
+    etiqueta: "Duplicado de llave",
+  },
+  {
+    nombre: "doc_prenda_03",
+    etiqueta: "Prenda 03",
+  },
+  {
+    nombre: "doc_otros",
+    etiqueta: "Otros",
+  },
+] as const;
 
 export default function NuevaOperacionPage() {
   const router =
@@ -264,13 +339,6 @@ export default function NuevaOperacionPage() {
   ] =
     useState(false);
 
-  /*
-   * Una Compra comienza con una línea
-   * de pago.
-   *
-   * El usuario puede agregar todas
-   * las que necesite.
-   */
   const [
     pagosCompra,
     setPagosCompra,
@@ -278,7 +346,6 @@ export default function NuevaOperacionPage() {
     useState<PagoCompraFormulario[]>([
       crearPagoVacio(),
     ]);
-
 
   const esVenta =
     form.tipo_operacion ===
@@ -304,13 +371,6 @@ export default function NuevaOperacionPage() {
     vehiculoIngreso.condicion ===
     "usado";
 
-
-  /*
-   * =========================================================
-   * CARGA INICIAL
-   * =========================================================
-   */
-
   useEffect(() => {
     let componenteActivo =
       true;
@@ -329,7 +389,9 @@ export default function NuevaOperacionPage() {
             obtenerVehiculos(),
           ]);
 
-        if (!componenteActivo) {
+        if (
+          !componenteActivo
+        ) {
           return;
         }
 
@@ -346,7 +408,9 @@ export default function NuevaOperacionPage() {
       } catch (
         errorDesconocido
       ) {
-        if (!componenteActivo) {
+        if (
+          !componenteActivo
+        ) {
           return;
         }
 
@@ -357,8 +421,12 @@ export default function NuevaOperacionPage() {
             : "No se pudieron cargar los datos."
         );
       } finally {
-        if (componenteActivo) {
-          setCargandoDatos(false);
+        if (
+          componenteActivo
+        ) {
+          setCargandoDatos(
+            false
+          );
         }
       }
     }
@@ -370,13 +438,6 @@ export default function NuevaOperacionPage() {
         false;
     };
   }, []);
-
-
-  /*
-   * =========================================================
-   * TOTALES
-   * =========================================================
-   */
 
   const totalVenta =
     useMemo(() => {
@@ -402,7 +463,6 @@ export default function NuevaOperacionPage() {
       form.gastos,
     ]);
 
-
   const valorCompra =
     esCompra
       ? convertirNumero(
@@ -410,21 +470,20 @@ export default function NuevaOperacionPage() {
         )
       : 0;
 
-
   const totalPagosCompra =
     useMemo(
       () =>
         obtenerTotalPagosCompraFormulario(
           pagosCompra
         ),
-      [pagosCompra]
+      [
+        pagosCompra,
+      ]
     );
-
 
   const diferenciaPagosCompra =
     valorCompra -
     totalPagosCompra;
-
 
   const pagosCompraCoinciden =
     esCompra &&
@@ -432,13 +491,6 @@ export default function NuevaOperacionPage() {
     Math.abs(
       diferenciaPagosCompra
     ) <= 0.01;
-
-
-  /*
-   * =========================================================
-   * TIPO DE OPERACIÓN
-   * =========================================================
-   */
 
   function seleccionarTipoOperacion(
     tipo: TipoOperacion
@@ -490,13 +542,6 @@ export default function NuevaOperacionPage() {
     }
   }
 
-
-  /*
-   * =========================================================
-   * CAMPOS OPERACIÓN
-   * =========================================================
-   */
-
   function actualizarCampo(
     event: React.ChangeEvent<
       | HTMLInputElement
@@ -513,7 +558,8 @@ export default function NuevaOperacionPage() {
     const valor =
       target instanceof
         HTMLInputElement &&
-      target.type === "checkbox"
+      target.type ===
+        "checkbox"
         ? target.checked
         : target.value;
 
@@ -525,13 +571,6 @@ export default function NuevaOperacionPage() {
       })
     );
   }
-
-
-  /*
-   * =========================================================
-   * VEHÍCULO VENDIDO
-   * =========================================================
-   */
 
   function seleccionarVehiculoVendido(
     event: React.ChangeEvent<HTMLSelectElement>
@@ -568,34 +607,34 @@ export default function NuevaOperacionPage() {
     );
   }
 
-
-  /*
-   * =========================================================
-   * VEHÍCULO QUE INGRESA
-   * =========================================================
-   */
-
   function actualizarCampoVehiculoIngreso(
     event: React.ChangeEvent<
       | HTMLInputElement
       | HTMLTextAreaElement
     >
   ) {
-    const {
-      name,
-      value,
-    } =
+    const target =
       event.target;
+
+    const nombre =
+      target.name;
+
+    const valor =
+      target instanceof
+        HTMLInputElement &&
+      target.type ===
+        "checkbox"
+        ? target.checked
+        : target.value;
 
     setVehiculoIngreso(
       (anterior) => ({
         ...anterior,
-        [name]:
-          value,
+        [nombre]:
+          valor,
       })
     );
   }
-
 
   function seleccionarCondicionIngreso(
     condicion: CondicionIngreso
@@ -607,18 +646,19 @@ export default function NuevaOperacionPage() {
         condicion,
 
         kilometros:
-          condicion === "0km"
+          condicion ===
+          "0km"
             ? "0"
             : anterior.kilometros,
 
         dominio:
-          condicion === "0km"
+          condicion ===
+          "0km"
             ? ""
             : anterior.dominio,
       })
     );
   }
-
 
   function actualizarPrecioVentaIngreso(
     event: React.ChangeEvent<HTMLInputElement>
@@ -643,13 +683,6 @@ export default function NuevaOperacionPage() {
     );
   }
 
-
-  /*
-   * =========================================================
-   * PAGOS DE COMPRA
-   * =========================================================
-   */
-
   function agregarPagoCompra() {
     setPagosCompra(
       (anteriores) => [
@@ -659,23 +692,30 @@ export default function NuevaOperacionPage() {
     );
   }
 
-
   function eliminarPagoCompra(
     indice: number
   ) {
     setPagosCompra(
-      (anteriores) =>
-        anteriores.filter(
-          (
-            _,
-            indiceActual
-          ) =>
-            indiceActual !==
-            indice
-        )
+      (anteriores) => {
+        const nuevos =
+          anteriores.filter(
+            (
+              _,
+              indiceActual
+            ) =>
+              indiceActual !==
+              indice
+          );
+
+        return nuevos.length >
+          0
+          ? nuevos
+          : [
+              crearPagoVacio(),
+            ];
+      }
     );
   }
-
 
   function actualizarMedioPagoCompra(
     indice: number,
@@ -704,7 +744,6 @@ export default function NuevaOperacionPage() {
         )
     );
   }
-
 
   function actualizarCampoPagoCompra(
     indice: number,
@@ -743,13 +782,6 @@ export default function NuevaOperacionPage() {
         )
     );
   }
-
-
-  /*
-   * =========================================================
-   * VALIDACIÓN DEL VEHÍCULO
-   * =========================================================
-   */
 
   function validarDatosVehiculoIngreso() {
     if (
@@ -813,13 +845,6 @@ export default function NuevaOperacionPage() {
     return "";
   }
 
-
-  /*
-   * =========================================================
-   * VALIDACIÓN DE PAGOS
-   * =========================================================
-   */
-
   function validarPagosDeCompra() {
     if (!esCompra) {
       return "";
@@ -870,19 +895,15 @@ export default function NuevaOperacionPage() {
       }
 
       if (
-        pago.medio_pago ===
-          "cheque" &&
+        (
+          pago.medio_pago ===
+            "cheque" ||
+          pago.medio_pago ===
+            "otro"
+        ) &&
         !pago.detalle.trim()
       ) {
-        return `Ingresá los datos del cheque en el pago ${numeroPago}.`;
-      }
-
-      if (
-        pago.medio_pago ===
-          "otro" &&
-        !pago.detalle.trim()
-      ) {
-        return `Describí la forma de pago en el pago ${numeroPago}.`;
+        return `Ingresá el detalle del pago ${numeroPago}.`;
       }
     }
 
@@ -902,13 +923,6 @@ export default function NuevaOperacionPage() {
 
     return "";
   }
-
-
-  /*
-   * =========================================================
-   * VALIDACIÓN GENERAL
-   * =========================================================
-   */
 
   function validarFormulario() {
     if (
@@ -993,13 +1007,6 @@ export default function NuevaOperacionPage() {
     return "";
   }
 
-
-  /*
-   * =========================================================
-   * TIPO DE INGRESO
-   * =========================================================
-   */
-
   async function obtenerTipoIngresoId(
     slug:
       | "compra"
@@ -1038,13 +1045,6 @@ export default function NuevaOperacionPage() {
 
     return data.id as string;
   }
-
-
-  /*
-   * =========================================================
-   * CREAR VEHÍCULO DE INGRESO
-   * =========================================================
-   */
 
   async function crearVehiculoDeIngreso(
     tipoIngresoId: string
@@ -1110,7 +1110,8 @@ export default function NuevaOperacionPage() {
           ),
 
         precio_compra:
-          valorIngreso !== null &&
+          valorIngreso !==
+            null &&
           valorIngreso > 0
             ? valorIngreso
             : null,
@@ -1155,13 +1156,6 @@ export default function NuevaOperacionPage() {
 
     return resultado;
   }
-
-
-  /*
-   * =========================================================
-   * REGISTRAR INGRESO USADO
-   * =========================================================
-   */
 
   async function registrarIngresoUsado(
     vehiculoId: number,
@@ -1216,15 +1210,50 @@ export default function NuevaOperacionPage() {
 
       observaciones:
         vehiculoIngreso.observaciones,
+
+      doc_titulo_propiedad:
+        vehiculoIngreso.doc_titulo_propiedad,
+
+      doc_cat:
+        vehiculoIngreso.doc_cat,
+
+      doc_cedula:
+        vehiculoIngreso.doc_cedula,
+
+      doc_cedulas_adicionales:
+        vehiculoIngreso.doc_cedulas_adicionales,
+
+      doc_formulario_08:
+        vehiculoIngreso.doc_formulario_08,
+
+      doc_verificacion_policial:
+        vehiculoIngreso.doc_verificacion_policial,
+
+      doc_libre_deuda_patentes:
+        vehiculoIngreso.doc_libre_deuda_patentes,
+
+      doc_libre_deuda_infracciones:
+        vehiculoIngreso.doc_libre_deuda_infracciones,
+
+      doc_informe_dominio:
+        vehiculoIngreso.doc_informe_dominio,
+
+      doc_manuales:
+        vehiculoIngreso.doc_manuales,
+
+      doc_duplicado_llave:
+        vehiculoIngreso.doc_duplicado_llave,
+
+      doc_prenda_03:
+        vehiculoIngreso.doc_prenda_03,
+
+      doc_otros:
+        vehiculoIngreso.doc_otros,
+
+      doc_otros_detalle:
+        vehiculoIngreso.doc_otros_detalle,
     });
   }
-
-
-  /*
-   * =========================================================
-   * GUARDAR VENTA
-   * =========================================================
-   */
 
   async function guardarVenta() {
     const operacion =
@@ -1257,13 +1286,6 @@ export default function NuevaOperacionPage() {
     return operacion;
   }
 
-
-  /*
-   * =========================================================
-   * GUARDAR COMPRA / CONSIGNACIÓN
-   * =========================================================
-   */
-
   async function guardarIngresoPrincipal() {
     const tipoIngreso =
       esCompra
@@ -1280,10 +1302,6 @@ export default function NuevaOperacionPage() {
         tipoIngresoId
       );
 
-    /*
-     * En Compra generamos además una descripción
-     * resumida de los medios de pago.
-     */
     const resumenPagos =
       esCompra
         ? pagosCompra
@@ -1334,10 +1352,6 @@ export default function NuevaOperacionPage() {
       tipoIngreso
     );
 
-    /*
-     * Los pagos estructurados solo existen
-     * para Compra.
-     */
     if (esCompra) {
       await crearPagosCompra(
         operacion.id,
@@ -1347,13 +1361,6 @@ export default function NuevaOperacionPage() {
 
     return operacion;
   }
-
-
-  /*
-   * =========================================================
-   * GUARDAR
-   * =========================================================
-   */
 
   async function guardarOperacion(
     event: FormEvent<HTMLFormElement>
@@ -1417,13 +1424,6 @@ export default function NuevaOperacionPage() {
     }
   }
 
-
-  /*
-   * =========================================================
-   * RENDER
-   * =========================================================
-   */
-
   return (
     <main className="p-6">
       <PageHeader
@@ -1443,49 +1443,34 @@ export default function NuevaOperacionPage() {
           </p>
         ) : (
           <>
-
-            {/* TIPO DE OPERACIÓN */}
-
             <section>
               <h2 className="text-lg font-semibold">
                 Tipo de operación
               </h2>
-
-              <p className="mt-1 text-sm text-gray-500">
-                Seleccioná el movimiento principal de la unidad.
-              </p>
 
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
                 {[
                   {
                     valor:
                       "venta" as TipoOperacion,
-
                     titulo:
                       "Venta",
-
                     descripcion:
                       "Sale una unidad del stock.",
                   },
-
                   {
                     valor:
                       "compra" as TipoOperacion,
-
                     titulo:
                       "Compra",
-
                     descripcion:
                       "MotoCars compra una unidad que ingresa al stock.",
                   },
-
                   {
                     valor:
                       "consignacion" as TipoOperacion,
-
                     titulo:
                       "Consignación",
-
                     descripcion:
                       "Ingresa una unidad de un tercero o proveedor.",
                   },
@@ -1516,14 +1501,7 @@ export default function NuevaOperacionPage() {
                         }
                       </strong>
 
-                      <span
-                        className={`mt-1 block text-xs ${
-                          form.tipo_operacion ===
-                          opcion.valor
-                            ? "text-blue-100"
-                            : "text-gray-500"
-                        }`}
-                      >
+                      <span className="mt-1 block text-xs">
                         {
                           opcion.descripcion
                         }
@@ -1533,9 +1511,6 @@ export default function NuevaOperacionPage() {
                 )}
               </div>
             </section>
-
-
-            {/* CLIENTE / PROVEEDOR */}
 
             <section className="grid gap-3 rounded-xl border p-5">
               <label className="grid gap-2">
@@ -1591,9 +1566,6 @@ export default function NuevaOperacionPage() {
               </label>
             </section>
 
-
-            {/* VENTA */}
-
             {esVenta && (
               <>
                 <section className="grid gap-5 rounded-xl border p-5 md:grid-cols-2">
@@ -1638,7 +1610,7 @@ export default function NuevaOperacionPage() {
                     </select>
                   </label>
 
-                        <div className="grid gap-2">
+                  <div className="grid gap-2">
                     <span className="font-medium">
                       Precio de venta *
                     </span>
@@ -1646,8 +1618,12 @@ export default function NuevaOperacionPage() {
                     <div className="grid grid-cols-[130px_1fr] gap-2">
                       <select
                         name="moneda"
-                        value={form.moneda}
-                        onChange={actualizarCampo}
+                        value={
+                          form.moneda
+                        }
+                        onChange={
+                          actualizarCampo
+                        }
                         className="rounded-lg border bg-white p-3"
                       >
                         <option value="ARS">
@@ -1664,24 +1640,22 @@ export default function NuevaOperacionPage() {
                         name="precio_vehiculo"
                         min="0"
                         step="1"
-                        value={form.precio_vehiculo}
-                        onChange={actualizarCampo}
+                        value={
+                          form.precio_vehiculo
+                        }
+                        onChange={
+                          actualizarCampo
+                        }
                         className="rounded-lg border p-3"
                         required
                       />
                     </div>
                   </div>
-
                 </section>
-
 
                 <section className="rounded-xl border bg-gray-50 p-5">
                   <p className="font-semibold">
                     ¿Se recibe un vehículo en permuta?
-                  </p>
-
-                  <p className="mt-1 text-sm text-gray-500">
-                    La permuta forma parte de la venta y la unidad recibida ingresará al stock.
                   </p>
 
                   <div className="mt-4 flex gap-5">
@@ -1727,18 +1701,11 @@ export default function NuevaOperacionPage() {
               </>
             )}
 
-
-            {/* CONDICIÓN VEHÍCULO QUE INGRESA */}
-
             {operacionHaceIngresarVehiculo && (
               <section className="rounded-xl border border-blue-200 bg-blue-50 p-5">
                 <h2 className="text-lg font-semibold">
                   Vehículo que ingresa al stock
                 </h2>
-
-                <p className="mt-1 text-sm text-gray-600">
-                  Puede tratarse de una unidad 0 km o usada.
-                </p>
 
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <button
@@ -1778,9 +1745,6 @@ export default function NuevaOperacionPage() {
               </section>
             )}
 
-
-            {/* VEHÍCULO QUE INGRESA */}
-
             {(operacionHaceIngresarVehiculo ||
               hayPermuta) && (
               <section className="grid gap-6 rounded-xl border border-blue-200 bg-blue-50 p-5">
@@ -1792,101 +1756,75 @@ export default function NuevaOperacionPage() {
                         ? "Unidad comprada por MotoCars"
                         : "Unidad recibida en consignación"}
                   </h2>
-
-                  <p className="mt-1 text-sm text-gray-600">
-                    Esta unidad se incorporará al stock administrativo.
-                  </p>
                 </div>
 
-
-                {hayPermuta && (
-                  <div className="rounded-lg border border-blue-200 bg-white p-3 text-sm">
-                    Condición:{" "}
-                    <strong>
-                      Usado
-                    </strong>
-                  </div>
-                )}
-
-
                 <div className="grid gap-4 md:grid-cols-2">
-                  <label className="grid gap-2">
-                    <span className="font-medium">
-                      Marca *
-                    </span>
+                  {[
+                    [
+                      "marca",
+                      "Marca *",
+                      "text",
+                    ],
+                    [
+                      "modelo",
+                      "Modelo *",
+                      "text",
+                    ],
+                    [
+                      "version",
+                      "Versión",
+                      "text",
+                    ],
+                    [
+                      "anio",
+                      "Año",
+                      "number",
+                    ],
+                    [
+                      "color",
+                      "Color",
+                      "text",
+                    ],
+                  ].map(
+                    ([
+                      nombre,
+                      etiqueta,
+                      tipo,
+                    ]) => (
+                      <label
+                        key={
+                          nombre
+                        }
+                        className="grid gap-2"
+                      >
+                        <span className="font-medium">
+                          {
+                            etiqueta
+                          }
+                        </span>
 
-                    <input
-                      type="text"
-                      name="marca"
-                      value={
-                        vehiculoIngreso.marca
-                      }
-                      onChange={
-                        actualizarCampoVehiculoIngreso
-                      }
-                      className="rounded-lg border bg-white p-3"
-                    />
-                  </label>
-
-
-                  <label className="grid gap-2">
-                    <span className="font-medium">
-                      Modelo *
-                    </span>
-
-                    <input
-                      type="text"
-                      name="modelo"
-                      value={
-                        vehiculoIngreso.modelo
-                      }
-                      onChange={
-                        actualizarCampoVehiculoIngreso
-                      }
-                      className="rounded-lg border bg-white p-3"
-                    />
-                  </label>
-
-
-                  <label className="grid gap-2">
-                    <span className="font-medium">
-                      Versión
-                    </span>
-
-                    <input
-                      type="text"
-                      name="version"
-                      value={
-                        vehiculoIngreso.version
-                      }
-                      onChange={
-                        actualizarCampoVehiculoIngreso
-                      }
-                      className="rounded-lg border bg-white p-3"
-                    />
-                  </label>
-
-
-                  <label className="grid gap-2">
-                    <span className="font-medium">
-                      Año
-                    </span>
-
-                    <input
-                      type="number"
-                      name="anio"
-                      min="1900"
-                      max="2100"
-                      value={
-                        vehiculoIngreso.anio
-                      }
-                      onChange={
-                        actualizarCampoVehiculoIngreso
-                      }
-                      className="rounded-lg border bg-white p-3"
-                    />
-                  </label>
-
+                        <input
+                          type={
+                            tipo
+                          }
+                          name={
+                            nombre
+                          }
+                          value={
+                            String(
+                              vehiculoIngreso[
+                                nombre as keyof VehiculoIngresoFormulario
+                              ] ?? ""
+                            )
+                          }
+                          onChange={
+                            actualizarCampoVehiculoIngreso
+                          }
+                          className="rounded-lg border bg-white p-3"
+                        />
+                      </label>
+                    )
+                  )}
 
                   {vehiculoIngresoEsUsado && (
                     <label className="grid gap-2">
@@ -1908,27 +1846,7 @@ export default function NuevaOperacionPage() {
                       />
                     </label>
                   )}
-
-
-                  <label className="grid gap-2">
-                    <span className="font-medium">
-                      Color
-                    </span>
-
-                    <input
-                      type="text"
-                      name="color"
-                      value={
-                        vehiculoIngreso.color
-                      }
-                      onChange={
-                        actualizarCampoVehiculoIngreso
-                      }
-                      className="rounded-lg border bg-white p-3"
-                    />
-                  </label>
                 </div>
-
 
                 <div className="grid gap-4 md:grid-cols-3">
                   {vehiculoIngresoEsUsado && (
@@ -1951,7 +1869,6 @@ export default function NuevaOperacionPage() {
                     </label>
                   )}
 
-
                   <label className="grid gap-2">
                     <span className="font-medium">
                       Nº de chasis
@@ -1969,7 +1886,6 @@ export default function NuevaOperacionPage() {
                       className="rounded-lg border bg-white p-3"
                     />
                   </label>
-
 
                   <label className="grid gap-2">
                     <span className="font-medium">
@@ -1989,7 +1905,6 @@ export default function NuevaOperacionPage() {
                     />
                   </label>
                 </div>
-
 
                 <div className="grid gap-4 md:grid-cols-2">
                   {(esCompra ||
@@ -2014,15 +1929,8 @@ export default function NuevaOperacionPage() {
                         }
                         className="rounded-lg border bg-white p-3"
                       />
-
-                      {hayPermuta && (
-                        <span className="text-xs text-gray-500">
-                          Puede quedar vacío si la permuta no tiene un valor individual asignado.
-                        </span>
-                      )}
                     </label>
                   )}
-
 
                   <label className="grid gap-2">
                     <span className="font-medium">
@@ -2042,55 +1950,45 @@ export default function NuevaOperacionPage() {
                       }
                       className="rounded-lg border bg-white p-3"
                     />
-
-                    <span className="text-xs text-gray-500">
-                      Será el precio comercial inicial de la unidad en stock.
-                    </span>
                   </label>
                 </div>
 
-
                 {vehiculoIngresoEsUsado && (
-                  <section className="grid gap-4 rounded-lg border border-blue-200 bg-white p-4">
-                    <div>
-                      <h3 className="font-semibold">
-                        Contrato de consignación
-                      </h3>
+                  <>
+                    <section className="grid gap-4 rounded-lg border border-blue-200 bg-white p-4">
+                      <div>
+                        <h3 className="font-semibold">
+                          Contrato de consignación
+                        </h3>
+                      </div>
 
-                      <p className="mt-1 text-sm text-gray-500">
-                        La unidad queda preparada para emitir el contrato de consignación correspondiente.
-                      </p>
-                    </div>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <label className="grid gap-2">
+                          <span className="font-medium">
+                            Valor del contrato *
+                          </span>
 
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <label className="grid gap-2">
-                        <span className="font-medium">
-                          Valor del contrato *
-                        </span>
+                          <input
+                            type="number"
+                            name="precio_base_consignacion"
+                            min="0"
+                            step="1"
+                            value={
+                              vehiculoIngreso
+                                .precio_base_consignacion
+                            }
+                            onChange={
+                              actualizarCampoVehiculoIngreso
+                            }
+                            className="rounded-lg border p-3"
+                          />
+                        </label>
 
-                        <input
-                          type="number"
-                          name="precio_base_consignacion"
-                          min="0"
-                          step="1"
-                          value={
-                            vehiculoIngreso
-                              .precio_base_consignacion
-                          }
-                          onChange={
-                            actualizarCampoVehiculoIngreso
-                          }
-                          className="rounded-lg border p-3"
-                        />
-                      </label>
+                        <label className="grid gap-2">
+                          <span className="font-medium">
+                            Plazo
+                          </span>
 
-
-                      <label className="grid gap-2">
-                        <span className="font-medium">
-                          Plazo
-                        </span>
-
-                        <div className="flex items-center gap-2">
                           <input
                             type="number"
                             name="plazo_consignacion_dias"
@@ -2102,18 +2000,83 @@ export default function NuevaOperacionPage() {
                             onChange={
                               actualizarCampoVehiculoIngreso
                             }
-                            className="w-full rounded-lg border p-3"
+                            className="rounded-lg border p-3"
                           />
+                        </label>
+                      </div>
+                    </section>
 
-                          <span className="text-sm">
-                            días
+                    <section className="grid gap-4 rounded-lg border border-blue-200 bg-white p-4">
+                      <div>
+                        <h3 className="font-semibold">
+                          Documentación recibida
+                        </h3>
+
+                        <p className="mt-1 text-sm text-gray-500">
+                          Marcá únicamente la documentación y elementos efectivamente entregados con la unidad.
+                        </p>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {DOCUMENTOS_PERMUTA.map(
+                          (
+                            documento
+                          ) => (
+                            <label
+                              key={
+                                documento.nombre
+                              }
+                              className="flex items-center gap-3 rounded-lg border p-3"
+                            >
+                              <input
+                                type="checkbox"
+                                name={
+                                  documento.nombre
+                                }
+                                checked={
+                                  Boolean(
+                                    vehiculoIngreso[
+                                      documento.nombre
+                                    ]
+                                  )
+                                }
+                                onChange={
+                                  actualizarCampoVehiculoIngreso
+                                }
+                              />
+
+                              <span className="text-sm font-medium">
+                                {
+                                  documento.etiqueta
+                                }
+                              </span>
+                            </label>
+                          )
+                        )}
+                      </div>
+
+                      {vehiculoIngreso.doc_otros && (
+                        <label className="grid gap-2">
+                          <span className="font-medium">
+                            Detalle de otros documentos / elementos
                           </span>
-                        </div>
-                      </label>
-                    </div>
-                  </section>
-                )}
 
+                          <input
+                            type="text"
+                            name="doc_otros_detalle"
+                            value={
+                              vehiculoIngreso.doc_otros_detalle
+                            }
+                            onChange={
+                              actualizarCampoVehiculoIngreso
+                            }
+                            className="rounded-lg border p-3"
+                          />
+                        </label>
+                      )}
+                    </section>
+                  </>
+                )}
 
                 <label className="grid gap-2">
                   <span className="font-medium">
@@ -2135,9 +2098,6 @@ export default function NuevaOperacionPage() {
               </section>
             )}
 
-
-            {/* PAGOS DE COMPRA */}
-
             {esCompra && (
               <section className="grid gap-5 rounded-xl border border-green-200 bg-green-50 p-5">
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -2145,10 +2105,6 @@ export default function NuevaOperacionPage() {
                     <h2 className="text-lg font-semibold">
                       Detalle de pago de la compra
                     </h2>
-
-                    <p className="mt-1 text-sm text-gray-600">
-                      Podés combinar efectivo, transferencia, cheque u otras formas de pago.
-                    </p>
                   </div>
 
                   <button
@@ -2162,7 +2118,6 @@ export default function NuevaOperacionPage() {
                   </button>
                 </div>
 
-
                 <div className="grid gap-4">
                   {pagosCompra.map(
                     (
@@ -2175,7 +2130,7 @@ export default function NuevaOperacionPage() {
                         }
                         className="grid gap-4 rounded-xl border bg-white p-4"
                       >
-                        <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex justify-between gap-3">
                           <h3 className="font-semibold">
                             Pago{" "}
                             {
@@ -2199,7 +2154,6 @@ export default function NuevaOperacionPage() {
                             </button>
                           )}
                         </div>
-
 
                         <div className="grid gap-4 md:grid-cols-2">
                           <label className="grid gap-2">
@@ -2242,7 +2196,6 @@ export default function NuevaOperacionPage() {
                             </select>
                           </label>
 
-
                           <label className="grid gap-2">
                             <span className="font-medium">
                               Importe *
@@ -2272,201 +2225,91 @@ export default function NuevaOperacionPage() {
                           </label>
                         </div>
 
-
                         {pago.medio_pago ===
                           "transferencia" && (
                           <div className="grid gap-4 rounded-lg bg-gray-50 p-4 md:grid-cols-2">
-                            <label className="grid gap-2">
-                              <span className="font-medium">
-                                Banco
-                              </span>
+                            {[
+                              [
+                                "banco",
+                                "Banco",
+                              ],
+                              [
+                                "titular",
+                                "Titular *",
+                              ],
+                              [
+                                "cuil_cuit",
+                                "CUIT / CUIL",
+                              ],
+                              [
+                                "tipo_cuenta",
+                                "Tipo de cuenta",
+                              ],
+                              [
+                                "numero_cuenta",
+                                "Nº de cuenta",
+                              ],
+                              [
+                                "alias",
+                                "Alias",
+                              ],
+                              [
+                                "cbu_cvu",
+                                "CBU / CVU",
+                              ],
+                            ].map(
+                              ([
+                                campo,
+                                etiqueta,
+                              ]) => (
+                                <label
+                                  key={
+                                    campo
+                                  }
+                                  className="grid gap-2"
+                                >
+                                  <span className="font-medium">
+                                    {
+                                      etiqueta
+                                    }
+                                  </span>
 
-                              <input
-                                type="text"
-                                value={
-                                  pago.banco
-                                }
-                                onChange={
-                                  (
-                                    event
-                                  ) =>
-                                    actualizarCampoPagoCompra(
-                                      indice,
-                                      "banco",
-                                      event
-                                        .target
-                                        .value
-                                    )
-                                }
-                                className="rounded-lg border bg-white p-3"
-                              />
-                            </label>
-
-
-                            <label className="grid gap-2">
-                              <span className="font-medium">
-                                Titular *
-                              </span>
-
-                              <input
-                                type="text"
-                                value={
-                                  pago.titular
-                                }
-                                onChange={
-                                  (
-                                    event
-                                  ) =>
-                                    actualizarCampoPagoCompra(
-                                      indice,
-                                      "titular",
-                                      event
-                                        .target
-                                        .value
-                                    )
-                                }
-                                className="rounded-lg border bg-white p-3"
-                              />
-                            </label>
-
-
-                            <label className="grid gap-2">
-                              <span className="font-medium">
-                                CUIT / CUIL
-                              </span>
-
-                              <input
-                                type="text"
-                                value={
-                                  pago.cuil_cuit
-                                }
-                                onChange={
-                                  (
-                                    event
-                                  ) =>
-                                    actualizarCampoPagoCompra(
-                                      indice,
-                                      "cuil_cuit",
-                                      event
-                                        .target
-                                        .value
-                                    )
-                                }
-                                className="rounded-lg border bg-white p-3"
-                              />
-                            </label>
-
-
-                            <label className="grid gap-2">
-                              <span className="font-medium">
-                                Tipo de cuenta
-                              </span>
-
-                              <input
-                                type="text"
-                                value={
-                                  pago.tipo_cuenta
-                                }
-                                onChange={
-                                  (
-                                    event
-                                  ) =>
-                                    actualizarCampoPagoCompra(
-                                      indice,
-                                      "tipo_cuenta",
-                                      event
-                                        .target
-                                        .value
-                                    )
-                                }
-                                placeholder="Ej. Caja de ahorro $"
-                                className="rounded-lg border bg-white p-3"
-                              />
-                            </label>
-
-
-                            <label className="grid gap-2">
-                              <span className="font-medium">
-                                Nº de cuenta
-                              </span>
-
-                              <input
-                                type="text"
-                                value={
-                                  pago.numero_cuenta
-                                }
-                                onChange={
-                                  (
-                                    event
-                                  ) =>
-                                    actualizarCampoPagoCompra(
-                                      indice,
-                                      "numero_cuenta",
-                                      event
-                                        .target
-                                        .value
-                                    )
-                                }
-                                className="rounded-lg border bg-white p-3"
-                              />
-                            </label>
-
-
-                            <label className="grid gap-2">
-                              <span className="font-medium">
-                                Alias
-                              </span>
-
-                              <input
-                                type="text"
-                                value={
-                                  pago.alias
-                                }
-                                onChange={
-                                  (
-                                    event
-                                  ) =>
-                                    actualizarCampoPagoCompra(
-                                      indice,
-                                      "alias",
-                                      event
-                                        .target
-                                        .value
-                                    )
-                                }
-                                className="rounded-lg border bg-white p-3"
-                              />
-                            </label>
-
-
-                            <label className="grid gap-2 md:col-span-2">
-                              <span className="font-medium">
-                                CBU / CVU
-                              </span>
-
-                              <input
-                                type="text"
-                                value={
-                                  pago.cbu_cvu
-                                }
-                                onChange={
-                                  (
-                                    event
-                                  ) =>
-                                    actualizarCampoPagoCompra(
-                                      indice,
-                                      "cbu_cvu",
-                                      event
-                                        .target
-                                        .value
-                                    )
-                                }
-                                className="rounded-lg border bg-white p-3"
-                              />
-                            </label>
+                                  <input
+                                    type="text"
+                                    value={
+                                      String(
+                                        pago[
+                                          campo as keyof PagoCompraFormulario
+                                        ] ??
+                                          ""
+                                      )
+                                    }
+                                    onChange={
+                                      (
+                                        event
+                                      ) =>
+                                        actualizarCampoPagoCompra(
+                                          indice,
+                                          campo as
+                                            | "banco"
+                                            | "titular"
+                                            | "cuil_cuit"
+                                            | "tipo_cuenta"
+                                            | "numero_cuenta"
+                                            | "alias"
+                                            | "cbu_cvu",
+                                          event
+                                            .target
+                                            .value
+                                        )
+                                    }
+                                    className="rounded-lg border bg-white p-3"
+                                  />
+                                </label>
+                              )
+                            )}
                           </div>
                         )}
-
 
                         {(pago.medio_pago ===
                           "cheque" ||
@@ -2494,29 +2337,14 @@ export default function NuevaOperacionPage() {
                                   )
                               }
                               rows={3}
-                              placeholder={
-                                pago.medio_pago ===
-                                "cheque"
-                                  ? "Banco, número de cheque, fecha, titular, etc."
-                                  : "Describí la forma de pago."
-                              }
                               className="rounded-lg border p-3"
                             />
                           </label>
-                        )}
-
-
-                        {pago.medio_pago ===
-                          "efectivo" && (
-                          <p className="text-sm text-gray-500">
-                            No se requieren datos adicionales para el pago en efectivo.
-                          </p>
                         )}
                       </article>
                     )
                   )}
                 </div>
-
 
                 <section className="rounded-xl border bg-white p-5">
                   <div className="grid gap-4 sm:grid-cols-3">
@@ -2532,7 +2360,6 @@ export default function NuevaOperacionPage() {
                       </p>
                     </div>
 
-
                     <div>
                       <p className="text-sm text-gray-500">
                         Total de pagos
@@ -2544,7 +2371,6 @@ export default function NuevaOperacionPage() {
                         )}
                       </p>
                     </div>
-
 
                     <div>
                       <p className="text-sm text-gray-500">
@@ -2564,23 +2390,9 @@ export default function NuevaOperacionPage() {
                       </p>
                     </div>
                   </div>
-
-
-                  {pagosCompraCoinciden ? (
-                    <div className="mt-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm font-semibold text-green-700">
-                      ✓ El detalle de pagos coincide con el valor de compra.
-                    </div>
-                  ) : (
-                    <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-                      El total de los pagos debe coincidir exactamente con el valor de compra antes de guardar.
-                    </div>
-                  )}
                 </section>
               </section>
             )}
-
-
-            {/* CONDICIONES DE VENTA */}
 
             {esVenta && (
               <>
@@ -2605,7 +2417,6 @@ export default function NuevaOperacionPage() {
                     />
                   </label>
 
-
                   <label className="grid gap-2">
                     <span className="font-medium">
                       Otros gastos
@@ -2627,7 +2438,6 @@ export default function NuevaOperacionPage() {
                   </label>
                 </div>
 
-
                 <section className="rounded-xl bg-gray-50 p-5">
                   <p className="text-sm font-medium text-gray-500">
                     Total de la operación
@@ -2638,22 +2448,14 @@ export default function NuevaOperacionPage() {
                       totalVenta
                     )}
                   </p>
-
-                  <p className="mt-2 text-sm text-gray-500">
-                    Precio − bonificación + gastos
-                  </p>
                 </section>
               </>
             )}
-
-
-            {/* DATOS COMERCIALES */}
 
             <section className="grid gap-5 rounded-xl border p-5">
               <h2 className="text-lg font-semibold">
                 Datos comerciales
               </h2>
-
 
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="grid gap-2">
@@ -2673,7 +2475,6 @@ export default function NuevaOperacionPage() {
                     className="rounded-lg border p-3"
                   />
                 </label>
-
 
                 <label className="grid gap-2">
                   <span className="font-medium">
@@ -2696,6 +2497,22 @@ export default function NuevaOperacionPage() {
                 </label>
               </div>
 
+              <label className="flex items-center gap-3 rounded-lg border p-4">
+                <input
+                  type="checkbox"
+                  name="gastos_gestoria_incluidos"
+                  checked={
+                    form.gastos_gestoria_incluidos
+                  }
+                  onChange={
+                    actualizarCampo
+                  }
+                />
+
+                <span className="font-medium">
+                  Gastos de gestoría incluidos en la operación
+                </span>
+              </label>
 
               {!esCompra && (
                 <label className="grid gap-2">
@@ -2713,15 +2530,9 @@ export default function NuevaOperacionPage() {
                       actualizarCampo
                     }
                     className="rounded-lg border p-3"
-                    placeholder={
-                      esVenta
-                        ? "Ej. transferencia + crédito + vehículo en permuta"
-                        : "Ej. condiciones pactadas con consignante/proveedor"
-                    }
                   />
                 </label>
               )}
-
 
               <label className="grid gap-2">
                 <span className="font-medium">
@@ -2743,7 +2554,6 @@ export default function NuevaOperacionPage() {
                 />
               </label>
 
-
               <label className="grid gap-2">
                 <span className="font-medium">
                   Observaciones comerciales
@@ -2761,7 +2571,6 @@ export default function NuevaOperacionPage() {
                   className="rounded-lg border p-3"
                 />
               </label>
-
 
               <label className="grid gap-2">
                 <span className="font-medium">
@@ -2784,13 +2593,11 @@ export default function NuevaOperacionPage() {
           </>
         )}
 
-
         {error && (
           <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-red-700">
             {error}
           </div>
         )}
-
 
         <div className="flex justify-end gap-3">
           <Link
