@@ -32,6 +32,7 @@ type BasicFormData = {
 
   tipo: string;
   tipo_vehiculo_id: string;
+  estilo_moto_id: string;
 
   condicion: string;
 };
@@ -41,6 +42,10 @@ type BasicDataProps = {
   marcas: Marca[];
   modelos: Modelo[];
   tiposVehiculo: Catalogo[];
+  estilosMoto: Catalogo[];
+  onEstiloMotoChange: (
+  event: ChangeEvent<HTMLSelectElement>
+) => void;
   tiposIngreso: Catalogo[];
   cargandoCatalogos: boolean;
   cargandoModelos: boolean;
@@ -81,6 +86,7 @@ export default function BasicData({
   marcas,
   modelos,
   tiposVehiculo,
+  estilosMoto,
   tiposIngreso,
   cargandoCatalogos,
   cargandoModelos,
@@ -93,6 +99,7 @@ export default function BasicData({
   onModeloNuevoChange,
   onVersionChange,
   onTipoVehiculoChange,
+  onEstiloMotoChange,
 }: BasicDataProps) {
   return (
     <>
@@ -191,6 +198,7 @@ export default function BasicData({
         onChange={onTipoVehiculoChange}
         required
         disabled={cargandoCatalogos}
+
       >
         <option value="">
           Seleccionar tipo de vehículo
@@ -205,6 +213,28 @@ export default function BasicData({
           </option>
         ))}
       </select>
+
+      {form.tipo === "Moto" && (
+  <select
+    name="estilo_moto_id"
+    value={form.estilo_moto_id}
+    onChange={onEstiloMotoChange}
+    required
+  >
+    <option value="">
+      Seleccionar estilo de moto
+    </option>
+
+    {estilosMoto.map((estilo) => (
+      <option
+        key={estilo.id}
+        value={estilo.id}
+      >
+        {estilo.nombre}
+      </option>
+    ))}
+  </select>
+)}
 
       <select
         name="condicion"

@@ -20,7 +20,7 @@ export const rvmData = {
   ],
 
   buttonLabel: "Ver modelos RVM",
-  buttonHref: "#modelos-rvm",
+  buttonHref: "/motos/marca/rvm",
 
   image: "/images/showroom/rvm-showroom-panorama.webp",
 };

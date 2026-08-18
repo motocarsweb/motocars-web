@@ -5,6 +5,7 @@ import type { VehiculoSupabase } from "@/lib/supabase-vehicles";
 import VehicleDuplicateButton from "./VehicleDuplicateButton";
 import VehicleFeaturedButton from "./VehicleFeaturedButton";
 import VehiclePublishButton from "./VehiclePublishButton";
+import VehicleDeleteButton from "./VehicleDeleteButton";
 
 type VehicleRowProps = {
   vehiculo: VehiculoSupabase;
@@ -147,6 +148,11 @@ export default function VehicleRow({
           <VehicleDuplicateButton
             vehiculoId={vehiculo.id}
           />
+
+          <VehicleDeleteButton
+  vehiculoId={vehiculo.id}
+  nombreVehiculo={titulo || `Vehículo #${vehiculo.id}`}
+/>
 
           <Link
             href={`/vehiculos/${vehiculo.id}`}

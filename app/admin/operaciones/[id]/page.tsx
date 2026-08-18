@@ -1244,39 +1244,43 @@ const [
     });
 
 
-    if (
-      vehiculoPrincipalEsUsado
-    ) {
-      documentosEsperados.push({
-        tipo:
-          tienePermuta
-            ? "boleto_usado_permuta"
-            : "boleto_usado",
+    if (vehiculo.tipo?.trim().toLowerCase() === "moto") {
+  documentosEsperados.push({
+    tipo: "boleto_moto",
+    nombre: "Boleto de venta de moto",
+    origen: "operacion",
+  });
+} else if (vehiculo.condicion === "usado") {
+  documentosEsperados.push({
+    tipo:
+      tienePermuta
+        ? "boleto_usado_permuta"
+        : "boleto_usado",
 
-        nombre:
-          tienePermuta
-            ? "Boleto de venta usado con permuta"
-            : "Boleto de venta usado",
+    nombre:
+      tienePermuta
+        ? "Boleto de venta usado con permuta"
+        : "Boleto de venta usado",
 
-        origen:
-          "operacion",
-      });
-    } else {
-      documentosEsperados.push({
-        tipo:
-          tienePermuta
-            ? "boleto_0km_permuta"
-            : "boleto_0km",
+    origen:
+      "operacion",
+  });
+} else {
+  documentosEsperados.push({
+    tipo:
+      tienePermuta
+        ? "boleto_0km_permuta"
+        : "boleto_0km",
 
-        nombre:
-          tienePermuta
-            ? "Boleto de venta 0 km con permuta"
-            : "Boleto de venta 0 km",
+    nombre:
+      tienePermuta
+        ? "Boleto de venta 0 km con permuta"
+        : "Boleto de venta 0 km",
 
-        origen:
-          "operacion",
-      });
-    }
+    origen:
+      "operacion",
+  });
+}
 
 
     documentosEsperados.push({
@@ -3113,17 +3117,21 @@ const [
 {esVenta && (
   <Link
     href={
-      vehiculo.condicion === "usado"
-        ? tienePermuta
-          ? `/admin/operaciones/${operacion.id}/boleto-usado-permuta`
-          : `/admin/operaciones/${operacion.id}/boleto-usado`
-        : tienePermuta
-          ? `/admin/operaciones/${operacion.id}/boleto-0km-permuta`
-          : `/admin/operaciones/${operacion.id}/boleto-0km`
-    }
+  vehiculo.tipo?.trim().toLowerCase() === "moto"
+    ? `/admin/operaciones/${operacion.id}/boleto-moto`
+    : vehiculo.condicion === "usado"
+      ? tienePermuta
+        ? `/admin/operaciones/${operacion.id}/boleto-usado-permuta`
+        : `/admin/operaciones/${operacion.id}/boleto-usado`
+      : tienePermuta
+        ? `/admin/operaciones/${operacion.id}/boleto-0km-permuta`
+        : `/admin/operaciones/${operacion.id}/boleto-0km`
+}
     className="rounded-lg bg-blue-600 px-5 py-2 font-medium text-white"
   >
-    Ver / Imprimir boleto
+    {vehiculo.tipo?.trim().toLowerCase() === "moto"
+  ? "Ver / Imprimir boleto de moto"
+  : "Ver / Imprimir boleto"}
   </Link>
 )}
 

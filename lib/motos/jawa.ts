@@ -20,7 +20,7 @@ export const jawaData = {
 
   buttonLabel: "Ver modelos JAWA",
 
-  buttonHref: "#modelos-jawa",
+  buttonHref: "/motos/marca/jawa",
 
   image: "/images/showroom/jawa-patagonia-panorama.webp",
 };

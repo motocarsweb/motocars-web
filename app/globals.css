@@ -3174,3 +3174,51 @@ a.footer-contact-item:hover {
 .site-footer-no-cta {
   margin-top: 0;
 }
+
+/* FICHA INDIVIDUAL DE MOTOS */
+
+.moto-detail-page .vehicle-detail {
+  padding: 90px 0 60px;
+}
+
+.moto-detail-page .container {
+  max-width: 1120px;
+}
+
+.moto-detail-page .vehicle-detail-grid {
+  grid-template-columns: minmax(0, 660px) 360px;
+  gap: 28px;
+  justify-content: center;
+}
+
+.moto-detail-page .vehicle-detail-main-image img {
+  height: 460px;
+  object-fit: contain;
+  background: #ffffff;
+}
+
+.moto-detail-page .vehicle-detail-content {
+  padding: 26px;
+}
+
+.moto-detail-page .vehicle-detail-content h1 {
+  font-size: clamp(30px, 3vw, 40px);
+}
+
+.moto-detail-page .vehicle-detail-price {
+  font-size: 30px;
+}
+
+@media (max-width: 1000px) {
+  .moto-detail-page .vehicle-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .moto-detail-page .container {
+    max-width: 760px;
+  }
+
+  .moto-detail-page .vehicle-detail-main-image img {
+    height: 380px;
+  }
+}

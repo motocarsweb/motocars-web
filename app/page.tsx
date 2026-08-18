@@ -15,8 +15,10 @@ export default async function Home() {
   const todosLosVehiculos = await obtenerVehiculos();
 
   const vehiculosPublicados = todosLosVehiculos.filter(
-    (vehiculo) => vehiculo.publicado === true
-  );
+  (vehiculo) =>
+    vehiculo.publicado === true &&
+    vehiculo.tipo?.trim().toLowerCase() !== "moto"
+);
 
  return (
   <>

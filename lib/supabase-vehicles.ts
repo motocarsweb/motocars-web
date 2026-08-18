@@ -18,6 +18,7 @@ export type VehiculoSupabase = {
   modelo_id: string | null;
   version_id: string | null;
   tipo_vehiculo_id: string | null;
+  estilo_moto_id: string | null;
   combustible_id: string | null;
   transmision_id: string | null;
   traccion_id: string | null;
@@ -130,13 +131,27 @@ export async function actualizarVehiculo(
 }
 
 export async function eliminarVehiculo(id: number): Promise<boolean> {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("vehiculos")
     .delete()
-    .eq("id", id);
+    .eq("id", id)
+    .select("id");
 
   if (error) {
-    console.error("Error al eliminar el vehículo:", error.message);
+    console.error("ERROR COMPLETO AL ELIMINAR VEHÍCULO:");
+    console.error(error);
+
+    alert(JSON.stringify(error, null, 2));
+
+    return false;
+  }
+
+  console.log("Filas eliminadas:", data);
+
+  if (!data || data.length === 0) {
+    alert(
+      "Supabase no eliminó ninguna fila. Probablemente una política RLS está bloqueando el DELETE."
+    );
     return false;
   }
 

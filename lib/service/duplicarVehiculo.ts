@@ -12,6 +12,7 @@ export type DatosFormularioDuplicado = {
   modelo_id: string;
   version_id: string;
   tipo_vehiculo_id: string;
+  estilo_moto_id: string;
   combustible_id: string;
   transmision_id: string;
   traccion_id: string;
@@ -265,6 +266,7 @@ export async function duplicarVehiculo(
     modelo_id: modeloId,
     version_id: versionId,
     tipo_vehiculo_id: tipoVehiculoId,
+    estilo_moto_id: texto(vehiculo.estilo_moto_id),
     combustible_id: combustibleId,
     transmision_id: transmisionId,
     traccion_id: traccionId,

@@ -5,7 +5,7 @@ export const motoCategories = [
     brand: "RVM",
     order: 1,
     image: "/images/categories/adventure.webp",
-    anchor: "#adventure",
+    anchor: "/motos/adventure",
   },
   {
     title: "Touring",
@@ -13,7 +13,7 @@ export const motoCategories = [
     brand: "RVM",
     order: 2,
     image: "/images/categories/touring.webp",
-    anchor: "#touring",
+    anchor: "/motos/touring",
   },
   {
     title: "Sport",
@@ -21,7 +21,7 @@ export const motoCategories = [
     brand: "RVM",
     order: 3,
     image: "/images/categories/sport.webp",
-    anchor: "#sport",
+    anchor: "/motos/sport",
   },
   {
     title: "Enduro",
@@ -29,7 +29,7 @@ export const motoCategories = [
     brand: "RVM",
     order: 4,
     image: "/images/categories/enduro.webp",
-    anchor: "#enduro",
+    anchor: "/motos/enduro",
   },
   {
     title: "Custom",
@@ -37,7 +37,7 @@ export const motoCategories = [
     brand: "RVM / JAWA",
     order: 5,
     image: "/images/categories/custom.webp",
-    anchor: "#custom",
+    anchor: "/motos/custom",
   },
   {
     title: "Clásicas",
@@ -45,6 +45,6 @@ export const motoCategories = [
     brand: "JAWA",
     order: 6,
     image: "/images/categories/clasicas.webp",
-    anchor: "#clasicas",
+    anchor: "/motos/clasicas",
   },
 ];

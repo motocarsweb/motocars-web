@@ -65,6 +65,7 @@ export default function VehicleForm({
   const [marcas, setMarcas] = useState<Marca[]>([]);
   const [modelos, setModelos] = useState<Modelo[]>([]);
   const [tiposVehiculo, setTiposVehiculo] = useState<Catalogo[]>([]);
+  const [estilosMoto, setEstilosMoto] = useState<Catalogo[]>([]);
   const [combustibles, setCombustibles] = useState<Catalogo[]>([]);
   const [transmisiones, setTransmisiones] = useState<Catalogo[]>([]);
   const [tracciones, setTracciones] = useState<Catalogo[]>([]);
@@ -87,6 +88,7 @@ export default function VehicleForm({
       const [
         respuestaMarcas,
         respuestaTiposVehiculo,
+        respuestaEstilosMoto,
         respuestaCombustibles,
         respuestaTransmisiones,
         respuestaTracciones,
@@ -105,6 +107,13 @@ export default function VehicleForm({
           .eq("activo", true)
           .order("orden", { ascending: true })
           .order("nombre", { ascending: true }),
+
+          supabase
+  .from("estilos_moto")
+  .select("id, nombre")
+  .eq("activo", true)
+  .order("orden", { ascending: true })
+  .order("nombre", { ascending: true }),
 
         supabase
           .from("combustibles")
@@ -179,6 +188,7 @@ export default function VehicleForm({
 
       setMarcas(respuestaMarcas.data ?? []);
       setTiposVehiculo(respuestaTiposVehiculo.data ?? []);
+      setEstilosMoto(respuestaEstilosMoto.data ?? []);
       setCombustibles(respuestaCombustibles.data ?? []);
       setTransmisiones(respuestaTransmisiones.data ?? []);
       setTracciones(respuestaTracciones.data ?? []);
@@ -348,6 +358,16 @@ export default function VehicleForm({
       tipo: tipoSeleccionado?.nombre ?? "",
     }));
   }
+  function actualizarEstiloMoto(
+  event: React.ChangeEvent<HTMLSelectElement>
+) {
+  const estiloMotoId = event.target.value;
+
+  setForm((formAnterior) => ({
+    ...formAnterior,
+    estilo_moto_id: estiloMotoId,
+  }));
+}
 
   function actualizarCombustible(
     event: React.ChangeEvent<HTMLSelectElement>
@@ -496,6 +516,10 @@ export default function VehicleForm({
     ? form.version_id
     : null,
         tipo_vehiculo_id: form.tipo_vehiculo_id,
+        estilo_moto_id:
+  form.tipo === "Moto"
+    ? form.estilo_moto_id || null
+    : null,
         combustible_id: form.combustible_id || null,
         transmision_id: form.transmision_id || null,
         traccion_id: form.traccion_id || null,
@@ -592,6 +616,7 @@ export default function VehicleForm({
   marcas={marcas}
   modelos={modelos}
   tiposVehiculo={tiposVehiculo}
+  estilosMoto={estilosMoto}
   tiposIngreso={tiposIngreso}
   cargandoCatalogos={cargandoCatalogos}
   cargandoModelos={cargandoModelos}
@@ -610,6 +635,7 @@ export default function VehicleForm({
     }))
   }
   onTipoVehiculoChange={actualizarTipoVehiculo}
+  onEstiloMotoChange={actualizarEstiloMoto}
 />
 
         <TechnicalData

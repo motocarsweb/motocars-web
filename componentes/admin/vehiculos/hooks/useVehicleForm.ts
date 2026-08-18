@@ -19,6 +19,7 @@ export type VehicleFormData = {
   modelo_id: string;
   version_id: string;
   tipo_vehiculo_id: string;
+  estilo_moto_id: string;
   combustible_id: string;
   transmision_id: string;
   traccion_id: string;
@@ -56,6 +57,7 @@ export const VEHICLE_FORM_INITIAL_DATA: VehicleFormData = {
   modelo_id: "",
   version_id: "",
   tipo_vehiculo_id: "",
+  estilo_moto_id: "",
   combustible_id: "",
   transmision_id: "",
   traccion_id: "",
@@ -67,7 +69,7 @@ export const VEHICLE_FORM_INITIAL_DATA: VehicleFormData = {
   kilometros: "",
 
   color: "",
-  estado: "Usado",
+  estado: "Disponible",
   condicion: "usado",
 
   dominio: "",
