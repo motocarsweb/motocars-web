@@ -347,6 +347,9 @@ export default function NuevaOperacionPage() {
       crearPagoVacio(),
     ]);
 
+    const [busquedaVehiculo, setBusquedaVehiculo] =
+  useState("");
+
   const esVenta =
     form.tipo_operacion ===
     "venta";
@@ -482,15 +485,42 @@ export default function NuevaOperacionPage() {
     );
 
   const diferenciaPagosCompra =
-    valorCompra -
-    totalPagosCompra;
+  valorCompra -
+  totalPagosCompra;
 
-  const pagosCompraCoinciden =
-    esCompra &&
-    valorCompra > 0 &&
-    Math.abs(
-      diferenciaPagosCompra
-    ) <= 0.01;
+const vehiculosFiltrados = useMemo(() => {
+  const busqueda = busquedaVehiculo
+    .trim()
+    .toLowerCase();
+
+  if (!busqueda) {
+    return vehiculos;
+  }
+
+  return vehiculos.filter((vehiculo) => {
+    const texto = [
+      vehiculo.marca,
+      vehiculo.modelo,
+      vehiculo.version,
+      vehiculo.anio,
+      vehiculo.dominio,
+      vehiculo.numero_chasis,
+      vehiculo.numero_motor,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return texto.includes(busqueda);
+  });
+}, [vehiculos, busquedaVehiculo]);
+
+const pagosCompraCoinciden =
+  esCompra &&
+  valorCompra > 0 &&
+  Math.abs(
+    diferenciaPagosCompra
+  ) <= 0.01;
 
   function seleccionarTipoOperacion(
     tipo: TipoOperacion
@@ -1573,6 +1603,15 @@ export default function NuevaOperacionPage() {
                     <span className="font-medium">
                       Vehículo que sale del stock *
                     </span>
+                    <input
+  type="text"
+  value={busquedaVehiculo}
+  onChange={(event) =>
+    setBusquedaVehiculo(event.target.value)
+  }
+  placeholder="Buscar por marca, modelo, versión, año, dominio, chasis o motor..."
+  className="rounded-lg border p-3"
+/>
 
                     <select
                       name="vehiculo_id"
@@ -1589,7 +1628,7 @@ export default function NuevaOperacionPage() {
                         Seleccionar vehículo
                       </option>
 
-                      {vehiculos.map(
+                      {vehiculosFiltrados.map(
                         (
                           vehiculo
                         ) => (
