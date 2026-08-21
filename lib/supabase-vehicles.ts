@@ -70,6 +70,45 @@ export async function obtenerVehiculos(): Promise<VehiculoSupabase[]> {
 
   return data ?? [];
 }
+export async function obtenerVehiculosPublicos(): Promise<VehiculoSupabase[]> {
+  const { data, error } = await supabase
+    .from("vehiculos")
+    .select(`
+      id,
+      created_at,
+      marca,
+      modelo,
+      version,
+      combustible,
+      transmision,
+      tipo,
+      estilo_moto_id,
+      anio,
+      precio,
+      kilometros,
+      color,
+      estado,
+      condicion,
+      destacado,
+      publicado,
+      descripcion,
+      imagen_principal,
+      imagenes
+    `)
+    .eq("publicado", true)
+    .order("destacado", { ascending: false })
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(
+      "Error al obtener vehículos públicos:",
+      error.message
+    );
+    return [];
+  }
+
+  return (data ?? []) as VehiculoSupabase[];
+}
 
 export async function obtenerVehiculoPorId(
   id: number
@@ -86,6 +125,47 @@ export async function obtenerVehiculoPorId(
   }
 
   return data;
+}
+export async function obtenerVehiculoPublicoPorId(
+  id: number
+): Promise<VehiculoSupabase | null> {
+  const { data, error } = await supabase
+    .from("vehiculos")
+    .select(`
+      id,
+      created_at,
+      marca,
+      modelo,
+      version,
+      combustible,
+      transmision,
+      tipo,
+      estilo_moto_id,
+      anio,
+      precio,
+      kilometros,
+      color,
+      estado,
+      condicion,
+      destacado,
+      publicado,
+      descripcion,
+      imagen_principal,
+      imagenes
+    `)
+    .eq("id", id)
+    .eq("publicado", true)
+    .maybeSingle();
+
+  if (error) {
+    console.error(
+      "Error al obtener vehículo público:",
+      error.message
+    );
+    return null;
+  }
+
+  return data as VehiculoSupabase | null;
 }
 
 export async function crearVehiculo(

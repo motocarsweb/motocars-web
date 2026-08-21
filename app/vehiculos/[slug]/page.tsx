@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import VehicleGallery from "@/componentes/VehicleGallery/VehicleGallery";
-import { obtenerVehiculoPorId } from "@/lib/supabase-vehicles";
+import { obtenerVehiculoPublicoPorId } from "@/lib/supabase-vehicles";
 
 type VehicleDetailPageProps = {
   params: Promise<{
@@ -45,7 +45,7 @@ export default async function VehicleDetailPage({
     notFound();
   }
 
-  const vehiculo = await obtenerVehiculoPorId(id);
+  const vehiculo = await obtenerVehiculoPublicoPorId(id);
 
   if (!vehiculo) {
     notFound();

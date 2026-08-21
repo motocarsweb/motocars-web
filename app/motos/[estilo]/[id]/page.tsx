@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import Footer from "@/componentes/layout/Footer";
 import VehicleGallery from "@/componentes/VehicleGallery/VehicleGallery";
-import { obtenerVehiculoPorId } from "@/lib/supabase-vehicles";
+import { obtenerVehiculoPublicoPorId } from "@/lib/supabase-vehicles";
 
 type MotoDetailPageProps = {
   params: Promise<{
@@ -60,7 +60,7 @@ export default async function MotoDetailPage({
     notFound();
   }
 
-  const moto = await obtenerVehiculoPorId(motoId);
+  const moto = await obtenerVehiculoPublicoPorId(motoId);
 
   if (!moto) {
     notFound();
