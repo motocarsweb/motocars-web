@@ -162,7 +162,12 @@ export default function VehicleRow({
           >
             Ver
           </Link>
-
+<Link
+  href={`/admin/vehiculos/${vehiculo.id}/presupuesto`}
+  style={styles.botonEditar}
+>
+  Presupuesto
+</Link>
           <Link
             href={`/admin/vehiculos/${vehiculo.id}`}
             style={styles.botonEditar}

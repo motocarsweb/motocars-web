@@ -452,8 +452,7 @@ export default function PresupuestoPage() {
             </div>
 
            <Image
-
-  src="/logo/motocars-nuevo.png"
+  src="/logos/motocars-nuevo.PNG"
   alt="MotoCars Concesionaria"
   width={230}
   height={95}

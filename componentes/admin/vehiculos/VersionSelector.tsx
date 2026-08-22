@@ -19,6 +19,7 @@ type VersionSelectorProps = {
 };
 
 const VALOR_VERSION_NUEVA = "__nueva__";
+const VALOR_MODELO_NUEVO = "__nuevo__";
 
 function crearSlug(texto: string) {
   return texto
@@ -42,13 +43,15 @@ export default function VersionSelector({
   const [agregandoVersion, setAgregandoVersion] = useState(false);
   const [nombreNuevo, setNombreNuevo] = useState("");
 
+  const modeloEsNuevo = modeloId === VALOR_MODELO_NUEVO;
+
   useEffect(() => {
     async function cargarVersiones() {
       setVersiones([]);
       setAgregandoVersion(false);
       setNombreNuevo("");
 
-      if (!modeloId) {
+      if (!modeloId || modeloEsNuevo) {
         return;
       }
 
@@ -73,7 +76,7 @@ export default function VersionSelector({
     }
 
     cargarVersiones();
-  }, [modeloId]);
+  }, [modeloId, modeloEsNuevo]);
 
   function seleccionarVersion(
     event: React.ChangeEvent<HTMLSelectElement>
@@ -109,7 +112,7 @@ export default function VersionSelector({
     onChange(VALOR_VERSION_NUEVA, nombre);
   }
 
-  async function crearVersionNueva() {
+  async function aceptarVersionNueva() {
     const nombre = nombreNuevo.trim();
 
     if (!modeloId) {
@@ -119,6 +122,14 @@ export default function VersionSelector({
 
     if (!nombre) {
       alert("Escribí el nombre de la versión.");
+      return;
+    }
+
+    // Si el modelo también es nuevo, todavía no existe en la base.
+    // La versión se crea al guardar el vehículo, después de crear el modelo.
+    if (modeloEsNuevo) {
+      setAgregandoVersion(false);
+      onChange(VALOR_VERSION_NUEVA, nombre);
       return;
     }
 
@@ -155,7 +166,7 @@ export default function VersionSelector({
     if (error) {
       console.error("Error al crear la versión:", error);
       alert(
-        "No se pudo crear la versión. Verificá que no exista previamente."
+        `No se pudo crear la versión: ${error.message}`
       );
       return;
     }
@@ -239,7 +250,7 @@ export default function VersionSelector({
 
           <button
             type="button"
-            onClick={crearVersionNueva}
+            onClick={aceptarVersionNueva}
             style={{
               minHeight: 42,
               padding: "0 16px",
@@ -251,12 +262,12 @@ export default function VersionSelector({
               fontWeight: 700,
             }}
           >
-            Agregar
+            {modeloEsNuevo ? "Aceptar" : "Agregar"}
           </button>
         </div>
       )}
 
-      {versionId && versionId !== VALOR_VERSION_NUEVA && (
+      {versionId && versionNombre && (
         <small style={{ color: "#6b7280" }}>
           Versión seleccionada: {versionNombre}
         </small>

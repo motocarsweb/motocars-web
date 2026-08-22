@@ -1,18 +1,18 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import VersionSelector from "./VersionSelector";
+
 import BasicData from "./vehicle-form/BasicData";
 import TechnicalData from "./vehicle-form/TechnicalData";
 import PricesSection from "./vehicle-form/PricesSection";
 import IdentitySection from "./vehicle-form/IdentitySection";
 import DescriptionSection from "./vehicle-form/DescriptionSection";
-import { useVehicleForm } from "./hooks/useVehicleForm";
 import PublicationSection from "./vehicle-form/PublicationSection";
 import ImagesSection from "./vehicle-form/ImagesSection";
 
-import ImageManager from "@/app/ImageManager";
+import { useVehicleForm } from "./hooks/useVehicleForm";
+
 import { supabase } from "@/lib/supabase";
 import { crearVehiculo } from "@/lib/supabase-vehicles";
 import { subirImagenesVehiculo } from "@/lib/storage";
@@ -34,7 +34,13 @@ type Catalogo = {
   nombre: string;
 };
 
+type VehicleFormProps = {
+  duplicarId?: number;
+};
+
 const VALOR_MODELO_NUEVO = "__nuevo__";
+const VALOR_MARCA_NUEVA = "__nueva_marca__";
+const VALOR_COMBUSTIBLE_NUEVO = "__nuevo_combustible__";
 
 function crearSlug(texto: string) {
   return texto
@@ -45,10 +51,6 @@ function crearSlug(texto: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
-
-type VehicleFormProps = {
-  duplicarId?: number;
-};
 
 export default function VehicleForm({
   duplicarId,
@@ -71,8 +73,14 @@ export default function VehicleForm({
   const [tracciones, setTracciones] = useState<Catalogo[]>([]);
   const [tiposIngreso, setTiposIngreso] = useState<Catalogo[]>([]);
 
+  const [marcaNueva, setMarcaNueva] = useState("");
+  const [agregandoMarca, setAgregandoMarca] = useState(false);
+
   const [modeloNuevo, setModeloNuevo] = useState("");
   const [agregandoModelo, setAgregandoModelo] = useState(false);
+
+  const [combustibleNuevo, setCombustibleNuevo] = useState("");
+  const [agregandoCombustible, setAgregandoCombustible] = useState(false);
 
   const {
     form,
@@ -80,6 +88,28 @@ export default function VehicleForm({
     actualizar,
     actualizarMarca: actualizarMarcaDesdeHook,
   } = useVehicleForm();
+
+  const marcasParaSelector = useMemo<Marca[]>(
+    () => [
+      ...marcas,
+      {
+        id: VALOR_MARCA_NUEVA,
+        nombre: "+ Agregar marca nueva",
+      },
+    ],
+    [marcas]
+  );
+
+  const combustiblesParaSelector = useMemo<Catalogo[]>(
+    () => [
+      ...combustibles,
+      {
+        id: VALOR_COMBUSTIBLE_NUEVO,
+        nombre: "+ Agregar combustible nuevo",
+      },
+    ],
+    [combustibles]
+  );
 
   useEffect(() => {
     async function cargarCatalogos() {
@@ -108,12 +138,12 @@ export default function VehicleForm({
           .order("orden", { ascending: true })
           .order("nombre", { ascending: true }),
 
-          supabase
-  .from("estilos_moto")
-  .select("id, nombre")
-  .eq("activo", true)
-  .order("orden", { ascending: true })
-  .order("nombre", { ascending: true }),
+        supabase
+          .from("estilos_moto")
+          .select("id, nombre")
+          .eq("activo", true)
+          .order("orden", { ascending: true })
+          .order("nombre", { ascending: true }),
 
         supabase
           .from("combustibles")
@@ -145,16 +175,20 @@ export default function VehicleForm({
       ]);
 
       if (respuestaMarcas.error) {
-        console.error(
-          "Error al cargar marcas:",
-          respuestaMarcas.error.message
-        );
+        console.error("Error al cargar marcas:", respuestaMarcas.error.message);
       }
 
       if (respuestaTiposVehiculo.error) {
         console.error(
           "Error al cargar tipos de vehículo:",
           respuestaTiposVehiculo.error.message
+        );
+      }
+
+      if (respuestaEstilosMoto.error) {
+        console.error(
+          "Error al cargar estilos de moto:",
+          respuestaEstilosMoto.error.message
         );
       }
 
@@ -212,26 +246,29 @@ export default function VehicleForm({
       setCargandoDuplicado(true);
 
       try {
-        const datosDuplicados = await duplicarVehiculo(
-          vehiculoIdDuplicado
-        );
+        const datosDuplicados = await duplicarVehiculo(vehiculoIdDuplicado);
 
         if (!componenteActivo) {
           return;
         }
 
         if (datosDuplicados.marca_id) {
-          await cargarModelosPorMarca(
-            datosDuplicados.marca_id
-          );
+          await cargarModelosPorMarca(datosDuplicados.marca_id);
         }
 
         if (!componenteActivo) {
           return;
         }
 
+        setMarcaNueva("");
+        setAgregandoMarca(false);
+
         setModeloNuevo("");
         setAgregandoModelo(false);
+
+        setCombustibleNuevo("");
+        setAgregandoCombustible(false);
+
         setImagenes([]);
         setForm(datosDuplicados);
       } catch (error) {
@@ -254,12 +291,12 @@ export default function VehicleForm({
     return () => {
       componenteActivo = false;
     };
-  }, [duplicarId]);
+  }, [duplicarId, setForm]);
 
   async function cargarModelosPorMarca(marcaId: string) {
     setModelos([]);
 
-    if (!marcaId) {
+    if (!marcaId || marcaId === VALOR_MARCA_NUEVA) {
       setCargandoModelos(false);
       return;
     }
@@ -287,6 +324,31 @@ export default function VehicleForm({
   async function actualizarMarca(
     event: React.ChangeEvent<HTMLSelectElement>
   ) {
+    const marcaId = event.target.value;
+
+    if (marcaId === VALOR_MARCA_NUEVA) {
+      setAgregandoMarca(true);
+      setMarcaNueva("");
+      setModelos([]);
+      setAgregandoModelo(true);
+      setModeloNuevo("");
+
+      setForm((formAnterior) => ({
+        ...formAnterior,
+        marca_id: VALOR_MARCA_NUEVA,
+        marca: "",
+        modelo_id: VALOR_MODELO_NUEVO,
+        modelo: "",
+        version_id: "",
+        version: "",
+      }));
+
+      return;
+    }
+
+    setAgregandoMarca(false);
+    setMarcaNueva("");
+
     await actualizarMarcaDesdeHook({
       event,
       marcas,
@@ -296,6 +358,19 @@ export default function VehicleForm({
         setAgregandoModelo(false);
       },
     });
+  }
+
+  function actualizarMarcaNueva(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const nombre = event.target.value;
+
+    setMarcaNueva(nombre);
+
+    setForm((formAnterior) => ({
+      ...formAnterior,
+      marca: nombre,
+    }));
   }
 
   function actualizarModelo(
@@ -311,6 +386,8 @@ export default function VehicleForm({
         ...formAnterior,
         modelo_id: VALOR_MODELO_NUEVO,
         modelo: "",
+        version_id: "",
+        version: "",
       }));
 
       return;
@@ -327,6 +404,8 @@ export default function VehicleForm({
       ...formAnterior,
       modelo_id: modeloId,
       modelo: modeloSeleccionado?.nombre ?? "",
+      version_id: "",
+      version: "",
     }));
   }
 
@@ -356,23 +435,44 @@ export default function VehicleForm({
       ...formAnterior,
       tipo_vehiculo_id: tipoId,
       tipo: tipoSeleccionado?.nombre ?? "",
+      estilo_moto_id:
+        tipoSeleccionado?.nombre === "Moto"
+          ? formAnterior.estilo_moto_id
+          : "",
     }));
   }
-  function actualizarEstiloMoto(
-  event: React.ChangeEvent<HTMLSelectElement>
-) {
-  const estiloMotoId = event.target.value;
 
-  setForm((formAnterior) => ({
-    ...formAnterior,
-    estilo_moto_id: estiloMotoId,
-  }));
-}
+  function actualizarEstiloMoto(
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) {
+    const estiloMotoId = event.target.value;
+
+    setForm((formAnterior) => ({
+      ...formAnterior,
+      estilo_moto_id: estiloMotoId,
+    }));
+  }
 
   function actualizarCombustible(
     event: React.ChangeEvent<HTMLSelectElement>
   ) {
     const combustibleId = event.target.value;
+
+    if (combustibleId === VALOR_COMBUSTIBLE_NUEVO) {
+      setAgregandoCombustible(true);
+      setCombustibleNuevo("");
+
+      setForm((formAnterior) => ({
+        ...formAnterior,
+        combustible_id: VALOR_COMBUSTIBLE_NUEVO,
+        combustible: "",
+      }));
+
+      return;
+    }
+
+    setAgregandoCombustible(false);
+    setCombustibleNuevo("");
 
     const combustibleSeleccionado = combustibles.find(
       (combustible) => combustible.id === combustibleId
@@ -382,6 +482,19 @@ export default function VehicleForm({
       ...formAnterior,
       combustible_id: combustibleId,
       combustible: combustibleSeleccionado?.nombre ?? "",
+    }));
+  }
+
+  function actualizarCombustibleNuevo(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const nombre = event.target.value;
+
+    setCombustibleNuevo(nombre);
+
+    setForm((formAnterior) => ({
+      ...formAnterior,
+      combustible: nombre,
     }));
   }
 
@@ -401,7 +514,62 @@ export default function VehicleForm({
     }));
   }
 
-  async function crearModeloSiCorresponde() {
+  async function crearMarcaSiCorresponde() {
+    if (!agregandoMarca) {
+      return {
+        marcaId: form.marca_id,
+        marcaNombre: form.marca,
+      };
+    }
+
+    const nombre = marcaNueva.trim();
+
+    if (!nombre) {
+      throw new Error("Ingresá el nombre de la marca nueva.");
+    }
+
+    const marcaExistente = marcas.find(
+      (marca) =>
+        marca.nombre.trim().toLowerCase() === nombre.toLowerCase()
+    );
+
+    if (marcaExistente) {
+      return {
+        marcaId: marcaExistente.id,
+        marcaNombre: marcaExistente.nombre,
+      };
+    }
+
+    const slug = crearSlug(nombre);
+
+    if (!slug) {
+      throw new Error("El nombre de la marca nueva no es válido.");
+    }
+
+    const { data, error } = await supabase
+      .from("marcas")
+      .insert({
+        nombre,
+        slug,
+      })
+      .select("id, nombre")
+      .single();
+
+    if (error) {
+      throw new Error(
+        `No se pudo crear la marca nueva: ${error.message}`
+      );
+    }
+
+    return {
+      marcaId: data.id,
+      marcaNombre: data.nombre,
+    };
+  }
+
+  async function crearModeloSiCorresponde(
+    marcaIdDefinitiva: string
+  ) {
     if (!agregandoModelo) {
       return {
         modeloId: form.modelo_id,
@@ -436,7 +604,7 @@ export default function VehicleForm({
     const { data, error } = await supabase
       .from("modelos")
       .insert({
-        marca_id: form.marca_id,
+        marca_id: marcaIdDefinitiva,
         nombre,
         slug,
       })
@@ -455,7 +623,135 @@ export default function VehicleForm({
     };
   }
 
-  async function guardar(event: React.FormEvent<HTMLFormElement>) {
+  async function crearCombustibleSiCorresponde() {
+    if (!agregandoCombustible) {
+      return {
+        combustibleId: form.combustible_id || null,
+        combustibleNombre: form.combustible || "",
+      };
+    }
+
+    const nombre = combustibleNuevo.trim();
+
+    if (!nombre) {
+      throw new Error("Ingresá el nombre del combustible nuevo.");
+    }
+
+    const combustibleExistente = combustibles.find(
+      (combustible) =>
+        combustible.nombre.trim().toLowerCase() === nombre.toLowerCase()
+    );
+
+    if (combustibleExistente) {
+      return {
+        combustibleId: combustibleExistente.id,
+        combustibleNombre: combustibleExistente.nombre,
+      };
+    }
+
+    const slug = crearSlug(nombre);
+
+    if (!slug) {
+      throw new Error("El nombre del combustible nuevo no es válido.");
+    }
+
+    const { data, error } = await supabase
+      .from("combustibles")
+      .insert({
+        nombre,
+        slug,
+      })
+      .select("id, nombre")
+      .single();
+
+    if (error) {
+      throw new Error(
+        `No se pudo crear el combustible nuevo: ${error.message}`
+      );
+    }
+
+    return {
+      combustibleId: data.id,
+      combustibleNombre: data.nombre,
+    };
+  }
+
+  async function crearVersionSiCorresponde(
+    modeloIdDefinitivo: string
+  ) {
+    const nombre = form.version.trim();
+
+    if (!nombre) {
+      return {
+        versionId: null as string | null,
+        versionNombre: "",
+      };
+    }
+
+    if (
+      form.version_id &&
+      form.version_id !== "__nueva__"
+    ) {
+      return {
+        versionId: form.version_id,
+        versionNombre: nombre,
+      };
+    }
+
+    const slug = crearSlug(nombre);
+
+    if (!slug) {
+      throw new Error(
+        "El nombre de la versión nueva no es válido."
+      );
+    }
+
+    const { data: existente, error: errorBusqueda } =
+      await supabase
+        .from("versiones")
+        .select("id, nombre")
+        .eq("modelo_id", modeloIdDefinitivo)
+        .ilike("nombre", nombre)
+        .maybeSingle();
+
+    if (errorBusqueda) {
+      throw new Error(
+        `No se pudo verificar la versión: ${errorBusqueda.message}`
+      );
+    }
+
+    if (existente) {
+      return {
+        versionId: existente.id,
+        versionNombre: existente.nombre,
+      };
+    }
+
+    const { data, error } = await supabase
+      .from("versiones")
+      .insert({
+        modelo_id: modeloIdDefinitivo,
+        nombre,
+        slug,
+      })
+      .select("id, nombre")
+      .single();
+
+    if (error) {
+      throw new Error(
+        `No se pudo crear la versión nueva: ${error.message}`
+      );
+    }
+
+    return {
+      versionId: data.id,
+      versionNombre: data.nombre,
+    };
+  }
+
+  async function guardar(
+    event: React.FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
 
     if (guardando) {
@@ -464,6 +760,11 @@ export default function VehicleForm({
 
     if (!form.marca_id) {
       alert("Seleccioná una marca.");
+      return;
+    }
+
+    if (agregandoMarca && !marcaNueva.trim()) {
+      alert("Escribí el nombre de la marca nueva.");
       return;
     }
 
@@ -487,10 +788,32 @@ export default function VehicleForm({
       return;
     }
 
+    if (form.tipo === "Moto" && !form.estilo_moto_id) {
+      alert("Seleccioná el estilo de la moto.");
+      return;
+    }
+
+    if (agregandoCombustible && !combustibleNuevo.trim()) {
+      alert("Escribí el nombre del combustible nuevo.");
+      return;
+    }
+
     setGuardando(true);
 
     try {
-      const modeloDefinitivo = await crearModeloSiCorresponde();
+      const marcaDefinitiva = await crearMarcaSiCorresponde();
+
+      const modeloDefinitivo = await crearModeloSiCorresponde(
+        marcaDefinitiva.marcaId
+      );
+
+      const versionDefinitiva =
+        await crearVersionSiCorresponde(
+          modeloDefinitivo.modeloId
+        );
+
+      const combustibleDefinitivo =
+        await crearCombustibleSiCorresponde();
 
       let urlsImagenes: string[] = [];
 
@@ -502,25 +825,24 @@ export default function VehicleForm({
         urlsImagenes.length > 0 ? urlsImagenes[0] : null;
 
       const resultado = await crearVehiculo({
-        marca: form.marca.trim(),
+        marca: marcaDefinitiva.marcaNombre.trim(),
         modelo: modeloDefinitivo.modeloNombre.trim(),
-        version: form.version.trim() || null,
-        combustible: form.combustible.trim() || null,
+        version:
+          versionDefinitiva.versionNombre.trim() || null,
+        combustible:
+          combustibleDefinitivo.combustibleNombre.trim() || null,
         transmision: form.transmision.trim() || null,
         tipo: form.tipo.trim() || null,
 
-        marca_id: form.marca_id,
+        marca_id: marcaDefinitiva.marcaId,
         modelo_id: modeloDefinitivo.modeloId,
-        version_id:
-  form.version_id && form.version_id !== "__nueva__"
-    ? form.version_id
-    : null,
+        version_id: versionDefinitiva.versionId,
         tipo_vehiculo_id: form.tipo_vehiculo_id,
         estilo_moto_id:
-  form.tipo === "Moto"
-    ? form.estilo_moto_id || null
-    : null,
-        combustible_id: form.combustible_id || null,
+          form.tipo === "Moto"
+            ? form.estilo_moto_id || null
+            : null,
+        combustible_id: combustibleDefinitivo.combustibleId,
         transmision_id: form.transmision_id || null,
         traccion_id: form.traccion_id || null,
         tipo_ingreso_id: form.tipo_ingreso_id,
@@ -612,35 +934,38 @@ export default function VehicleForm({
         }}
       >
         <BasicData
-  form={form}
-  marcas={marcas}
-  modelos={modelos}
-  tiposVehiculo={tiposVehiculo}
-  estilosMoto={estilosMoto}
-  tiposIngreso={tiposIngreso}
-  cargandoCatalogos={cargandoCatalogos}
-  cargandoModelos={cargandoModelos}
-  agregandoModelo={agregandoModelo}
-  modeloNuevo={modeloNuevo}
-  valorModeloNuevo={VALOR_MODELO_NUEVO}
-  onChange={actualizar}
-  onMarcaChange={actualizarMarca}
-  onModeloChange={actualizarModelo}
-  onModeloNuevoChange={actualizarModeloNuevo}
-  onVersionChange={(versionId, versionNombre) =>
-    setForm((anterior) => ({
-      ...anterior,
-      version_id: versionId,
-      version: versionNombre,
-    }))
-  }
-  onTipoVehiculoChange={actualizarTipoVehiculo}
-  onEstiloMotoChange={actualizarEstiloMoto}
-/>
+          form={form}
+          marcas={marcasParaSelector}
+          modelos={modelos}
+          tiposVehiculo={tiposVehiculo}
+          estilosMoto={estilosMoto}
+          tiposIngreso={tiposIngreso}
+          cargandoCatalogos={cargandoCatalogos}
+          cargandoModelos={cargandoModelos}
+          agregandoModelo={agregandoModelo}
+          modeloNuevo={modeloNuevo}
+          valorModeloNuevo={VALOR_MODELO_NUEVO}
+          agregandoMarca={agregandoMarca}
+          marcaNueva={marcaNueva}
+          onMarcaNuevaChange={actualizarMarcaNueva}
+          onChange={actualizar}
+          onMarcaChange={actualizarMarca}
+          onModeloChange={actualizarModelo}
+          onModeloNuevoChange={actualizarModeloNuevo}
+          onVersionChange={(versionId, versionNombre) =>
+            setForm((anterior) => ({
+              ...anterior,
+              version_id: versionId,
+              version: versionNombre,
+            }))
+          }
+          onTipoVehiculoChange={actualizarTipoVehiculo}
+          onEstiloMotoChange={actualizarEstiloMoto}
+        />
 
         <TechnicalData
           form={form}
-          combustibles={combustibles}
+          combustibles={combustiblesParaSelector}
           transmisiones={transmisiones}
           tracciones={tracciones}
           cargandoCatalogos={cargandoCatalogos}
@@ -649,30 +974,48 @@ export default function VehicleForm({
           onTransmisionChange={actualizarTransmision}
         />
 
+        {agregandoCombustible && (
+          <input
+            type="text"
+            value={combustibleNuevo}
+            onChange={actualizarCombustibleNuevo}
+            placeholder="Escribí el combustible nuevo"
+            required
+            autoFocus
+            style={{
+              minHeight: 42,
+              padding: "0 12px",
+              border: "1px solid #d1d5db",
+              borderRadius: 8,
+              fontSize: 14,
+            }}
+          />
+        )}
+
         <PricesSection
-  form={form}
-  onChange={actualizar}
-/>
+          form={form}
+          onChange={actualizar}
+        />
 
         <IdentitySection
-  form={form}
-  onChange={actualizar}
-/>
+          form={form}
+          onChange={actualizar}
+        />
 
-       <ImagesSection
-  imagenes={imagenes}
-  onChange={setImagenes}
-/>
+        <ImagesSection
+          imagenes={imagenes}
+          onChange={setImagenes}
+        />
 
         <DescriptionSection
-  form={form}
-  onChange={actualizar}
-/>
+          form={form}
+          onChange={actualizar}
+        />
 
         <PublicationSection
-  form={form}
-  onChange={actualizar}
-/>
+          form={form}
+          onChange={actualizar}
+        />
 
         <label>
           <input
@@ -686,7 +1029,11 @@ export default function VehicleForm({
 
         <button
           type="submit"
-          disabled={guardando || cargandoCatalogos || cargandoDuplicado}
+          disabled={
+            guardando ||
+            cargandoCatalogos ||
+            cargandoDuplicado
+          }
           style={{
             padding: "13px 18px",
             border: 0,
@@ -694,12 +1041,16 @@ export default function VehicleForm({
             backgroundColor: "#111827",
             color: "#ffffff",
             cursor:
-              guardando || cargandoCatalogos || cargandoDuplicado
+              guardando ||
+              cargandoCatalogos ||
+              cargandoDuplicado
                 ? "not-allowed"
                 : "pointer",
             fontWeight: 700,
             opacity:
-              guardando || cargandoCatalogos || cargandoDuplicado
+              guardando ||
+              cargandoCatalogos ||
+              cargandoDuplicado
                 ? 0.7
                 : 1,
           }}
@@ -714,8 +1065,3 @@ export default function VehicleForm({
     </section>
   );
 }
-
-
-
-
-
