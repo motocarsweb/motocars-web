@@ -3440,3 +3440,24 @@ a.footer-contact-item:hover {
   position: relative;
   left: -18px;
 }
+/* =========================================================
+   FICHA VEHÍCULO — GALERÍA MÁS COMPACTA EN ESCRITORIO
+   ========================================================= */
+
+@media (min-width: 901px) {
+  .vehicle-detail-gallery {
+    align-self: start;
+  }
+
+  .vehicle-detail-main-image {
+    height: 480px;
+    min-height: 0;
+  }
+
+  .vehicle-detail-main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+}
