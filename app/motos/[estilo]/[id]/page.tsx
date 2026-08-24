@@ -45,6 +45,40 @@ function formatearKilometros(
   )} km`;
 }
 
+function normalizarImagenes(valor: unknown): string[] {
+  if (Array.isArray(valor)) {
+    return valor.filter(
+      (imagen): imagen is string =>
+        typeof imagen === "string" &&
+        imagen.trim().length > 0
+    );
+  }
+
+  if (typeof valor === "string") {
+    const texto = valor.trim();
+
+    if (!texto) {
+      return [];
+    }
+
+    try {
+      const parseado = JSON.parse(texto);
+
+      if (Array.isArray(parseado)) {
+        return parseado.filter(
+          (imagen): imagen is string =>
+            typeof imagen === "string" &&
+            imagen.trim().length > 0
+        );
+      }
+    } catch {
+      return [texto];
+    }
+  }
+
+  return [];
+}
+
 export default async function MotoDetailPage({
   params,
 }: MotoDetailPageProps) {
@@ -82,9 +116,9 @@ export default async function MotoDetailPage({
     moto.imagen_principal?.trim() ||
     "/images/placeholder-vehicle.jpg";
 
-  const imagenesGuardadas = Array.isArray(moto.imagenes)
-    ? moto.imagenes
-    : [];
+  const imagenesGuardadas = normalizarImagenes(
+    moto.imagenes as unknown
+  );
 
   const imagenes = [
     imagenPrincipal,

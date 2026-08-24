@@ -11,6 +11,11 @@ type MotosPorMarcaPageProps = {
   }>;
 };
 
+type EstiloMoto = {
+  id: string;
+  slug: string;
+};
+
 const MARCAS_VALIDAS = ["rvm", "jawa"];
 
 function formatearPrecio(precio: number | null | undefined) {
@@ -36,34 +41,45 @@ export default async function MotosPorMarcaPage({
 
   const marcaNombre = marca.toUpperCase();
 
-  const { data, error } = await supabase
-    .from("vehiculos")
-    .select(`
-  *,
-  estilos_moto (
-    slug
-  )
-`)
-    .eq("tipo", "Moto")
-    .eq("publicado", true)
-    .ilike("marca", marcaNombre)
-    .order("destacado", { ascending: false })
-    .order("created_at", { ascending: false });
+  const [
+    { data: motosData, error: errorMotos },
+    { data: estilosData, error: errorEstilos },
+  ] = await Promise.all([
+    supabase
+      .from("vehiculos")
+      .select("*")
+      .eq("tipo", "Moto")
+      .eq("publicado", true)
+      .ilike("marca", marcaNombre)
+      .order("destacado", { ascending: false })
+      .order("created_at", { ascending: false }),
 
-  if (error) {
+    supabase
+      .from("estilos_moto")
+      .select("id, slug")
+      .eq("activo", true),
+  ]);
+
+  if (errorMotos) {
     console.error(
       `Error al cargar motos ${marcaNombre}:`,
-      error.message
+      errorMotos.message
     );
   }
 
-  type MotoConEstilo = VehiculoSupabase & {
-  estilos_moto: {
-    slug: string;
-  } | null;
-};
+  if (errorEstilos) {
+    console.error(
+      "Error al cargar estilos de moto:",
+      errorEstilos.message
+    );
+  }
 
-const motos = (data ?? []) as MotoConEstilo[];
+  const motos = (motosData ?? []) as VehiculoSupabase[];
+  const estilos = (estilosData ?? []) as EstiloMoto[];
+
+  const slugPorEstiloId = new Map(
+    estilos.map((estilo) => [estilo.id, estilo.slug])
+  );
 
   return (
     <>
@@ -94,11 +110,7 @@ const motos = (data ?? []) as MotoConEstilo[];
             ← Volver a Motos
           </Link>
 
-          <div
-            style={{
-              marginBottom: 32,
-            }}
-          >
+          <div style={{ marginBottom: 32 }}>
             <span
               style={{
                 display: "block",
@@ -154,6 +166,14 @@ const motos = (data ?? []) as MotoConEstilo[];
                     .filter(Boolean)
                     .join(" ") || "Moto";
 
+                const estiloSlug = moto.estilo_moto_id
+                  ? slugPorEstiloId.get(moto.estilo_moto_id)
+                  : undefined;
+
+                const detalleHref = estiloSlug
+                  ? `/motos/${estiloSlug}/${moto.id}`
+                  : null;
+
                 return (
                   <article
                     key={moto.id}
@@ -166,23 +186,42 @@ const motos = (data ?? []) as MotoConEstilo[];
                         "0 12px 30px rgba(15, 23, 42, 0.08)",
                     }}
                   >
-                    <img
-                      src={imagen}
-                      alt={`${marcaNombre} ${titulo}`}
-                      style={{
-                        display: "block",
-                        width: "100%",
-                        aspectRatio: "4 / 3",
-                        objectFit: "cover",
-                        background: "#f1f5f9",
-                      }}
-                    />
+                    {detalleHref ? (
+                      <Link
+                        href={detalleHref}
+                        style={{
+                          display: "block",
+                          color: "inherit",
+                          textDecoration: "none",
+                        }}
+                      >
+                        <img
+                          src={imagen}
+                          alt={`${marcaNombre} ${titulo}`}
+                          style={{
+                            display: "block",
+                            width: "100%",
+                            aspectRatio: "4 / 3",
+                            objectFit: "cover",
+                            background: "#f1f5f9",
+                          }}
+                        />
+                      </Link>
+                    ) : (
+                      <img
+                        src={imagen}
+                        alt={`${marcaNombre} ${titulo}`}
+                        style={{
+                          display: "block",
+                          width: "100%",
+                          aspectRatio: "4 / 3",
+                          objectFit: "cover",
+                          background: "#f1f5f9",
+                        }}
+                      />
+                    )}
 
-                    <div
-                      style={{
-                        padding: 20,
-                      }}
-                    >
+                    <div style={{ padding: 20 }}>
                       <span
                         style={{
                           display: "block",
@@ -217,25 +256,41 @@ const motos = (data ?? []) as MotoConEstilo[];
                         {formatearPrecio(moto.precio)}
                       </div>
 
-                      <a
-                        href={`/motos/${moto.estilos_moto?.slug}/${moto.id}`}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          width: "100%",
-                          minHeight: 42,
-                          marginTop: 18,
-                          borderRadius: 10,
-                          background: "#111827",
-                          color: "#ffffff",
-                          textDecoration: "none",
-                          fontSize: 14,
-                          fontWeight: 800,
-                        }}
-                      >
-                        Ver moto
-                      </a>
+                      {detalleHref ? (
+                        <Link
+                          href={detalleHref}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: "100%",
+                            minHeight: 42,
+                            marginTop: 18,
+                            borderRadius: 10,
+                            background: "#111827",
+                            color: "#ffffff",
+                            textDecoration: "none",
+                            fontSize: 14,
+                            fontWeight: 800,
+                          }}
+                        >
+                          Ver moto
+                        </Link>
+                      ) : (
+                        <div
+                          style={{
+                            marginTop: 18,
+                            padding: "10px 12px",
+                            borderRadius: 10,
+                            background: "#fef2f2",
+                            color: "#b91c1c",
+                            fontSize: 13,
+                            fontWeight: 700,
+                          }}
+                        >
+                          Falta asignar categoría/estilo a esta moto.
+                        </div>
+                      )}
                     </div>
                   </article>
                 );

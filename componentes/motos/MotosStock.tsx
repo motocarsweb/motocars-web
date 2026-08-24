@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 import { supabase } from "@/lib/supabase";
 import type { VehiculoSupabase } from "@/lib/supabase-vehicles";
@@ -6,6 +7,7 @@ import type { VehiculoSupabase } from "@/lib/supabase-vehicles";
 type MotosStockProps = {
   estiloSlug?: string;
 };
+
 type EstiloMoto = {
   id: string;
   nombre: string;
@@ -69,9 +71,10 @@ export default async function MotosStock({
 
   const estilosMoto = (estilos ?? []) as EstiloMoto[];
   const motosPublicadas = (motos ?? []) as VehiculoSupabase[];
+
   const estilosVisibles = estiloSlug
-  ? estilosMoto.filter((estilo) => estilo.slug === estiloSlug)
-  : estilosMoto;
+    ? estilosMoto.filter((estilo) => estilo.slug === estiloSlug)
+    : estilosMoto;
 
   if (motosPublicadas.length === 0) {
     return null;
@@ -123,7 +126,7 @@ export default async function MotosStock({
           </h2>
         </div>
 
-       {estilosVisibles.map((estilo) => {
+        {estilosVisibles.map((estilo) => {
           const motosDelEstilo = motosPublicadas.filter(
             (moto) => moto.estilo_moto_id === estilo.id
           );
@@ -141,11 +144,7 @@ export default async function MotosStock({
                 marginBottom: 64,
               }}
             >
-              <div
-                style={{
-                  marginBottom: 24,
-                }}
-              >
+              <div style={{ marginBottom: 24 }}>
                 <span
                   style={{
                     color: "#64748b",
@@ -170,148 +169,170 @@ export default async function MotosStock({
               </div>
 
               <div
-  style={{
-    display: "grid",
-    gridTemplateColumns:
-      "repeat(auto-fill, minmax(280px, 340px))",
-    gap: 22,
-    justifyContent: "start",
-  }}
->
+                style={{
+                  display: "grid",
+                  gridTemplateColumns:
+                    "repeat(auto-fill, minmax(280px, 340px))",
+                  gap: 22,
+                  justifyContent: "start",
+                }}
+              >
                 {motosDelEstilo.map((moto) => {
                   const imagen =
                     moto.imagen_principal?.trim() ||
                     moto.imagenes?.[0] ||
                     "/images/placeholder-vehicle.jpg";
 
-              return (
-  <article
-    key={moto.id}
-    style={{
-      overflow: "hidden",
-      border: "1px solid #e2e8f0",
-      borderRadius: 18,
-      background: "#ffffff",
-      boxShadow:
-        "0 12px 30px rgba(15, 23, 42, 0.08)",
-    }}
-  >
-    <a
-      href={`/motos/${estilo.slug}/${moto.id}`}
-      style={{
-        display: "block",
-        color: "inherit",
-        textDecoration: "none",
-      }}
-    ></a>
-                      <div
-                        style={{
-                          position: "relative",
-                          width: "100%",
-                          aspectRatio: "4 / 3",
-                          background: "#f1f5f9",
-                        }}
-                      >
-                        <Image
-                          src={imagen}
-                          alt={nombreMoto(moto) || "Motocicleta"}
-                          fill
-                          sizes="(max-width: 768px) 100vw, 33vw"
-                          style={{
-                            objectFit: "cover",
-                          }}
-                        />
+                  const detalleHref =
+                    `/motos/${estilo.slug}/${moto.id}`;
 
-                        {moto.destacado && (
+                  return (
+                    <article
+                      key={moto.id}
+                      style={{
+                        overflow: "hidden",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: 18,
+                        background: "#ffffff",
+                        boxShadow:
+                          "0 12px 30px rgba(15, 23, 42, 0.08)",
+                      }}
+                    >
+                      <Link
+                        href={detalleHref}
+                        style={{
+                          display: "block",
+                          color: "inherit",
+                          textDecoration: "none",
+                        }}
+                        aria-label={`Ver detalle de ${nombreMoto(moto)}`}
+                      >
+                        <div
+                          style={{
+                            position: "relative",
+                            width: "100%",
+                            aspectRatio: "4 / 3",
+                            background: "#f1f5f9",
+                          }}
+                        >
+                          <Image
+                            src={imagen}
+                            alt={nombreMoto(moto) || "Motocicleta"}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 33vw"
+                            style={{
+                              objectFit: "cover",
+                            }}
+                          />
+
+                          {moto.destacado && (
+                            <span
+                              style={{
+                                position: "absolute",
+                                top: 14,
+                                left: 14,
+                                padding: "6px 10px",
+                                borderRadius: 999,
+                                background: "#111827",
+                                color: "#ffffff",
+                                fontSize: 11,
+                                fontWeight: 800,
+                              }}
+                            >
+                              Destacada
+                            </span>
+                          )}
+                        </div>
+
+                        <div
+                          style={{
+                            padding: "20px 20px 0",
+                          }}
+                        >
                           <span
                             style={{
-                              position: "absolute",
-                              top: 14,
-                              left: 14,
-                              padding: "6px 10px",
-                              borderRadius: 999,
-                              background: "#111827",
-                              color: "#ffffff",
-                              fontSize: 11,
+                              display: "block",
+                              marginBottom: 5,
+                              color: "#64748b",
+                              fontSize: 12,
+                              fontWeight: 800,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.08em",
+                            }}
+                          >
+                            {moto.marca || "Moto"}
+                          </span>
+
+                          <h4
+                            style={{
+                              margin: 0,
+                              color: "#111827",
+                              fontSize: 22,
+                              lineHeight: 1.2,
+                            }}
+                          >
+                            {[moto.modelo, moto.version]
+                              .filter(Boolean)
+                              .join(" ")}
+                          </h4>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: 8,
+                              marginTop: 14,
+                              color: "#475569",
+                              fontSize: 13,
+                            }}
+                          >
+                            {moto.anio && (
+                              <span>{moto.anio}</span>
+                            )}
+
+                            {moto.condicion && (
+                              <span>
+                                ·{" "}
+                                {moto.condicion === "0km"
+                                  ? "0 km"
+                                  : "Usada"}
+                              </span>
+                            )}
+
+                            {moto.color && (
+                              <span>· {moto.color}</span>
+                            )}
+                          </div>
+
+                          <div
+                            style={{
+                              marginTop: 18,
+                              color: "#111827",
+                              fontSize: 22,
                               fontWeight: 800,
                             }}
                           >
-                            Destacada
-                          </span>
-                        )}
-                      </div>
+                            {formatearPrecio(moto.precio)}
+                          </div>
+
+                          <div
+                            style={{
+                              marginTop: 12,
+                              color: "#2563eb",
+                              fontSize: 13,
+                              fontWeight: 800,
+                            }}
+                          >
+                            Ver fotos y detalle →
+                          </div>
+                        </div>
+                      </Link>
 
                       <div
                         style={{
-                          padding: 20,
+                          padding: "18px 20px 20px",
                         }}
                       >
-                        <span
-                          style={{
-                            display: "block",
-                            marginBottom: 5,
-                            color: "#64748b",
-                            fontSize: 12,
-                            fontWeight: 800,
-                            textTransform: "uppercase",
-                            letterSpacing: "0.08em",
-                          }}
-                        >
-                          {moto.marca || "Moto"}
-                        </span>
-
-                        <h4
-                          style={{
-                            margin: 0,
-                            color: "#111827",
-                            fontSize: 22,
-                            lineHeight: 1.2,
-                          }}
-                        >
-                          {[moto.modelo, moto.version]
-                            .filter(Boolean)
-                            .join(" ")}
-                        </h4>
-
-                        <div
-                          style={{
-                            display: "flex",
-                            flexWrap: "wrap",
-                            gap: 8,
-                            marginTop: 14,
-                            color: "#475569",
-                            fontSize: 13,
-                          }}
-                        >
-                          {moto.anio && (
-                            <span>{moto.anio}</span>
-                          )}
-
-                          {moto.condicion && (
-                            <span>
-                              ·{" "}
-                              {moto.condicion === "0km"
-                                ? "0 km"
-                                : "Usada"}
-                            </span>
-                          )}
-
-                          {moto.color && (
-                            <span>· {moto.color}</span>
-                          )}
-                        </div>
-
-                        <div
-                          style={{
-                            marginTop: 18,
-                            color: "#111827",
-                            fontSize: 22,
-                            fontWeight: 800,
-                          }}
-                        >
-                          {formatearPrecio(moto.precio)}
-                        </div>
-
                         <a
                           href={`https://wa.me/5492995133023?text=${encodeURIComponent(
                             `Hola, quiero consultar por la ${nombreMoto(moto)}`
@@ -324,7 +345,6 @@ export default async function MotosStock({
                             justifyContent: "center",
                             width: "100%",
                             minHeight: 44,
-                            marginTop: 18,
                             borderRadius: 10,
                             background: "#111827",
                             color: "#ffffff",
