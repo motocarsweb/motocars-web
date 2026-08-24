@@ -3,11 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
+import VersionSelector from "@/componentes/admin/vehiculos/VersionSelector";
+import { supabase } from "@/lib/supabase";
 import {
   actualizarVehiculo,
   obtenerVehiculoPorId,
 } from "@/lib/supabase-vehicles";
 import { subirImagenesVehiculo } from "@/lib/storage";
+
+type Catalogo = { id: string; nombre: string };
+type Modelo = { id: string; nombre: string; marca_id: string };
 
 type ImagenEditable = {
   id: string;
@@ -16,152 +21,232 @@ type ImagenEditable = {
   archivo?: File;
 };
 
-function crearId() {
-  if (
-    typeof crypto !== "undefined" &&
-    typeof crypto.randomUUID === "function"
-  ) {
-    return crypto.randomUUID();
-  }
+type EditForm = {
+  tipo_ingreso_id: string;
+  marca: string;
+  marca_id: string;
+  modelo: string;
+  modelo_id: string;
+  version: string;
+  version_id: string;
+  tipo: string;
+  tipo_vehiculo_id: string;
+  estilo_moto_id: string;
+  combustible: string;
+  combustible_id: string;
+  transmision: string;
+  transmision_id: string;
+  traccion_id: string;
+  anio: string;
+  precio: string;
+  precio_compra: string;
+  kilometros: string;
+  color: string;
+  estado: string;
+  condicion: string;
+  dominio: string;
+  numero_chasis: string;
+  numero_motor: string;
+  destacado: boolean;
+  publicado: boolean;
+  descripcion: string;
+  observaciones_internas: string;
+};
 
-  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+const VACIO: EditForm = {
+  tipo_ingreso_id: "",
+  marca: "",
+  marca_id: "",
+  modelo: "",
+  modelo_id: "",
+  version: "",
+  version_id: "",
+  tipo: "",
+  tipo_vehiculo_id: "",
+  estilo_moto_id: "",
+  combustible: "",
+  combustible_id: "",
+  transmision: "",
+  transmision_id: "",
+  traccion_id: "",
+  anio: "",
+  precio: "",
+  precio_compra: "",
+  kilometros: "",
+  color: "",
+  estado: "Disponible",
+  condicion: "usado",
+  dominio: "",
+  numero_chasis: "",
+  numero_motor: "",
+  destacado: false,
+  publicado: true,
+  descripcion: "",
+  observaciones_internas: "",
+};
+
+function idTemporal() {
+  return typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random()}`;
 }
 
 export default function EditarVehiculoPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
-
   const vehiculoId = Number(params.id);
 
-  const urlsTemporales = useRef<string[]>([]);
+  const temporales = useRef<string[]>([]);
 
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
+  const [form, setForm] = useState<EditForm>(VACIO);
+
+  const [marcas, setMarcas] = useState<Catalogo[]>([]);
+  const [modelos, setModelos] = useState<Modelo[]>([]);
+  const [tiposVehiculo, setTiposVehiculo] = useState<Catalogo[]>([]);
+  const [estilosMoto, setEstilosMoto] = useState<Catalogo[]>([]);
+  const [combustibles, setCombustibles] = useState<Catalogo[]>([]);
+  const [transmisiones, setTransmisiones] = useState<Catalogo[]>([]);
+  const [tracciones, setTracciones] = useState<Catalogo[]>([]);
+  const [tiposIngreso, setTiposIngreso] = useState<Catalogo[]>([]);
   const [imagenes, setImagenes] = useState<ImagenEditable[]>([]);
 
-  const [form, setForm] = useState({
-    marca: "",
-    modelo: "",
-    version: "",
-    anio: "",
-    precio: "",
-    kilometros: "",
-    combustible: "",
-    transmision: "",
-    color: "",
-    tipo: "",
-    estado: "Usado",
-    destacado: false,
-    descripcion: "",
-  });
+  async function cargarModelos(marcaId: string) {
+    if (!marcaId) {
+      setModelos([]);
+      return;
+    }
+
+    const { data } = await supabase
+      .from("modelos")
+      .select("id, nombre, marca_id")
+      .eq("marca_id", marcaId)
+      .eq("activo", true)
+      .order("orden", { ascending: true })
+      .order("nombre", { ascending: true });
+
+    setModelos(data ?? []);
+  }
 
   useEffect(() => {
-    async function cargarVehiculo() {
+    let activo = true;
+
+    async function cargar() {
       if (!Number.isInteger(vehiculoId) || vehiculoId <= 0) {
-        alert("El identificador del vehículo no es válido.");
         router.replace("/admin/vehiculos");
         return;
       }
 
-      try {
-        const vehiculo = await obtenerVehiculoPorId(vehiculoId);
+      const [
+        vehiculo,
+        rMarcas,
+        rTipos,
+        rEstilos,
+        rCombustibles,
+        rTransmisiones,
+        rTracciones,
+        rIngresos,
+      ] = await Promise.all([
+        obtenerVehiculoPorId(vehiculoId),
+        supabase.from("marcas").select("id,nombre").eq("activo", true).order("nombre"),
+        supabase.from("tipos_vehiculo").select("id,nombre").eq("activo", true).order("orden"),
+        supabase.from("estilos_moto").select("id,nombre").eq("activo", true).order("orden"),
+        supabase.from("combustibles").select("id,nombre").eq("activo", true).order("orden"),
+        supabase.from("transmisiones").select("id,nombre").eq("activo", true).order("orden"),
+        supabase.from("tracciones").select("id,nombre").eq("activo", true).order("orden"),
+        supabase.from("tipos_ingreso").select("id,nombre").eq("activo", true).order("orden"),
+      ]);
 
-        if (!vehiculo) {
-          alert("No se encontró el vehículo.");
-          router.replace("/admin/vehiculos");
-          return;
-        }
+      if (!activo) return;
 
-        setForm({
-          marca: vehiculo.marca ?? "",
-          modelo: vehiculo.modelo ?? "",
-          version: vehiculo.version ?? "",
-          anio: vehiculo.anio?.toString() ?? "",
-          precio: vehiculo.precio?.toString() ?? "",
-          kilometros: vehiculo.kilometros?.toString() ?? "",
-          combustible: vehiculo.combustible ?? "",
-          transmision: vehiculo.transmision ?? "",
-          color: vehiculo.color ?? "",
-          tipo: vehiculo.tipo ?? "",
-          estado: vehiculo.estado ?? "Usado",
-          destacado: vehiculo.destacado ?? false,
-          descripcion: vehiculo.descripcion ?? "",
-        });
-
-        const imagenesGuardadas = Array.isArray(vehiculo.imagenes)
-          ? vehiculo.imagenes.filter(
-              (url): url is string =>
-                typeof url === "string" && url.trim().length > 0
-            )
-          : [];
-
-        const imagenPrincipal =
-          typeof vehiculo.imagen_principal === "string"
-            ? vehiculo.imagen_principal.trim()
-            : "";
-
-        let urlsOrdenadas = [...imagenesGuardadas];
-
-        if (
-          imagenPrincipal &&
-          !urlsOrdenadas.includes(imagenPrincipal)
-        ) {
-          urlsOrdenadas.unshift(imagenPrincipal);
-        }
-
-        if (
-          imagenPrincipal &&
-          urlsOrdenadas.includes(imagenPrincipal)
-        ) {
-          urlsOrdenadas = [
-            imagenPrincipal,
-            ...urlsOrdenadas.filter(
-              (url) => url !== imagenPrincipal
-            ),
-          ];
-        }
-
-        const urlsSinDuplicados = Array.from(
-          new Set(urlsOrdenadas)
-        );
-
-        setImagenes(
-          urlsSinDuplicados.map((url) => ({
-            id: crearId(),
-            tipo: "existente" as const,
-            url,
-          }))
-        );
-      } catch (error) {
-        console.error("Error al cargar el vehículo:", error);
-
-        alert("No se pudo cargar la información del vehículo.");
+      if (!vehiculo) {
+        alert("No se encontró el vehículo.");
         router.replace("/admin/vehiculos");
-      } finally {
-        setCargando(false);
+        return;
       }
+
+      setMarcas(rMarcas.data ?? []);
+      setTiposVehiculo(rTipos.data ?? []);
+      setEstilosMoto(rEstilos.data ?? []);
+      setCombustibles(rCombustibles.data ?? []);
+      setTransmisiones(rTransmisiones.data ?? []);
+      setTracciones(rTracciones.data ?? []);
+      setTiposIngreso(rIngresos.data ?? []);
+
+      if (vehiculo.marca_id) {
+        await cargarModelos(vehiculo.marca_id);
+      }
+
+      setForm({
+        tipo_ingreso_id: vehiculo.tipo_ingreso_id ?? "",
+        marca: vehiculo.marca ?? "",
+        marca_id: vehiculo.marca_id ?? "",
+        modelo: vehiculo.modelo ?? "",
+        modelo_id: vehiculo.modelo_id ?? "",
+        version: vehiculo.version ?? "",
+        version_id: vehiculo.version_id ?? "",
+        tipo: vehiculo.tipo ?? "",
+        tipo_vehiculo_id: vehiculo.tipo_vehiculo_id ?? "",
+        estilo_moto_id: vehiculo.estilo_moto_id ?? "",
+        combustible: vehiculo.combustible ?? "",
+        combustible_id: vehiculo.combustible_id ?? "",
+        transmision: vehiculo.transmision ?? "",
+        transmision_id: vehiculo.transmision_id ?? "",
+        traccion_id: vehiculo.traccion_id ?? "",
+        anio: vehiculo.anio?.toString() ?? "",
+        precio: vehiculo.precio?.toString() ?? "",
+        precio_compra: vehiculo.precio_compra?.toString() ?? "",
+        kilometros: vehiculo.kilometros?.toString() ?? "",
+        color: vehiculo.color ?? "",
+        estado: vehiculo.estado ?? "Disponible",
+        condicion: vehiculo.condicion ?? "usado",
+        dominio: vehiculo.dominio ?? "",
+        numero_chasis: vehiculo.numero_chasis ?? "",
+        numero_motor: vehiculo.numero_motor ?? "",
+        destacado: vehiculo.destacado ?? false,
+        publicado: vehiculo.publicado ?? true,
+        descripcion: vehiculo.descripcion ?? "",
+        observaciones_internas: vehiculo.observaciones_internas ?? "",
+      });
+
+      const lista = Array.isArray(vehiculo.imagenes)
+        ? vehiculo.imagenes.filter((x): x is string => typeof x === "string" && x.trim() !== "")
+        : [];
+
+      const principal = vehiculo.imagen_principal?.trim() ?? "";
+      const ordenadas = principal
+        ? [principal, ...lista.filter((x) => x !== principal)]
+        : lista;
+
+      setImagenes(
+        Array.from(new Set(ordenadas)).map((url) => ({
+          id: idTemporal(),
+          tipo: "existente" as const,
+          url,
+        }))
+      );
+
+      setCargando(false);
     }
 
-    cargarVehiculo();
+    cargar();
+
+    return () => {
+      activo = false;
+      temporales.current.forEach((url) => URL.revokeObjectURL(url));
+      temporales.current = [];
+    };
   }, [router, vehiculoId]);
 
-  useEffect(() => {
-    return () => {
-      urlsTemporales.current.forEach((url) => {
-        URL.revokeObjectURL(url);
-      });
-    };
-  }, []);
-
-  function actualizarCampo(
-    event: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+  function campo(
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) {
     const { name, value, type } = event.target;
 
-    setForm((formAnterior) => ({
-      ...formAnterior,
+    setForm((anterior) => ({
+      ...anterior,
       [name]:
         type === "checkbox"
           ? (event.target as HTMLInputElement).checked
@@ -169,198 +254,216 @@ export default function EditarVehiculoPage() {
     }));
   }
 
-  function seleccionarImagenes(
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
-    const archivos = Array.from(event.target.files ?? []);
+  async function cambiarMarca(event: React.ChangeEvent<HTMLSelectElement>) {
+    const id = event.target.value;
+    const item = marcas.find((x) => x.id === id);
 
+    setForm((anterior) => ({
+      ...anterior,
+      marca_id: id,
+      marca: item?.nombre ?? "",
+      modelo_id: "",
+      modelo: "",
+      version_id: "",
+      version: "",
+    }));
+
+    await cargarModelos(id);
+  }
+
+  function cambiarModelo(event: React.ChangeEvent<HTMLSelectElement>) {
+    const id = event.target.value;
+    const item = modelos.find((x) => x.id === id);
+
+    setForm((anterior) => ({
+      ...anterior,
+      modelo_id: id,
+      modelo: item?.nombre ?? "",
+      version_id: "",
+      version: "",
+    }));
+  }
+
+  function cambiarTipo(event: React.ChangeEvent<HTMLSelectElement>) {
+    const id = event.target.value;
+    const item = tiposVehiculo.find((x) => x.id === id);
+    const esMoto = item?.nombre === "Moto";
+
+    setForm((anterior) => ({
+      ...anterior,
+      tipo_vehiculo_id: id,
+      tipo: item?.nombre ?? "",
+      estilo_moto_id: esMoto ? anterior.estilo_moto_id : "",
+    }));
+  }
+
+  function cambiarCombustible(event: React.ChangeEvent<HTMLSelectElement>) {
+    const id = event.target.value;
+    const item = combustibles.find((x) => x.id === id);
+
+    setForm((anterior) => ({
+      ...anterior,
+      combustible_id: id,
+      combustible: item?.nombre ?? "",
+    }));
+  }
+
+  function cambiarTransmision(event: React.ChangeEvent<HTMLSelectElement>) {
+    const id = event.target.value;
+    const item = transmisiones.find((x) => x.id === id);
+
+    setForm((anterior) => ({
+      ...anterior,
+      transmision_id: id,
+      transmision: item?.nombre ?? "",
+    }));
+  }
+
+  function agregarFotos(event: React.ChangeEvent<HTMLInputElement>) {
+    const archivos = Array.from(event.target.files ?? []);
     event.target.value = "";
 
-    if (archivos.length === 0) {
+    const validos = archivos.filter((archivo) => {
+      const tipoOk = ["image/jpeg", "image/png", "image/webp"].includes(archivo.type);
+      const pesoOk = archivo.size <= 10 * 1024 * 1024;
+
+      if (!tipoOk) alert(`"${archivo.name}" no es JPG, PNG o WEBP.`);
+      if (!pesoOk) alert(`"${archivo.name}" supera los 10 MB.`);
+
+      return tipoOk && pesoOk;
+    });
+
+    if (imagenes.length + validos.length > 20) {
+      alert("Se permiten como máximo 20 imágenes.");
       return;
     }
 
-    const formatosPermitidos = [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-    ];
-
-    const limiteBytes = 10 * 1024 * 1024;
-
-    const archivosValidos: File[] = [];
-
-    for (const archivo of archivos) {
-      if (!formatosPermitidos.includes(archivo.type)) {
-        alert(
-          `El archivo "${archivo.name}" no es válido. Solo se permiten imágenes JPG, PNG o WEBP.`
-        );
-        continue;
-      }
-
-      if (archivo.size > limiteBytes) {
-        alert(
-          `La imagen "${archivo.name}" supera el límite de 10 MB.`
-        );
-        continue;
-      }
-
-      archivosValidos.push(archivo);
-    }
-
-    if (archivosValidos.length === 0) {
-      return;
-    }
-
-    if (imagenes.length + archivosValidos.length > 20) {
-      alert("Se permiten como máximo 20 imágenes por vehículo.");
-      return;
-    }
-
-    const imagenesNuevas = archivosValidos.map((archivo) => {
-      const urlTemporal = URL.createObjectURL(archivo);
-
-      urlsTemporales.current.push(urlTemporal);
+    const nuevas = validos.map((archivo) => {
+      const url = URL.createObjectURL(archivo);
+      temporales.current.push(url);
 
       return {
-        id: crearId(),
+        id: idTemporal(),
         tipo: "nueva" as const,
-        url: urlTemporal,
+        url,
         archivo,
       };
     });
 
-    setImagenes((imagenesAnteriores) => [
-      ...imagenesAnteriores,
-      ...imagenesNuevas,
-    ]);
+    setImagenes((anteriores) => [...anteriores, ...nuevas]);
   }
 
-  function hacerPortada(indice: number) {
-    if (indice === 0) {
-      return;
-    }
+  function eliminarFoto(id: string) {
+    setImagenes((anteriores) => {
+      const encontrada = anteriores.find((x) => x.id === id);
 
-    setImagenes((imagenesAnteriores) => {
-      const copia = [...imagenesAnteriores];
-      const [imagenSeleccionada] = copia.splice(indice, 1);
+      if (encontrada?.tipo === "nueva") {
+        URL.revokeObjectURL(encontrada.url);
+        temporales.current = temporales.current.filter((url) => url !== encontrada.url);
+      }
 
-      return [imagenSeleccionada, ...copia];
+      return anteriores.filter((x) => x.id !== id);
     });
   }
 
-  function moverImagen(
-    indice: number,
-    direccion: "izquierda" | "derecha"
-  ) {
-    setImagenes((imagenesAnteriores) => {
-      const nuevoIndice =
-        direccion === "izquierda" ? indice - 1 : indice + 1;
+  function portada(id: string) {
+    setImagenes((anteriores) => {
+      const indice = anteriores.findIndex((x) => x.id === id);
+      if (indice <= 0) return anteriores;
 
-      if (
-        nuevoIndice < 0 ||
-        nuevoIndice >= imagenesAnteriores.length
-      ) {
-        return imagenesAnteriores;
+      const copia = [...anteriores];
+      const [seleccionada] = copia.splice(indice, 1);
+      return seleccionada ? [seleccionada, ...copia] : anteriores;
+    });
+  }
+
+  function mover(id: string, delta: number) {
+    setImagenes((anteriores) => {
+      const i = anteriores.findIndex((x) => x.id === id);
+      const j = i + delta;
+
+      if (i < 0 || j < 0 || j >= anteriores.length) {
+        return anteriores;
       }
 
-      const copia = [...imagenesAnteriores];
-
-      [copia[indice], copia[nuevoIndice]] = [
-        copia[nuevoIndice],
-        copia[indice],
-      ];
-
+      const copia = [...anteriores];
+      [copia[i], copia[j]] = [copia[j], copia[i]];
       return copia;
     });
   }
 
-  function eliminarImagen(indice: number) {
-    setImagenes((imagenesAnteriores) => {
-      const imagenEliminada = imagenesAnteriores[indice];
-
-      if (imagenEliminada?.tipo === "nueva") {
-        URL.revokeObjectURL(imagenEliminada.url);
-
-        urlsTemporales.current = urlsTemporales.current.filter(
-          (url) => url !== imagenEliminada.url
-        );
-      }
-
-      return imagenesAnteriores.filter(
-        (_, posicion) => posicion !== indice
-      );
-    });
-  }
-
-  async function guardarCambios(
-    event: React.FormEvent<HTMLFormElement>
-  ) {
+  async function guardar(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (guardando) {
+    if (guardando) return;
+
+    if (!form.marca_id || !form.modelo_id || !form.tipo_vehiculo_id) {
+      alert("Completá marca, modelo y tipo de vehículo.");
+      return;
+    }
+
+    if (form.tipo === "Moto" && !form.estilo_moto_id) {
+      alert("Seleccioná el estilo de la moto.");
       return;
     }
 
     setGuardando(true);
 
     try {
-      const archivosNuevos = imagenes
-        .filter(
-          (
-            imagen
-          ): imagen is ImagenEditable & {
-            tipo: "nueva";
-            archivo: File;
-          } =>
-            imagen.tipo === "nueva" &&
-            imagen.archivo instanceof File
-        )
-        .map((imagen) => imagen.archivo);
+      const nuevas = imagenes.filter(
+        (x): x is ImagenEditable & { tipo: "nueva"; archivo: File } =>
+          x.tipo === "nueva" && x.archivo instanceof File
+      );
 
-      const urlsNuevas =
-        archivosNuevos.length > 0
-          ? await subirImagenesVehiculo(archivosNuevos)
+      const urlsSubidas =
+        nuevas.length > 0
+          ? await subirImagenesVehiculo(nuevas.map((x) => x.archivo))
           : [];
 
-      let indiceUrlNueva = 0;
+      const mapa = new Map<string, string>();
+      nuevas.forEach((x, i) => {
+        if (urlsSubidas[i]) mapa.set(x.id, urlsSubidas[i]);
+      });
 
       const urlsFinales = imagenes
-        .map((imagen) => {
-          if (imagen.tipo === "existente") {
-            return imagen.url;
-          }
-
-          const urlSubida = urlsNuevas[indiceUrlNueva];
-          indiceUrlNueva += 1;
-
-          return urlSubida;
-        })
-        .filter(
-          (url): url is string =>
-            typeof url === "string" && url.trim().length > 0
-        );
-
-      const imagenPrincipal =
-        urlsFinales.length > 0 ? urlsFinales[0] : null;
+        .map((x) => (x.tipo === "existente" ? x.url : mapa.get(x.id)))
+        .filter((x): x is string => typeof x === "string" && x.trim() !== "");
 
       const resultado = await actualizarVehiculo(vehiculoId, {
+        tipo_ingreso_id: form.tipo_ingreso_id || null,
         marca: form.marca.trim(),
+        marca_id: form.marca_id,
         modelo: form.modelo.trim(),
+        modelo_id: form.modelo_id,
         version: form.version.trim() || null,
+        version_id:
+          form.version_id && form.version_id !== "__nueva__"
+            ? form.version_id
+            : null,
+        tipo: form.tipo.trim() || null,
+        tipo_vehiculo_id: form.tipo_vehiculo_id,
+        estilo_moto_id:
+          form.tipo === "Moto" ? form.estilo_moto_id || null : null,
+        combustible: form.combustible.trim() || null,
+        combustible_id: form.combustible_id || null,
+        transmision: form.transmision.trim() || null,
+        transmision_id: form.transmision_id || null,
+        traccion_id: form.traccion_id || null,
         anio: form.anio ? Number(form.anio) : null,
         precio: form.precio ? Number(form.precio) : null,
-        kilometros: form.kilometros
-          ? Number(form.kilometros)
-          : null,
-        combustible: form.combustible.trim() || null,
-        transmision: form.transmision.trim() || null,
+        precio_compra: form.precio_compra ? Number(form.precio_compra) : null,
+        kilometros: form.kilometros ? Number(form.kilometros) : null,
         color: form.color.trim() || null,
-        tipo: form.tipo.trim() || null,
         estado: form.estado || null,
+        condicion: form.condicion || null,
+        dominio: form.dominio.trim().toUpperCase() || null,
+        numero_chasis: form.numero_chasis.trim() || null,
+        numero_motor: form.numero_motor.trim() || null,
         destacado: form.destacado,
+        publicado: form.publicado,
         descripcion: form.descripcion.trim() || null,
-        imagen_principal: imagenPrincipal,
+        observaciones_internas: form.observaciones_internas.trim() || null,
+        imagen_principal: urlsFinales[0] ?? null,
         imagenes: urlsFinales,
       });
 
@@ -370,424 +473,153 @@ export default function EditarVehiculoPage() {
       }
 
       alert("Vehículo actualizado correctamente.");
-
       router.push("/admin/vehiculos");
       router.refresh();
     } catch (error) {
-      console.error("Error al actualizar el vehículo:", error);
-
-      alert(
-        "No se pudieron guardar los cambios o subir las imágenes."
-      );
+      console.error(error);
+      alert("No se pudieron guardar los cambios.");
     } finally {
       setGuardando(false);
     }
   }
 
   if (cargando) {
-    return (
-      <section>
-        <h1>Editar vehículo</h1>
-        <p>Cargando información...</p>
-      </section>
-    );
+    return <p>Cargando vehículo...</p>;
   }
 
   return (
     <section>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: 20,
-          marginBottom: 30,
-        }}
-      >
-        <div>
-          <h1 style={{ margin: 0 }}>Editar vehículo</h1>
-
-          <p style={{ marginTop: 8, color: "#6b7280" }}>
-            {form.marca} {form.modelo}
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => router.push("/admin/vehiculos")}
-          style={{
-            padding: "10px 16px",
-            border: "1px solid #d1d5db",
-            borderRadius: 8,
-            backgroundColor: "white",
-            cursor: "pointer",
-          }}
-        >
-          Volver
-        </button>
-      </div>
+      <h1>Editar vehículo</h1>
 
       <form
-        onSubmit={guardarCambios}
-        style={{
-          display: "grid",
-          gap: 18,
-          maxWidth: 900,
-        }}
+        onSubmit={guardar}
+        style={{ display: "grid", gap: 16, maxWidth: 900, marginTop: 22 }}
       >
-        <input
-          name="marca"
-          placeholder="Marca"
-          value={form.marca}
-          onChange={actualizarCampo}
-          required
-        />
-
-        <input
-          name="modelo"
-          placeholder="Modelo"
-          value={form.modelo}
-          onChange={actualizarCampo}
-          required
-        />
-
-        <input
-          name="version"
-          placeholder="Versión"
-          value={form.version}
-          onChange={actualizarCampo}
-        />
-
-        <input
-          type="number"
-          name="anio"
-          placeholder="Año"
-          min="1900"
-          max="2100"
-          value={form.anio}
-          onChange={actualizarCampo}
-        />
-
-        <input
-          type="number"
-          name="precio"
-          placeholder="Precio"
-          min="0"
-          value={form.precio}
-          onChange={actualizarCampo}
-        />
-
-        <input
-          type="number"
-          name="kilometros"
-          placeholder="Kilómetros"
-          min="0"
-          value={form.kilometros}
-          onChange={actualizarCampo}
-        />
-
-        <input
-          name="combustible"
-          placeholder="Combustible"
-          value={form.combustible}
-          onChange={actualizarCampo}
-        />
-
-        <input
-          name="transmision"
-          placeholder="Transmisión"
-          value={form.transmision}
-          onChange={actualizarCampo}
-        />
-
-        <input
-          name="color"
-          placeholder="Color"
-          value={form.color}
-          onChange={actualizarCampo}
-        />
-
-        <input
-          name="tipo"
-          placeholder="Tipo"
-          value={form.tipo}
-          onChange={actualizarCampo}
-        />
-
-        <select
-          name="estado"
-          value={form.estado}
-          onChange={actualizarCampo}
-        >
-          <option value="Nuevo">Nuevo</option>
-          <option value="Usado">Usado</option>
+        <select name="tipo_ingreso_id" value={form.tipo_ingreso_id} onChange={campo}>
+          <option value="">Seleccionar tipo de ingreso</option>
+          {tiposIngreso.map((x) => <option key={x.id} value={x.id}>{x.nombre}</option>)}
         </select>
 
-        <div
-          style={{
-            display: "grid",
-            gap: 16,
-            padding: 18,
-            border: "1px solid #d1d5db",
-            borderRadius: 12,
-            backgroundColor: "#ffffff",
-          }}
-        >
-          <div>
-            <strong>Imágenes del vehículo</strong>
+        <select value={form.marca_id} onChange={cambiarMarca} required>
+          <option value="">Seleccionar marca</option>
+          {marcas.map((x) => <option key={x.id} value={x.id}>{x.nombre}</option>)}
+        </select>
 
-            <p
-              style={{
-                margin: "6px 0 0",
-                color: "#6b7280",
-                fontSize: 14,
-              }}
-            >
-              La primera imagen será utilizada como portada.
-            </p>
-          </div>
+        <select value={form.modelo_id} onChange={cambiarModelo} required>
+          <option value="">Seleccionar modelo</option>
+          {modelos.map((x) => <option key={x.id} value={x.id}>{x.nombre}</option>)}
+        </select>
 
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            multiple
-            onChange={seleccionarImagenes}
-          />
+        <VersionSelector
+          modeloId={form.modelo_id}
+          versionId={form.version_id}
+          versionNombre={form.version}
+          onChange={(versionId, versionNombre) =>
+            setForm((anterior) => ({
+              ...anterior,
+              version_id: versionId,
+              version: versionNombre,
+            }))
+          }
+        />
 
-          <small style={{ color: "#6b7280" }}>
-            JPG, PNG o WEBP. Máximo 10 MB por imagen y 20
-            imágenes en total.
-          </small>
+        <select value={form.tipo_vehiculo_id} onChange={cambiarTipo} required>
+          <option value="">Seleccionar tipo de vehículo</option>
+          {tiposVehiculo.map((x) => <option key={x.id} value={x.id}>{x.nombre}</option>)}
+        </select>
 
-          {imagenes.length === 0 ? (
-            <div
-              style={{
-                padding: 24,
-                border: "1px dashed #9ca3af",
-                borderRadius: 10,
-                textAlign: "center",
-                color: "#6b7280",
-              }}
-            >
-              Este vehículo no tiene imágenes seleccionadas.
-            </div>
-          ) : (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "repeat(auto-fill, minmax(190px, 1fr))",
-                gap: 16,
-                alignItems: "stretch",
-              }}
-            >
-              {imagenes.map((imagen, indice) => (
-                <article
-                  key={imagen.id}
-                  style={{
-                    display: "grid",
-                    gridTemplateRows: "auto auto auto auto",
-                    gap: 10,
-                    height: "100%",
-                    padding: 10,
-                    border:
-                      indice === 0
-                        ? "2px solid #111827"
-                        : "1px solid #d1d5db",
-                    borderRadius: 10,
-                    backgroundColor: "#f9fafb",
-                  }}
-                >
-                  <div
-                    style={{
-                      position: "relative",
-                      width: "100%",
-                      aspectRatio: "4 / 3",
-                    }}
-                  >
-                    <img
-                      src={imagen.url}
-                      alt={`Imagen ${indice + 1} de ${form.marca} ${form.modelo}`}
-                      style={{
-                        display: "block",
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        borderRadius: 8,
-                      }}
-                    />
+        {form.tipo === "Moto" && (
+          <select
+            name="estilo_moto_id"
+            value={form.estilo_moto_id}
+            onChange={campo}
+            required
+          >
+            <option value="">Seleccionar estilo de moto</option>
+            {estilosMoto.map((x) => <option key={x.id} value={x.id}>{x.nombre}</option>)}
+          </select>
+        )}
 
-                    {indice === 0 && (
-                      <span
-                        style={{
-                          position: "absolute",
-                          top: 8,
-                          left: 8,
-                          padding: "5px 8px",
-                          borderRadius: 6,
-                          backgroundColor: "#111827",
-                          color: "#ffffff",
-                          fontSize: 11,
-                          fontWeight: 700,
-                        }}
-                      >
-                        PORTADA
-                      </span>
-                    )}
-                  </div>
+        <select value={form.combustible_id} onChange={cambiarCombustible}>
+          <option value="">Seleccionar combustible</option>
+          {combustibles.map((x) => <option key={x.id} value={x.id}>{x.nombre}</option>)}
+        </select>
 
-                  {indice === 0 ? (
-                    <div
-                      style={{
-                        minHeight: 36,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        padding: "8px 10px",
-                        border: "1px solid #111827",
-                        borderRadius: 7,
-                        backgroundColor: "#111827",
-                        color: "#ffffff",
-                        fontSize: 13,
-                        fontWeight: 700,
-                      }}
-                    >
-                      Portada seleccionada
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => hacerPortada(indice)}
-                      style={{
-                        minHeight: 36,
-                        padding: "8px 10px",
-                        border: "1px solid #111827",
-                        borderRadius: 7,
-                        backgroundColor: "#ffffff",
-                        cursor: "pointer",
-                        fontWeight: 600,
-                      }}
-                    >
+        <select value={form.transmision_id} onChange={cambiarTransmision}>
+          <option value="">Seleccionar transmisión</option>
+          {transmisiones.map((x) => <option key={x.id} value={x.id}>{x.nombre}</option>)}
+        </select>
+
+        <select name="traccion_id" value={form.traccion_id} onChange={campo}>
+          <option value="">Seleccionar tracción</option>
+          {tracciones.map((x) => <option key={x.id} value={x.id}>{x.nombre}</option>)}
+        </select>
+
+        <select name="condicion" value={form.condicion} onChange={campo}>
+          <option value="0km">0 km</option>
+          <option value="usado">Usado</option>
+        </select>
+
+        <input name="anio" type="number" placeholder="Año" value={form.anio} onChange={campo} />
+        <input name="kilometros" type="number" placeholder="Kilómetros" value={form.kilometros} onChange={campo} />
+        <input name="color" placeholder="Color" value={form.color} onChange={campo} />
+        <input name="precio" type="number" placeholder="Precio de venta" value={form.precio} onChange={campo} />
+        <input name="precio_compra" type="number" placeholder="Precio de compra" value={form.precio_compra} onChange={campo} />
+        <input name="dominio" placeholder="Dominio" value={form.dominio} onChange={campo} />
+        <input name="numero_chasis" placeholder="Número de chasis" value={form.numero_chasis} onChange={campo} />
+        <input name="numero_motor" placeholder="Número de motor" value={form.numero_motor} onChange={campo} />
+        <input name="estado" placeholder="Estado" value={form.estado} onChange={campo} />
+
+        <textarea name="descripcion" placeholder="Descripción comercial" rows={5} value={form.descripcion} onChange={campo} />
+        <textarea name="observaciones_internas" placeholder="Observaciones internas" rows={4} value={form.observaciones_internas} onChange={campo} />
+
+        <div style={{ display: "grid", gap: 12, padding: 16, border: "1px solid #d1d5db", borderRadius: 10 }}>
+          <strong>Imágenes del vehículo</strong>
+          <input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={agregarFotos} />
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(180px,1fr))", gap: 12 }}>
+            {imagenes.map((imagen, index) => (
+              <article key={imagen.id} style={{ border: index === 0 ? "3px solid #111827" : "1px solid #d1d5db", borderRadius: 8, overflow: "hidden" }}>
+                <img src={imagen.url} alt="" style={{ width: "100%", height: 135, objectFit: "cover", display: "block" }} />
+
+                <div style={{ display: "grid", gap: 7, padding: 9 }}>
+                  {index !== 0 && (
+                    <button type="button" onClick={() => portada(imagen.id)}>
                       Hacer portada
                     </button>
                   )}
 
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 1fr",
-                      gap: 8,
-                    }}
-                  >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        moverImagen(indice, "izquierda")
-                      }
-                      disabled={indice === 0}
-                      aria-label="Mover imagen hacia la izquierda"
-                      style={{
-                        minHeight: 36,
-                        padding: "8px 10px",
-                        border: "1px solid #d1d5db",
-                        borderRadius: 7,
-                        backgroundColor: "#ffffff",
-                        cursor:
-                          indice === 0
-                            ? "not-allowed"
-                            : "pointer",
-                        opacity: indice === 0 ? 0.5 : 1,
-                      }}
-                    >
-                      ←
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        moverImagen(indice, "derecha")
-                      }
-                      disabled={indice === imagenes.length - 1}
-                      aria-label="Mover imagen hacia la derecha"
-                      style={{
-                        minHeight: 36,
-                        padding: "8px 10px",
-                        border: "1px solid #d1d5db",
-                        borderRadius: 7,
-                        backgroundColor: "#ffffff",
-                        cursor:
-                          indice === imagenes.length - 1
-                            ? "not-allowed"
-                            : "pointer",
-                        opacity:
-                          indice === imagenes.length - 1
-                            ? 0.5
-                            : 1,
-                      }}
-                    >
-                      →
-                    </button>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 7 }}>
+                    <button type="button" disabled={index === 0} onClick={() => mover(imagen.id, -1)}>←</button>
+                    <button type="button" disabled={index === imagenes.length - 1} onClick={() => mover(imagen.id, 1)}>→</button>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => eliminarImagen(indice)}
-                    style={{
-                      minHeight: 36,
-                      padding: "8px 10px",
-                      border: "1px solid #dc2626",
-                      borderRadius: 7,
-                      backgroundColor: "#ffffff",
-                      color: "#dc2626",
-                      cursor: "pointer",
-                      fontWeight: 600,
-                    }}
-                  >
+                  <button type="button" onClick={() => eliminarFoto(imagen.id)} style={{ color: "#b91c1c" }}>
                     Eliminar
                   </button>
-                </article>
-              ))}
-            </div>
-          )}
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
 
-        <textarea
-          name="descripcion"
-          placeholder="Descripción"
-          rows={5}
-          value={form.descripcion}
-          onChange={actualizarCampo}
-        />
-
         <label>
-          <input
-            type="checkbox"
-            name="destacado"
-            checked={form.destacado}
-            onChange={actualizarCampo}
-          />{" "}
-          Vehículo destacado
+          <input type="checkbox" name="destacado" checked={form.destacado} onChange={campo} /> Destacado
         </label>
 
-        <button
-          type="submit"
-          disabled={guardando}
-          style={{
-            padding: "13px 18px",
-            border: 0,
-            borderRadius: 8,
-            backgroundColor: "#111827",
-            color: "white",
-            fontWeight: 600,
-            cursor: guardando ? "not-allowed" : "pointer",
-            opacity: guardando ? 0.7 : 1,
-          }}
-        >
-          {guardando
-            ? "Subiendo imágenes y guardando..."
-            : "Guardar cambios"}
-        </button>
+        <label>
+          <input type="checkbox" name="publicado" checked={form.publicado} onChange={campo} /> Publicado en la web
+        </label>
+
+        <div style={{ display: "flex", gap: 10 }}>
+          <button type="button" onClick={() => router.push("/admin/vehiculos")}>
+            Volver
+          </button>
+
+          <button type="submit" disabled={guardando}>
+            {guardando ? "Guardando..." : "Guardar cambios"}
+          </button>
+        </div>
       </form>
     </section>
   );
