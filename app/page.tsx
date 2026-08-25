@@ -15,27 +15,26 @@ export default async function Home() {
   const todosLosVehiculos = await obtenerVehiculosPublicos();
 
   const vehiculosPublicados = todosLosVehiculos.filter(
-  (vehiculo) =>
-    vehiculo.publicado === true &&
-    vehiculo.destacado === true &&
-    vehiculo.tipo?.trim().toLowerCase() !== "moto"
-);
+    (vehiculo) =>
+      vehiculo.publicado === true &&
+      vehiculo.tipo?.trim().toLowerCase() !== "moto"
+  );
 
- return (
-  <>
-    <Header />
+  return (
+    <>
+      <Header />
 
-    <Hero />
+      <Hero />
 
-    <Stats />
+      <Stats />
 
-    <Brands />
+      <Brands />
 
-    <FeaturedCars vehicles={vehiculosPublicados} />
+      <FeaturedCars vehicles={vehiculosPublicados} />
 
-    <About />
+      <About />
 
-    <Footer />
-  </>
-);
+      <Footer />
+    </>
+  );
 }
