@@ -13,6 +13,18 @@ import { subirImagenesVehiculo } from "@/lib/storage";
 
 type Catalogo = { id: string; nombre: string };
 type Modelo = { id: string; nombre: string; marca_id: string };
+const NUEVA_MARCA = "__nueva_marca__";
+const NUEVO_MODELO = "__nuevo_modelo__";
+
+function crearSlug(texto: string) {
+  return texto
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
 type ImagenEditable = {
   id: string;
@@ -104,6 +116,11 @@ export default function EditarVehiculoPage() {
   const [form, setForm] = useState<EditForm>(VACIO);
 
   const [marcas, setMarcas] = useState<Catalogo[]>([]);
+  const [agregandoMarca, setAgregandoMarca] = useState(false);
+const [marcaNueva, setMarcaNueva] = useState("");
+
+const [agregandoModelo, setAgregandoModelo] = useState(false);
+const [modeloNuevo, setModeloNuevo] = useState("");
   const [modelos, setModelos] = useState<Modelo[]>([]);
   const [tiposVehiculo, setTiposVehiculo] = useState<Catalogo[]>([]);
   const [estilosMoto, setEstilosMoto] = useState<Catalogo[]>([]);
@@ -255,34 +272,81 @@ export default function EditarVehiculoPage() {
   }
 
   async function cambiarMarca(event: React.ChangeEvent<HTMLSelectElement>) {
-    const id = event.target.value;
-    const item = marcas.find((x) => x.id === id);
+  const id = event.target.value;
+
+  if (id === NUEVA_MARCA) {
+    setAgregandoMarca(true);
+    setMarcaNueva("");
+
+    setAgregandoModelo(true);
+    setModeloNuevo("");
+
+    setModelos([]);
 
     setForm((anterior) => ({
       ...anterior,
-      marca_id: id,
-      marca: item?.nombre ?? "",
-      modelo_id: "",
+      marca_id: NUEVA_MARCA,
+      marca: "",
+      modelo_id: NUEVO_MODELO,
       modelo: "",
       version_id: "",
       version: "",
     }));
 
-    await cargarModelos(id);
+    return;
   }
 
+  setAgregandoMarca(false);
+  setMarcaNueva("");
+  setAgregandoModelo(false);
+  setModeloNuevo("");
+
+  const item = marcas.find((x) => x.id === id);
+
+  setForm((anterior) => ({
+    ...anterior,
+    marca_id: id,
+    marca: item?.nombre ?? "",
+    modelo_id: "",
+    modelo: "",
+    version_id: "",
+    version: "",
+  }));
+
+  await cargarModelos(id);
+}
+
   function cambiarModelo(event: React.ChangeEvent<HTMLSelectElement>) {
-    const id = event.target.value;
-    const item = modelos.find((x) => x.id === id);
+  const id = event.target.value;
+
+  if (id === NUEVO_MODELO) {
+    setAgregandoModelo(true);
+    setModeloNuevo("");
 
     setForm((anterior) => ({
       ...anterior,
-      modelo_id: id,
-      modelo: item?.nombre ?? "",
+      modelo_id: NUEVO_MODELO,
+      modelo: "",
       version_id: "",
       version: "",
     }));
+
+    return;
   }
+
+  setAgregandoModelo(false);
+  setModeloNuevo("");
+
+  const item = modelos.find((x) => x.id === id);
+
+  setForm((anterior) => ({
+    ...anterior,
+    modelo_id: id,
+    modelo: item?.nombre ?? "",
+    version_id: "",
+    version: "",
+  }));
+}
 
   function cambiarTipo(event: React.ChangeEvent<HTMLSelectElement>) {
     const id = event.target.value;
@@ -410,6 +474,83 @@ export default function EditarVehiculoPage() {
     setGuardando(true);
 
     try {
+      let marcaIdDefinitiva = form.marca_id;
+let marcaNombreDefinitiva = form.marca;
+
+if (agregandoMarca) {
+  const nombreMarca = marcaNueva.trim();
+  const slugMarca = crearSlug(nombreMarca);
+
+  const { data: marcaExistente } = await supabase
+    .from("marcas")
+    .select("id,nombre")
+    .eq("slug", slugMarca)
+    .maybeSingle();
+
+  if (marcaExistente) {
+    marcaIdDefinitiva = marcaExistente.id;
+    marcaNombreDefinitiva = marcaExistente.nombre;
+  } else {
+    const { data: marcaCreada, error: errorMarca } = await supabase
+      .from("marcas")
+      .insert({
+        nombre: nombreMarca,
+        slug: slugMarca,
+        activo: true,
+      })
+      .select("id,nombre")
+      .single();
+
+    if (errorMarca) {
+      throw new Error(
+        `No se pudo crear la marca nueva: ${errorMarca.message}`
+      );
+    }
+
+    marcaIdDefinitiva = marcaCreada.id;
+    marcaNombreDefinitiva = marcaCreada.nombre;
+  }
+}
+
+let modeloIdDefinitivo = form.modelo_id;
+let modeloNombreDefinitivo = form.modelo;
+
+if (agregandoModelo) {
+  const nombreModelo = modeloNuevo.trim();
+  const slugModelo = crearSlug(nombreModelo);
+
+  const { data: modeloExistente } = await supabase
+    .from("modelos")
+    .select("id,nombre")
+    .eq("marca_id", marcaIdDefinitiva)
+    .eq("slug", slugModelo)
+    .maybeSingle();
+
+  if (modeloExistente) {
+    modeloIdDefinitivo = modeloExistente.id;
+    modeloNombreDefinitivo = modeloExistente.nombre;
+  } else {
+    const { data: modeloCreado, error: errorModelo } = await supabase
+      .from("modelos")
+      .insert({
+        marca_id: marcaIdDefinitiva,
+        nombre: nombreModelo,
+        slug: slugModelo,
+        activo: true,
+      })
+      .select("id,nombre")
+      .single();
+
+    if (errorModelo) {
+      throw new Error(
+        `No se pudo crear el modelo nuevo: ${errorModelo.message}`
+      );
+    }
+
+    modeloIdDefinitivo = modeloCreado.id;
+    modeloNombreDefinitivo = modeloCreado.nombre;
+  }
+}
       const nuevas = imagenes.filter(
         (x): x is ImagenEditable & { tipo: "nueva"; archivo: File } =>
           x.tipo === "nueva" && x.archivo instanceof File
@@ -431,10 +572,10 @@ export default function EditarVehiculoPage() {
 
       const resultado = await actualizarVehiculo(vehiculoId, {
         tipo_ingreso_id: form.tipo_ingreso_id || null,
-        marca: form.marca.trim(),
-        marca_id: form.marca_id,
-        modelo: form.modelo.trim(),
-        modelo_id: form.modelo_id,
+        marca: marcaNombreDefinitiva.trim(),
+marca_id: marcaIdDefinitiva,
+modelo: modeloNombreDefinitivo.trim(),
+modelo_id: modeloIdDefinitivo,
         version: form.version.trim() || null,
         version_id:
           form.version_id && form.version_id !== "__nueva__"
@@ -500,28 +641,141 @@ export default function EditarVehiculoPage() {
           {tiposIngreso.map((x) => <option key={x.id} value={x.id}>{x.nombre}</option>)}
         </select>
 
-        <select value={form.marca_id} onChange={cambiarMarca} required>
-          <option value="">Seleccionar marca</option>
-          {marcas.map((x) => <option key={x.id} value={x.id}>{x.nombre}</option>)}
-        </select>
+        <div
+  style={{
+    display: "grid",
+    gap: 8,
+  }}
+>
+  <select
+    value={form.marca_id}
+    onChange={cambiarMarca}
+    required
+  >
+    <option value="">Seleccionar marca</option>
 
-        <select value={form.modelo_id} onChange={cambiarModelo} required>
-          <option value="">Seleccionar modelo</option>
-          {modelos.map((x) => <option key={x.id} value={x.id}>{x.nombre}</option>)}
-        </select>
+    {marcas.map((x) => (
+      <option key={x.id} value={x.id}>
+        {x.nombre}
+      </option>
+    ))}
 
-        <VersionSelector
-          modeloId={form.modelo_id}
-          versionId={form.version_id}
-          versionNombre={form.version}
-          onChange={(versionId, versionNombre) =>
+    <option value={NUEVA_MARCA}>
+      + Nueva marca
+    </option>
+  </select>
+
+  {agregandoMarca && (
+    <input
+      value={marcaNueva}
+      onChange={(event) => {
+        setMarcaNueva(event.target.value);
+
+        setForm((anterior) => ({
+          ...anterior,
+          marca: event.target.value,
+        }));
+      }}
+      placeholder="Nombre de la nueva marca"
+      autoFocus
+    />
+  )}
+</div>
+
+        <div
+  style={{
+    display: "grid",
+    gap: 8,
+  }}
+>
+  {agregandoMarca ? (
+    <input
+      value={modeloNuevo}
+      onChange={(event) => {
+        setModeloNuevo(event.target.value);
+
+        setForm((anterior) => ({
+          ...anterior,
+          modelo_id: NUEVO_MODELO,
+          modelo: event.target.value,
+          version_id: "",
+          version: "",
+        }));
+      }}
+      placeholder="Nombre del nuevo modelo"
+      required
+    />
+  ) : (
+    <>
+      <select
+        value={form.modelo_id}
+        onChange={cambiarModelo}
+        required
+        disabled={!form.marca_id}
+      >
+        <option value="">Seleccionar modelo</option>
+
+        {modelos.map((x) => (
+          <option key={x.id} value={x.id}>
+            {x.nombre}
+          </option>
+        ))}
+
+        {form.marca_id && (
+          <option value={NUEVO_MODELO}>
+            + Nuevo modelo
+          </option>
+        )}
+      </select>
+
+      {agregandoModelo && (
+        <input
+          value={modeloNuevo}
+          onChange={(event) => {
+            setModeloNuevo(event.target.value);
+
             setForm((anterior) => ({
               ...anterior,
-              version_id: versionId,
-              version: versionNombre,
-            }))
-          }
+              modelo_id: NUEVO_MODELO,
+              modelo: event.target.value,
+              version_id: "",
+              version: "",
+            }));
+          }}
+          placeholder="Nombre del nuevo modelo"
+          required
         />
+      )}
+    </>
+  )}
+</div>
+
+        {agregandoModelo ? (
+  <input
+    value={form.version}
+    onChange={(event) =>
+      setForm((anterior) => ({
+        ...anterior,
+        version: event.target.value,
+        version_id: "",
+      }))
+    }
+    placeholder="Versión (opcional)"
+  />
+) : (
+  <VersionSelector
+    modeloId={form.modelo_id}
+    versionId={form.version_id}
+    versionNombre={form.version}
+    onChange={(versionId, versionNombre) =>
+      setForm((anterior) => ({
+        ...anterior,
+        version_id: versionId,
+        version: versionNombre,
+      }))
+    }
+  />
+)}
 
         <select value={form.tipo_vehiculo_id} onChange={cambiarTipo} required>
           <option value="">Seleccionar tipo de vehículo</option>
