@@ -1812,20 +1812,27 @@ const [
           operacion.created_at
         )}`}
         acciones={
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
-              {obtenerTipoOperacionLegible(
-                operacion.tipo_operacion
-              )}
-            </span>
+  <div className="flex flex-wrap items-center gap-2">
+    <Link
+      href={`/admin/operaciones/${operacion.id}/editar`}
+      className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white"
+    >
+      Editar operación
+    </Link>
 
-            <span className="rounded-full bg-gray-100 px-4 py-2 text-sm font-semibold">
-              {obtenerEstadoLegible(
-                operacion.estado
-              )}
-            </span>
-          </div>
-        }
+    <span className="rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
+      {obtenerTipoOperacionLegible(
+        operacion.tipo_operacion
+      )}
+    </span>
+
+    <span className="rounded-full bg-gray-100 px-4 py-2 text-sm font-semibold">
+      {obtenerEstadoLegible(
+        operacion.estado
+      )}
+    </span>
+  </div>
+}
       />
 
 

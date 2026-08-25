@@ -471,15 +471,141 @@ margin-right: 6mm;
         </div>
 
         <div className="datos-cliente">
-          <div className="fila-dato"><div className="etiqueta">Cliente</div><div className="valor">{nombreCliente(cliente)}</div></div>
-          <div className="fila-dato"><div className="etiqueta">DNI / CUIL / CUIT</div><div className="valor">{documentoCliente(cliente)}</div></div>
-          <div className="fila-dato"><div className="etiqueta">Domicilio</div><div className="valor">{cliente.direccion || "—"}</div></div>
-          <div className="fila-dato"><div className="etiqueta">Localidad</div><div className="valor">{cliente.ciudad || "—"}</div></div>
-          <div className="fila-dato"><div className="etiqueta">Provincia</div><div className="valor">{cliente.provincia || "—"}</div></div>
-          <div className="fila-dato"><div className="etiqueta">Estado civil</div><div className="valor">{cliente.estado_civil || "—"}</div></div>
-          <div className="fila-dato"><div className="etiqueta">Teléfono</div><div className="valor">{cliente.whatsapp || cliente.telefono || "—"}</div></div>
-          <div className="fila-dato"><div className="etiqueta">Email</div><div className="valor">{cliente.email || "—"}</div></div>
+  <div className="fila-dato">
+    <div className="etiqueta">
+      Cliente
+    </div>
+
+    <div className="valor">
+      {nombreCliente(cliente)}
+    </div>
+  </div>
+
+  <div className="fila-dato">
+    <div className="etiqueta">
+      DNI / CUIL / CUIT
+    </div>
+
+    <div className="valor">
+      {documentoCliente(cliente)}
+    </div>
+  </div>
+
+  <div className="fila-dato">
+    <div className="etiqueta">
+      Fecha nac.
+    </div>
+
+    <div className="valor">
+      {cliente.fecha_nacimiento
+        ? formatearFecha(
+            cliente.fecha_nacimiento
+          )
+        : "—"}
+    </div>
+  </div>
+
+  <div className="fila-dato">
+    <div className="etiqueta">
+      Profesión
+    </div>
+
+    <div className="valor">
+      {cliente.profesion || "—"}
+    </div>
+  </div>
+
+  <div className="fila-dato">
+    <div className="etiqueta">
+      Estado civil
+    </div>
+
+    <div className="valor">
+      {cliente.estado_civil || "—"}
+    </div>
+  </div>
+
+  {cliente.estado_civil === "Casado/a" && (
+    <div
+      style={{
+        display: "grid",
+        gap: 5,
+      }}
+    >
+      <div className="fila-dato">
+        <div className="etiqueta">
+          Cónyuge
         </div>
+
+        <div className="valor">
+          {cliente.conyuge_nombre || "—"}
+        </div>
+      </div>
+
+      <div className="fila-dato">
+        <div className="etiqueta">
+          DNI cónyuge
+        </div>
+
+        <div className="valor">
+          {cliente.conyuge_dni || "—"}
+        </div>
+      </div>
+    </div>
+  )}
+
+  <div className="fila-dato">
+    <div className="etiqueta">
+      Domicilio
+    </div>
+
+    <div className="valor">
+      {cliente.direccion || "—"}
+    </div>
+  </div>
+
+  <div className="fila-dato">
+    <div className="etiqueta">
+      Localidad
+    </div>
+
+    <div className="valor">
+      {cliente.ciudad || "—"}
+    </div>
+  </div>
+
+  <div className="fila-dato">
+    <div className="etiqueta">
+      Provincia
+    </div>
+
+    <div className="valor">
+      {cliente.provincia || "—"}
+    </div>
+  </div>
+
+  <div className="fila-dato">
+    <div className="etiqueta">
+      Teléfono
+    </div>
+
+    <div className="valor">
+      {cliente.whatsapp ||
+        cliente.telefono ||
+        "—"}
+    </div>
+  </div>
+
+  <div className="fila-dato">
+    <div className="etiqueta">
+      Email
+    </div>
+
+    <div className="valor">
+      {cliente.email || "—"}
+    </div>
+  </div>
+</div>
 
         <div className="bloque-detalle">
           <strong>Detalle:</strong>

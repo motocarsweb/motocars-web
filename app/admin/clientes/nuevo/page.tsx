@@ -166,6 +166,70 @@ export default function NuevoClientePage() {
                 required
               />
             </label>
+            <label className="grid gap-2">
+  <span className="font-medium">
+    Profesión
+  </span>
+
+  <input
+    name="profesion"
+    value={form.profesion}
+    onChange={actualizarCampo}
+    className="rounded-lg border p-3"
+  />
+</label>
+
+<label className="grid gap-2">
+  <span className="font-medium">
+    Estado civil
+  </span>
+
+  <select
+    name="estado_civil"
+    value={form.estado_civil}
+    onChange={actualizarCampo}
+    className="rounded-lg border p-3"
+  >
+    <option value="">Seleccionar</option>
+    <option value="Soltero/a">Soltero/a</option>
+    <option value="Casado/a">Casado/a</option>
+    <option value="Divorciado/a">Divorciado/a</option>
+    <option value="Viudo/a">Viudo/a</option>
+    <option value="Unión convivencial">
+      Unión convivencial
+    </option>
+  </select>
+</label>
+
+{form.estado_civil === "Casado/a" && (
+  <>
+    <label className="grid gap-2">
+      <span className="font-medium">
+        Nombre y apellido del cónyuge
+      </span>
+
+      <input
+        name="conyuge_nombre"
+        value={form.conyuge_nombre}
+        onChange={actualizarCampo}
+        className="rounded-lg border p-3"
+      />
+    </label>
+
+    <label className="grid gap-2">
+      <span className="font-medium">
+        DNI del cónyuge
+      </span>
+
+      <input
+        name="conyuge_dni"
+        value={form.conyuge_dni}
+        onChange={actualizarCampo}
+        className="rounded-lg border p-3"
+      />
+    </label>
+  </>
+)}
 
             <label className="grid gap-2">
               <span className="font-medium">

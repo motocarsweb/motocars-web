@@ -623,133 +623,142 @@ export default function BoletoUsadoPermutaPage() {
       >
         <section className="boleto-usado-texto">
           <p>
-            Entre{" "}
-            <strong>
-              MotoCars Concesionaria
-            </strong>
-            , con domicilio en Primeros
-            Pobladores 1400 de la ciudad
-            de Neuquén, por una parte,
-            en adelante denominada{" "}
-            <strong>
-              EL VENDEDOR
-            </strong>
-            , y por la otra{" "}
-            <strong>
-              {nombreCliente(
-                cliente
-              )}
-            </strong>
-            , DNI/CUIT{" "}
-            <strong>
-              {documentoCliente(
-                cliente
-              )}
-            </strong>
-            , domiciliado en{" "}
-            <strong>
-              {cliente.direccion ||
-                "—"}
-            </strong>
-            , localidad de{" "}
-            <strong>
-              {cliente.ciudad ||
-                "—"}
-            </strong>
-            , teléfono{" "}
-            <strong>
-              {cliente.whatsapp ||
-                cliente.telefono ||
-                "—"}
-            </strong>
-            , en adelante denominado{" "}
-            <strong>
-              EL COMPRADOR
-            </strong>
-            , se celebra el presente
-            contrato de compraventa de
-            automotor usado con permuta.
-          </p>
+  Entre{" "}
+  <strong>
+    MotoCars Concesionaria
+  </strong>
+  , con domicilio en Primeros
+  Pobladores 1400 de la ciudad
+  de Neuquén, por una parte,
+  en adelante denominada{" "}
+  <strong>
+    EL VENDEDOR
+  </strong>
+  , y por la otra{" "}
+  <strong>
+    {nombreCliente(cliente)}
+  </strong>
+  , DNI/CUIT{" "}
+  <strong>
+    {documentoCliente(cliente)}
+  </strong>
+  , en adelante denominado{" "}
+  <strong>
+    EL COMPRADOR
+  </strong>
+  , se celebra el presente
+  contrato de compraventa de
+  automotor usado con permuta.
+</p>
 
           <h2 className="titulo-seccion-usado">
-            Datos del comprador
-          </h2>
+  Datos del comprador
+</h2>
 
-          <div className="datos-usado">
-            <div className="dato-usado">
-              <strong>
-                Comprador:
-              </strong>
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "4px 20px",
+    fontSize: "11.5px",
+  }}
+>
+  {/* COLUMNA IZQUIERDA */}
+  <div
+    style={{
+      display: "grid",
+      alignContent: "start",
+      gap: "4px",
+    }}
+  >
+    <div className="dato-usado">
+      <strong>Comprador:</strong>
+      <span>{nombreCliente(cliente)}</span>
+    </div>
 
-              <span>
-                {nombreCliente(
-                  cliente
-                )}
-              </span>
-            </div>
+    <div className="dato-usado">
+      <strong>Fecha nac.:</strong>
+      <span>
+        {cliente.fecha_nacimiento
+          ? formatearFecha(cliente.fecha_nacimiento)
+          : "—"}
+      </span>
+    </div>
 
-            <div className="dato-usado">
-              <strong>
-                DNI/CUIT:
-              </strong>
+    <div className="dato-usado">
+      <strong>Estado civil:</strong>
+      <span>{cliente.estado_civil || "—"}</span>
+    </div>
 
-              <span>
-                {documentoCliente(
-                  cliente
-                )}
-              </span>
-            </div>
+    <div className="dato-usado">
+      <strong>Domicilio:</strong>
+      <span>{cliente.direccion || "—"}</span>
+    </div>
 
-            <div className="dato-usado">
-              <strong>
-                Domicilio:
-              </strong>
+    <div className="dato-usado">
+      <strong>Teléfono:</strong>
+      <span>
+        {cliente.whatsapp ||
+          cliente.telefono ||
+          "—"}
+      </span>
+    </div>
+  </div>
 
-              <span>
-                {cliente.direccion ||
-                  "—"}
-              </span>
-            </div>
+  {/* COLUMNA DERECHA */}
+  <div
+    style={{
+      display: "grid",
+      alignContent: "start",
+      gap: "4px",
+    }}
+  >
+    <div className="dato-usado">
+      <strong>DNI/CUIT:</strong>
+      <span>{documentoCliente(cliente)}</span>
+    </div>
 
-            <div className="dato-usado">
-              <strong>
-                Localidad:
-              </strong>
+    <div className="dato-usado">
+      <strong>Profesión:</strong>
+      <span>{cliente.profesion || "—"}</span>
+    </div>
 
-              <span>
-                {[
-                  cliente.ciudad,
-                  cliente.provincia,
-                ]
-                  .filter(Boolean)
-                  .join(", ") ||
-                  "—"}
-              </span>
-            </div>
+    {cliente.estado_civil === "Casado/a" && (
+      <>
+        <div className="dato-usado">
+          <strong>Cónyuge:</strong>
+          <span>
+            {cliente.conyuge_nombre || "—"}
+          </span>
+        </div>
 
-            <div className="dato-usado">
-              <strong>
-                Teléfono:
-              </strong>
+        <div className="dato-usado">
+          <strong>DNI cónyuge:</strong>
+          <span>
+            {cliente.conyuge_dni || "—"}
+          </span>
+        </div>
+      </>
+    )}
 
-              <span>
-                {cliente.whatsapp ||
-                  cliente.telefono ||
-                  "—"}
-              </span>
-            </div>
+    <div className="dato-usado">
+      <strong>Localidad:</strong>
+      <span>
+        {[
+          cliente.ciudad,
+          cliente.provincia,
+        ]
+          .filter(Boolean)
+          .join(", ") || "—"}
+      </span>
+    </div>
 
-            <div className="dato-usado">
-              <strong>
-                Email:
-              </strong>
-
-              <span>
-                {cliente.email ||
-                  "—"}
-              </span>
-            </div>
-          </div>
+    <div className="dato-usado">
+      <strong>Email:</strong>
+      <span>{cliente.email || "—"}</span>
+    </div>
+  </div>
+</div>
 
           <h2 className="titulo-seccion-usado">
             Vehículo vendido

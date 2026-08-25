@@ -491,234 +491,189 @@ export default function Boleto0KmPage() {
       >
         <section className="boleto-0km-texto">
           <p>
-            Entre{" "}
-            <strong>
-              MotoCars Concesionaria
-            </strong>
-            , con domicilio en Primeros
-            Pobladores 1400 de la ciudad
-            de Neuquén, por una parte,
-            en adelante denominada{" "}
-            <strong>
-              EL VENDEDOR
-            </strong>
-            , y por la otra{" "}
-            <strong>
-              {nombreCliente(
-                cliente
-              )}
-            </strong>
-            , DNI/CUIT{" "}
-            <strong>
-              {documentoCliente(
-                cliente
-              )}
-            </strong>
-            , domiciliado en{" "}
-            <strong>
-              {cliente.direccion ||
-                "—"}
-            </strong>
-            , localidad de{" "}
-            <strong>
-              {cliente.ciudad ||
-                "—"}
-            </strong>
-            , teléfono{" "}
-            <strong>
-              {cliente.whatsapp ||
-                cliente.telefono ||
-                "—"}
-            </strong>
-            , en adelante denominado{" "}
-            <strong>
-              EL COMPRADOR
-            </strong>
-            , se celebra el presente
-            contrato de compraventa de
-            automotor 0 km.
-          </p>
+  Entre{" "}
+  <strong>
+    MotoCars Concesionaria
+  </strong>
+  , con domicilio en Primeros
+  Pobladores 1400 de la ciudad
+  de Neuquén, por una parte,
+  en adelante denominada{" "}
+  <strong>
+    EL VENDEDOR
+  </strong>
+  , y por la otra{" "}
+  <strong>
+    {nombreCliente(cliente)}
+  </strong>
+  , DNI/CUIT{" "}
+  <strong>
+    {documentoCliente(cliente)}
+  </strong>
+  , en adelante denominado{" "}
+  <strong>
+    EL COMPRADOR
+  </strong>
+  , se celebra el presente
+  contrato de compraventa de
+  automotor 0 km.
+</p>
 
           <h2 className="titulo-seccion-0km">
-            Datos del comprador
-          </h2>
+  Datos del comprador
+</h2>
 
-          <div className="datos-0km">
-            <div className="dato-0km">
-              <strong>
-                Comprador:
-              </strong>
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "4px 20px",
+    fontSize: "11.5px",
+  }}
+>
+  {/* COLUMNA IZQUIERDA */}
+  <div
+    style={{
+      display: "grid",
+      alignContent: "start",
+      gap: "4px",
+    }}
+  >
+    <div className="dato-0km">
+      <strong>
+        Comprador:
+      </strong>
 
-              <span>
-                {nombreCliente(
-                  cliente
-                )}
-              </span>
-            </div>
+      <span>
+        {nombreCliente(cliente)}
+      </span>
+    </div>
 
-            <div className="dato-0km">
-              <strong>
-                DNI/CUIT:
-              </strong>
+    <div className="dato-0km">
+      <strong>
+        Fecha nac.:
+      </strong>
 
-              <span>
-                {documentoCliente(
-                  cliente
-                )}
-              </span>
-            </div>
+      <span>
+        {cliente.fecha_nacimiento
+          ? formatearFecha(
+              cliente.fecha_nacimiento
+            )
+          : "—"}
+      </span>
+    </div>
 
-            <div className="dato-0km">
-              <strong>
-                Domicilio:
-              </strong>
+    <div className="dato-0km">
+      <strong>
+        Estado civil:
+      </strong>
 
-              <span>
-                {cliente.direccion ||
-                  "—"}
-              </span>
-            </div>
+      <span>
+        {cliente.estado_civil || "—"}
+      </span>
+    </div>
 
-            <div className="dato-0km">
-              <strong>
-                Localidad:
-              </strong>
+    <div className="dato-0km">
+      <strong>
+        Domicilio:
+      </strong>
 
-              <span>
-                {[
-                  cliente.ciudad,
-                  cliente.provincia,
-                ]
-                  .filter(Boolean)
-                  .join(", ") ||
-                  "—"}
-              </span>
-            </div>
+      <span>
+        {cliente.direccion || "—"}
+      </span>
+    </div>
 
-            <div className="dato-0km">
-              <strong>
-                Teléfono:
-              </strong>
+    <div className="dato-0km">
+      <strong>
+        Teléfono:
+      </strong>
 
-              <span>
-                {cliente.whatsapp ||
-                  cliente.telefono ||
-                  "—"}
-              </span>
-            </div>
+      <span>
+        {cliente.whatsapp ||
+          cliente.telefono ||
+          "—"}
+      </span>
+    </div>
+  </div>
 
-            <div className="dato-0km">
-              <strong>
-                Email:
-              </strong>
+  {/* COLUMNA DERECHA */}
+  <div
+    style={{
+      display: "grid",
+      alignContent: "start",
+      gap: "4px",
+    }}
+  >
+    <div className="dato-0km">
+      <strong>
+        DNI/CUIT:
+      </strong>
 
-              <span>
-                {cliente.email ||
-                  "—"}
-              </span>
-            </div>
-          </div>
+      <span>
+        {documentoCliente(cliente)}
+      </span>
+    </div>
 
-          <h2 className="titulo-seccion-0km">
-            Vehículo vendido
-          </h2>
+    <div className="dato-0km">
+      <strong>
+        Profesión:
+      </strong>
 
-          <div className="datos-0km">
-            <div className="dato-0km">
-              <strong>
-                Vehículo:
-              </strong>
+      <span>
+        {cliente.profesion || "—"}
+      </span>
+    </div>
 
-              <span>
-                {nombreVehiculo(
-                  vehiculo
-                )}
-              </span>
-            </div>
+    {cliente.estado_civil === "Casado/a" && (
+      <>
+        <div className="dato-0km">
+          <strong>
+            Cónyuge:
+          </strong>
 
-            <div className="dato-0km">
-              <strong>
-                Año:
-              </strong>
+          <span>
+            {cliente.conyuge_nombre || "—"}
+          </span>
+        </div>
 
-              <span>
-                {vehiculo.anio ??
-                  "—"}
-              </span>
-            </div>
+        <div className="dato-0km">
+          <strong>
+            DNI cónyuge:
+          </strong>
 
-            <div className="dato-0km">
-              <strong>
-                Condición:
-              </strong>
+          <span>
+            {cliente.conyuge_dni || "—"}
+          </span>
+        </div>
+      </>
+    )}
 
-              <span>
-                0 km
-              </span>
-            </div>
+    <div className="dato-0km">
+      <strong>
+        Localidad:
+      </strong>
 
-            <div className="dato-0km">
-              <strong>
-                Color:
-              </strong>
+      <span>
+        {[
+          cliente.ciudad,
+          cliente.provincia,
+        ]
+          .filter(Boolean)
+          .join(", ") || "—"}
+      </span>
+    </div>
 
-              <span>
-                {vehiculo.color ||
-                  "—"}
-              </span>
-            </div>
+    <div className="dato-0km">
+      <strong>
+        Email:
+      </strong>
 
-            <div className="dato-0km">
-              <strong>
-                Chasis:
-              </strong>
-
-              <span>
-                {vehiculo.numero_chasis ||
-                  "—"}
-              </span>
-            </div>
-
-            <div className="dato-0km">
-              <strong>
-                Motor:
-              </strong>
-
-              <span>
-                {vehiculo.numero_motor ||
-                  "—"}
-              </span>
-            </div>
-          </div>
-
-          <p
-            style={{
-              marginTop: 12,
-            }}
-          >
-            <strong>
-              1)
-            </strong>{" "}
-            EL VENDEDOR vende a EL
-            COMPRADOR el vehículo 0 km
-            individualizado
-            precedentemente, con su
-            correspondiente garantía de
-            fábrica.
-          </p>
-
-          <p>
-            El precio total de la
-            operación se establece en la
-            suma de{" "}
-            <strong>
-              {formatearImporteCompleto(
-                operacion.total,
-                operacion.moneda
-              )}
-            </strong>
-            .
-          </p>
+      <span>
+        {cliente.email || "—"}
+      </span>
+    </div>
+  </div>
+</div>
 
           <h2 className="titulo-seccion-0km">
             Forma de pago

@@ -24,8 +24,9 @@ export type Cliente = {
   ciudad: string | null;
   direccion: string | null;
 
-  fecha_nacimiento: string | null;
-  estado_civil: string | null;
+ fecha_nacimiento: string | null;
+profesion: string | null;
+estado_civil: string | null;
 
   conyuge_nombre: string | null;
   conyuge_dni: string | null;
@@ -57,7 +58,8 @@ export type ClienteFormulario = {
   direccion: string;
 
   fecha_nacimiento: string;
-  estado_civil: string;
+profesion: string;
+estado_civil: string;
 
   conyuge_nombre: string;
   conyuge_dni: string;
@@ -86,7 +88,8 @@ export const CLIENTE_FORMULARIO_INICIAL: ClienteFormulario = {
   direccion: "",
 
   fecha_nacimiento: "",
-  estado_civil: "",
+profesion: "",
+estado_civil: "",
 
   conyuge_nombre: "",
   conyuge_dni: "",
@@ -182,19 +185,27 @@ function prepararCliente(
       ),
 
     fecha_nacimiento:
-      cliente.tipo_persona ===
-        "fisica" &&
-      cliente.fecha_nacimiento
-        ? cliente.fecha_nacimiento
-        : null,
+  cliente.tipo_persona ===
+    "fisica" &&
+  cliente.fecha_nacimiento
+    ? cliente.fecha_nacimiento
+    : null,
 
-    estado_civil:
-      cliente.tipo_persona ===
-      "fisica"
-        ? valorOpcional(
-            cliente.estado_civil
-          )
-        : null,
+profesion:
+  cliente.tipo_persona ===
+  "fisica"
+    ? valorOpcional(
+        cliente.profesion
+      )
+    : null,
+
+estado_civil:
+  cliente.tipo_persona ===
+  "fisica"
+    ? valorOpcional(
+        cliente.estado_civil
+      )
+    : null,
 
     conyuge_nombre:
       cliente.tipo_persona ===
