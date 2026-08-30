@@ -17,6 +17,7 @@ export default async function Home() {
   const vehiculosPublicados = todosLosVehiculos.filter(
     (vehiculo) =>
       vehiculo.publicado === true &&
+    vehiculo.destacado === true &&
       vehiculo.tipo?.trim().toLowerCase() !== "moto"
   );
 
