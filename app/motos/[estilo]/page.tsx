@@ -16,6 +16,8 @@ const ESTILOS_VALIDOS = [
   "enduro",
   "custom",
   "clasicas",
+    "minicross",
+
 ];
 
 export default async function MotosPorEstiloPage({
