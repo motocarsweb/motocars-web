@@ -17,7 +17,8 @@ const ESTILOS_VALIDOS = [
   "custom",
   "clasicas",
     "minicross",
-
+    "cuatriciclos-infantiles",
+"movilidad-electrica",
 ];
 
 export default async function MotosPorEstiloPage({
