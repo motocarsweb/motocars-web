@@ -832,7 +832,12 @@ export default function VehicleForm({
         combustible:
           combustibleDefinitivo.combustibleNombre.trim() || null,
         transmision: form.transmision.trim() || null,
-        tipo: form.tipo.trim() || null,
+        tipo:
+  form.tipo.trim() ||
+  tiposVehiculo.find(
+    (tipo) => tipo.id === form.tipo_vehiculo_id
+  )?.nombre ||
+  "",
 
         marca_id: marcaDefinitiva.marcaId,
         modelo_id: modeloDefinitivo.modeloId,

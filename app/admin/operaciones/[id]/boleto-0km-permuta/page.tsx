@@ -575,10 +575,70 @@ export default function Boleto0KmPermutaPage() {
         }
 
         @media print {
-          .no-imprimir {
-            display: none !important;
-          }
-        }
+  .no-imprimir {
+    display: none !important;
+  }
+
+  .boleto-0km-texto {
+    margin-top: 8px;
+    font-size: 10.5px;
+    line-height: 1.22;
+  }
+
+  .boleto-0km-texto p {
+    margin-bottom: 4px;
+  }
+
+  .titulo-seccion-0km {
+    margin: 6px 0 3px;
+    padding-bottom: 2px;
+    font-size: 10px;
+  }
+
+  .datos-0km {
+    gap: 2px 16px;
+    font-size: 10px;
+  }
+
+  .dato-0km {
+  grid-template-columns: 88px 1fr;
+  gap: 4px;
+}
+
+  .condiciones-pago {
+    margin-top: 3px;
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+
+  .bloque-permuta {
+    margin: 4px 0 5px;
+    padding: 5px 8px;
+  }
+
+  .documentacion-permuta {
+    margin: 3px 0 5px;
+    padding: 5px 8px;
+    row-gap: 1px;
+    font-size: 9.8px;
+    line-height: 1.15;
+  }
+
+  .casillero-documentacion {
+    font-size: 11px;
+  }
+
+  .firmas-0km {
+    margin-top: 42px;
+    margin-bottom: 0;
+  }
+
+  .firma-0km {
+    padding-top: 4px;
+    font-size: 9.5px;
+    line-height: 1.2;
+  }
+}
 
         @media screen and (max-width: 850px) {
           .datos-0km,
@@ -1050,102 +1110,101 @@ export default function Boleto0KmPermutaPage() {
           </p>
 
           <div className="documentacion-permuta">
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_titulo_propiedad
-              }
-              texto="Título de Propiedad"
-            />
+  {ingresoUsado.doc_titulo_propiedad && (
+    <CasilleroDocumento
+      marcado={true}
+      texto="Título de Propiedad"
+    />
+  )}
 
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_cat
-              }
-              texto="CAT"
-            />
+  {ingresoUsado.doc_cat && (
+    <CasilleroDocumento
+      marcado={true}
+      texto="CAT"
+    />
+  )}
 
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_cedula
-              }
-              texto="Cédula de identificación"
-            />
+  {ingresoUsado.doc_cedula && (
+    <CasilleroDocumento
+      marcado={true}
+      texto="Cédula de identificación"
+    />
+  )}
 
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_cedulas_adicionales
-              }
-              texto="Cédulas adicionales"
-            />
+  {ingresoUsado.doc_cedulas_adicionales && (
+    <CasilleroDocumento
+      marcado={true}
+      texto="Cédulas adicionales"
+    />
+  )}
 
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_formulario_08
-              }
-              texto="Formulario 08 firmado/certificado"
-            />
+  {ingresoUsado.doc_formulario_08 && (
+    <CasilleroDocumento
+      marcado={true}
+      texto="Formulario 08 firmado/certificado"
+    />
+  )}
 
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_verificacion_policial
-              }
-              texto="Verificación policial / Formulario 12"
-            />
+  {ingresoUsado.doc_verificacion_policial && (
+    <CasilleroDocumento
+      marcado={true}
+      texto="Verificación policial / Formulario 12"
+    />
+  )}
 
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_libre_deuda_patentes
-              }
-              texto="Libre deuda de patentes"
-            />
+  {ingresoUsado.doc_libre_deuda_patentes && (
+    <CasilleroDocumento
+      marcado={true}
+      texto="Libre deuda de patentes"
+    />
+  )}
 
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_libre_deuda_infracciones
-              }
-              texto="Libre deuda de infracciones"
-            />
+  {ingresoUsado.doc_libre_deuda_infracciones && (
+    <CasilleroDocumento
+      marcado={true}
+      texto="Libre deuda de infracciones"
+    />
+  )}
 
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_informe_dominio
-              }
-              texto="Informe de dominio"
-            />
+  {ingresoUsado.doc_informe_dominio && (
+    <CasilleroDocumento
+      marcado={true}
+      texto="Informe de dominio"
+    />
+  )}
 
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_manuales
-              }
-              texto="Manuales"
-            />
+  {ingresoUsado.doc_manuales && (
+    <CasilleroDocumento
+      marcado={true}
+      texto="Manuales"
+    />
+  )}
 
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_duplicado_llave
-              }
-              texto="Duplicado de llave"
-            />
+  {ingresoUsado.doc_duplicado_llave && (
+    <CasilleroDocumento
+      marcado={true}
+      texto="Duplicado de llave"
+    />
+  )}
 
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_prenda_03
-              }
-              texto="Prenda 03"
-            />
+  {ingresoUsado.doc_prenda_03 && (
+    <CasilleroDocumento
+      marcado={true}
+      texto="Prenda 03"
+    />
+  )}
 
-            <CasilleroDocumento
-              marcado={
-                ingresoUsado.doc_otros
-              }
-              texto={
-                ingresoUsado.doc_otros &&
-                ingresoUsado.doc_otros_detalle
-                  ? `Otros: ${ingresoUsado.doc_otros_detalle}`
-                  : "Otros"
-              }
-            />
-          </div>
+  {ingresoUsado.doc_otros && (
+    <CasilleroDocumento
+      marcado={true}
+      texto={
+        ingresoUsado.doc_otros_detalle
+          ? `Otros: ${ingresoUsado.doc_otros_detalle}`
+          : "Otros"
+      }
+    />
+  )}
+</div>
 
           <p>
             <strong>

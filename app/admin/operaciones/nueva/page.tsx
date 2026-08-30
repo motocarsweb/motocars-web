@@ -44,12 +44,18 @@ import {
 
 import { supabase } from "@/lib/supabase";
 
+import {
+  crearDocumentoOperacion,
+} from "@/lib/service/documentos-operacion";
+
 type CondicionIngreso =
   | "0km"
   | "usado";
 
 type VehiculoIngresoFormulario = {
   condicion: CondicionIngreso;
+  tipo: string;
+tipo_vehiculo_id: string;
 
   marca: string;
   modelo: string;
@@ -90,6 +96,8 @@ type VehiculoIngresoFormulario = {
 
 const VEHICULO_INGRESO_INICIAL: VehiculoIngresoFormulario = {
   condicion: "usado",
+  tipo: "",
+tipo_vehiculo_id: "",
 
   marca: "",
   modelo: "",
@@ -347,6 +355,8 @@ export default function NuevaOperacionPage() {
       crearPagoVacio(),
     ]);
 
+    const [busquedaCliente, setBusquedaCliente] =
+  useState("");
     const [busquedaVehiculo, setBusquedaVehiculo] =
   useState("");
 
@@ -487,6 +497,39 @@ export default function NuevaOperacionPage() {
   const diferenciaPagosCompra =
   valorCompra -
   totalPagosCompra;
+
+  const clientesFiltrados = useMemo(() => {
+  const busqueda = busquedaCliente
+    .trim()
+    .toLowerCase();
+
+  const lista = clientes.filter((cliente) => {
+    if (!busqueda) {
+      return true;
+    }
+
+    const texto = [
+      obtenerNombreCliente(cliente),
+      cliente.dni,
+      cliente.cuit,
+      cliente.telefono,
+      cliente.whatsapp,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return texto.includes(busqueda);
+  });
+
+  return [...lista].sort((a, b) =>
+    obtenerNombreCliente(a).localeCompare(
+      obtenerNombreCliente(b),
+      "es",
+      { sensitivity: "base" }
+    )
+  );
+}, [clientes, busquedaCliente]);
 
 const vehiculosFiltrados = useMemo(() => {
   const busqueda = busquedaVehiculo
@@ -1146,6 +1189,8 @@ const pagosCompraCoinciden =
             ? valorIngreso
             : null,
 
+            tipo:
+  vehiculoIngreso.tipo,
         tipo_ingreso_id:
           tipoIngresoId,
 
@@ -1201,7 +1246,7 @@ const pagosCompraCoinciden =
       return;
     }
 
-    await crearIngresoUsado({
+    return await crearIngresoUsado({
       vehiculo_id:
         String(
           vehiculoId
@@ -1307,13 +1352,41 @@ const pagosCompraCoinciden =
         tipoIngresoId
       );
 
-    await registrarIngresoUsado(
-      vehiculoPermuta.id,
-      operacion.id,
-      "permuta"
-    );
+    const ingresoPermuta =
+  await registrarIngresoUsado(
+    vehiculoPermuta.id,
+    operacion.id,
+    "permuta"
+  );
 
-    return operacion;
+if (ingresoPermuta) {
+  await crearDocumentoOperacion({
+    ingreso_usado_id:
+      ingresoPermuta.id,
+
+    tipo_documento:
+      "contrato_consignacion",
+
+    datos_snapshot: {
+      operacion_id:
+        operacion.id,
+
+      vehiculo_id:
+        vehiculoPermuta.id,
+
+      valor_ingreso:
+        ingresoPermuta.valor_ingreso,
+
+      precio_base_consignacion:
+        ingresoPermuta.precio_base_consignacion,
+
+      plazo_consignacion_dias:
+        ingresoPermuta.plazo_consignacion_dias,
+    },
+  });
+}
+
+ return operacion;
   }
 
   async function guardarIngresoPrincipal() {
@@ -1552,6 +1625,15 @@ const pagosCompraCoinciden =
                       : "Consignante / proveedor *"}
                 </span>
 
+<input
+  type="text"
+  value={busquedaCliente}
+  onChange={(event) =>
+    setBusquedaCliente(event.target.value)
+  }
+  placeholder="Buscar por nombre, apellido, DNI, CUIT o teléfono..."
+  className="rounded-lg border p-3"
+/>
                 <select
                   name="cliente_id"
                   value={
@@ -1567,7 +1649,7 @@ const pagosCompraCoinciden =
                     Seleccionar
                   </option>
 
-                  {clientes.map(
+                  {clientesFiltrados.map(
                     (
                       cliente
                     ) => (
@@ -1798,6 +1880,34 @@ const pagosCompraCoinciden =
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
+                  <label className="grid gap-2">
+  <span className="font-medium">
+    Tipo de vehículo *
+  </span>
+
+  <select
+    value={vehiculoIngreso.tipo}
+    onChange={(event) =>
+      setVehiculoIngreso(
+        (anterior) => ({
+          ...anterior,
+          tipo: event.target.value,
+        })
+      )
+    }
+    className="rounded-lg border bg-white p-3"
+  >
+    <option value="">
+      Seleccionar tipo
+    </option>
+    <option value="Auto">Auto</option>
+    <option value="Hatchback">Hatchback</option>
+    <option value="SUV">SUV</option>
+    <option value="Pickup">Pickup</option>
+    <option value="Utilitario">Utilitario</option>
+    <option value="Moto">Moto</option>
+  </select>
+</label>
                   {[
                     [
                       "marca",

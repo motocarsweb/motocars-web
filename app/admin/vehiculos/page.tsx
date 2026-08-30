@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { obtenerVehiculos } from "@/lib/supabase-vehicles";
+import type { VehiculoSupabase } from "@/lib/supabase-vehicles";
+import { crearSupabaseServer } from "@/lib/supabase-server";
 import VehicleRow from "@/componentes/admin/vehiculos/VehicleRow";
 
 type AdminVehiculosPageProps = {
@@ -38,7 +39,22 @@ export default async function AdminVehiculosPage({
   const parametros = await searchParams;
   const busqueda = parametros.buscar?.trim().toLowerCase() ?? "";
 
-  const vehiculos = await obtenerVehiculos();
+  const supabase = await crearSupabaseServer();
+
+const { data, error } = await supabase
+  .from("vehiculos")
+  .select("*")
+  .order("destacado", { ascending: false })
+  .order("created_at", { ascending: false });
+
+if (error) {
+  console.error(
+    "Error al obtener vehículos en administración:",
+    error.message
+  );
+}
+
+const vehiculos = (data ?? []) as VehiculoSupabase[];
 
   const vehiculosFiltrados = vehiculos.filter((vehiculo) => {
     if (!busqueda) {

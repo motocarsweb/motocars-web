@@ -21,6 +21,11 @@ import {
   type VehiculoSupabase,
 } from "@/lib/supabase-vehicles";
 
+import {
+  obtenerIngresoUsadoPorOperacion,
+  type IngresoUsado,
+} from "@/lib/service/ingresos-usados";
+
 function nombreCliente(cliente: Cliente) {
   if (cliente.tipo_persona === "juridica") {
     return cliente.razon_social || "Empresa sin razón social";
@@ -63,6 +68,8 @@ export default function ConsignacionPage() {
 
   const [vehiculo, setVehiculo] =
     useState<VehiculoSupabase | null>(null);
+    const [ingresoUsado, setIngresoUsado] =
+  useState<IngresoUsado | null>(null);
 
   const [cargando, setCargando] =
     useState(true);
@@ -90,18 +97,24 @@ export default function ConsignacionPage() {
       try {
         const operacionCargada =
           await obtenerOperacion(operacionId);
+          const ingresoCargado =
+  await obtenerIngresoUsadoPorOperacion(
+    operacionId
+  );
 
         const [
           clienteCargado,
           vehiculoCargado,
         ] =
           await Promise.all([
-            obtenerCliente(
-              operacionCargada.cliente_id
-            ),
-            obtenerVehiculoPorId(
-              operacionCargada.vehiculo_id
-            ),
+           obtenerCliente(
+  ingresoCargado?.titular_cliente_id ??
+    operacionCargada.cliente_id
+),
+           obtenerVehiculoPorId(
+  ingresoCargado?.vehiculo_id ??
+    operacionCargada.vehiculo_id
+),
           ]);
 
         if (!vehiculoCargado) {
@@ -117,6 +130,7 @@ export default function ConsignacionPage() {
         setOperacion(operacionCargada);
         setCliente(clienteCargado);
         setVehiculo(vehiculoCargado);
+        setIngresoUsado(ingresoCargado);
       } catch (errorDesconocido) {
         if (!activo) {
           return;
@@ -362,16 +376,15 @@ export default function ConsignacionPage() {
             en la suma de{" "}
             <strong>
               {formatearImporte(
-                operacion.precio_vehiculo
-              )}
+  ingresoUsado?.precio_base_consignacion ??
+    operacion.precio_vehiculo
+)}
             </strong>
             , pagaderos en la siguiente
             forma:{" "}
             <strong>
-              {operacion.forma_pago ||
-                operacion.detalle_pago ||
-                "A definir"}
-            </strong>
+  Contado
+</strong>
             . Cualquier monto mayor al
             precio pactado quedará en
             beneficio exclusivo del

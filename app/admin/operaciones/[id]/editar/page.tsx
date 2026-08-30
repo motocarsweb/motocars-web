@@ -26,6 +26,12 @@ import {
   type Operacion,
   type OperacionFormulario,
 } from "@/lib/service/operaciones";
+import {
+  actualizarIngresoUsado,
+  obtenerIngresoUsadoPorOperacion,
+  type IngresoUsado,
+  type IngresoUsadoFormulario,
+} from "@/lib/service/ingresos-usados";
 
 import {
   obtenerVehiculoPorId,
@@ -264,6 +270,20 @@ export default function EditarOperacionPage() {
     useState<VehiculoSupabase | null>(
       null
     );
+    const [
+  ingresoUsado,
+  setIngresoUsado,
+] =
+  useState<IngresoUsado | null>(
+    null
+  );
+  const [
+  formIngresoUsado,
+  setFormIngresoUsado,
+] =
+  useState<IngresoUsadoFormulario | null>(
+    null
+  );
 
   const [
     form,
@@ -337,20 +357,23 @@ export default function EditarOperacionPage() {
 
 
         const [
-          clienteCargado,
-          vehiculoCargado,
-        ] =
-          await Promise.all([
-            obtenerCliente(
-              operacionCargada
-                .cliente_id
-            ),
+  clienteCargado,
+  vehiculoCargado,
+  ingresoUsadoCargado,
+] =
+  await Promise.all([
+    obtenerCliente(
+      operacionCargada.cliente_id
+    ),
 
-            obtenerVehiculoPorId(
-              operacionCargada
-                .vehiculo_id
-            ),
-          ]);
+    obtenerVehiculoPorId(
+      operacionCargada.vehiculo_id
+    ),
+
+    obtenerIngresoUsadoPorOperacion(
+      operacionId
+    ),
+  ]);
 
 
         if (!activo) {
@@ -376,6 +399,89 @@ export default function EditarOperacionPage() {
         setVehiculo(
           vehiculoCargado
         );
+setIngresoUsado(
+  ingresoUsadoCargado
+);
+setFormIngresoUsado(
+  ingresoUsadoCargado
+    ? {
+        vehiculo_id: String(
+          ingresoUsadoCargado.vehiculo_id
+        ),
+
+        titular_cliente_id: String(
+          ingresoUsadoCargado.titular_cliente_id
+        ),
+
+        operacion_id: String(
+          ingresoUsadoCargado.operacion_id ?? ""
+        ),
+
+        tipo_ingreso:
+          ingresoUsadoCargado.tipo_ingreso,
+
+        valor_ingreso: String(
+          ingresoUsadoCargado.valor_ingreso ?? 0
+        ),
+
+        precio_base_consignacion: String(
+          ingresoUsadoCargado.precio_base_consignacion ?? 0
+        ),
+
+        plazo_consignacion_dias: String(
+          ingresoUsadoCargado.plazo_consignacion_dias ?? 90
+        ),
+
+        fecha_ingreso:
+          ingresoUsadoCargado.fecha_ingreso ?? "",
+
+        observaciones:
+          ingresoUsadoCargado.observaciones ?? "",
+
+        doc_titulo_propiedad:
+          ingresoUsadoCargado.doc_titulo_propiedad,
+
+        doc_cat:
+          ingresoUsadoCargado.doc_cat,
+
+        doc_cedula:
+          ingresoUsadoCargado.doc_cedula,
+
+        doc_cedulas_adicionales:
+          ingresoUsadoCargado.doc_cedulas_adicionales,
+
+        doc_formulario_08:
+          ingresoUsadoCargado.doc_formulario_08,
+
+        doc_verificacion_policial:
+          ingresoUsadoCargado.doc_verificacion_policial,
+
+        doc_libre_deuda_patentes:
+          ingresoUsadoCargado.doc_libre_deuda_patentes,
+
+        doc_libre_deuda_infracciones:
+          ingresoUsadoCargado.doc_libre_deuda_infracciones,
+
+        doc_informe_dominio:
+          ingresoUsadoCargado.doc_informe_dominio,
+
+        doc_manuales:
+          ingresoUsadoCargado.doc_manuales,
+
+        doc_duplicado_llave:
+          ingresoUsadoCargado.doc_duplicado_llave,
+
+        doc_prenda_03:
+          ingresoUsadoCargado.doc_prenda_03,
+
+        doc_otros:
+          ingresoUsadoCargado.doc_otros,
+
+        doc_otros_detalle:
+          ingresoUsadoCargado.doc_otros_detalle ?? "",
+      }
+    : null
+);
 
         setForm(
           crearFormularioDesdeOperacion(
@@ -444,7 +550,29 @@ export default function EditarOperacionPage() {
     );
   }
 
+function actualizarCampoIngresoUsado(
+  event: React.ChangeEvent<
+    | HTMLInputElement
+    | HTMLTextAreaElement
+  >
+) {
+  const target = event.target;
 
+  const valor =
+    target instanceof HTMLInputElement &&
+    target.type === "checkbox"
+      ? target.checked
+      : target.value;
+
+  setFormIngresoUsado((anterior) =>
+    anterior
+      ? {
+          ...anterior,
+          [target.name]: valor,
+        }
+      : anterior
+  );
+}
   function actualizarCampoCliente(
     event: React.ChangeEvent<
       | HTMLInputElement
@@ -611,6 +739,15 @@ export default function EditarOperacionPage() {
         operacion.id,
         form
       );
+      if (
+  ingresoUsado &&
+  formIngresoUsado
+) {
+  await actualizarIngresoUsado(
+    ingresoUsado.id,
+    formIngresoUsado
+  );
+}
 
 
       setCliente(
@@ -1378,6 +1515,167 @@ export default function EditarOperacionPage() {
             </span>
           </label>
         </section>
+
+        {formIngresoUsado && (
+  <section className="grid gap-4 rounded-xl border p-5">
+    <div>
+      <h2 className="text-lg font-semibold">
+        Documentación recibida de la permuta
+      </h2>
+
+      <p className="mt-1 text-sm text-gray-500">
+        Marcá únicamente la documentación y los elementos efectivamente recibidos.
+      </p>
+    </div>
+    <label className="flex items-center gap-3 rounded-lg border p-3">
+  <input
+    type="checkbox"
+    name="doc_titulo_propiedad"
+    checked={formIngresoUsado.doc_titulo_propiedad}
+    onChange={actualizarCampoIngresoUsado}
+  />
+
+  <span className="font-medium">
+    Título de Propiedad
+  </span>
+</label>
+<label className="flex items-center gap-3 rounded-lg border p-3">
+  <input
+    type="checkbox"
+    name="doc_cat"
+    checked={formIngresoUsado.doc_cat}
+    onChange={actualizarCampoIngresoUsado}
+  />
+  <span className="font-medium">CAT</span>
+</label>
+
+<label className="flex items-center gap-3 rounded-lg border p-3">
+  <input
+    type="checkbox"
+    name="doc_cedula"
+    checked={formIngresoUsado.doc_cedula}
+    onChange={actualizarCampoIngresoUsado}
+  />
+  <span className="font-medium">Cédula de identificación</span>
+</label>
+
+<label className="flex items-center gap-3 rounded-lg border p-3">
+  <input
+    type="checkbox"
+    name="doc_cedulas_adicionales"
+    checked={formIngresoUsado.doc_cedulas_adicionales}
+    onChange={actualizarCampoIngresoUsado}
+  />
+  <span className="font-medium">Cédulas adicionales</span>
+</label>
+
+<label className="flex items-center gap-3 rounded-lg border p-3">
+  <input
+    type="checkbox"
+    name="doc_formulario_08"
+    checked={formIngresoUsado.doc_formulario_08}
+    onChange={actualizarCampoIngresoUsado}
+  />
+  <span className="font-medium">Formulario 08 firmado/certificado</span>
+</label>
+
+<label className="flex items-center gap-3 rounded-lg border p-3">
+  <input
+    type="checkbox"
+    name="doc_verificacion_policial"
+    checked={formIngresoUsado.doc_verificacion_policial}
+    onChange={actualizarCampoIngresoUsado}
+  />
+  <span className="font-medium">Verificación policial / Formulario 12</span>
+</label>
+
+<label className="flex items-center gap-3 rounded-lg border p-3">
+  <input
+    type="checkbox"
+    name="doc_libre_deuda_patentes"
+    checked={formIngresoUsado.doc_libre_deuda_patentes}
+    onChange={actualizarCampoIngresoUsado}
+  />
+  <span className="font-medium">Libre deuda de patentes</span>
+</label>
+
+<label className="flex items-center gap-3 rounded-lg border p-3">
+  <input
+    type="checkbox"
+    name="doc_libre_deuda_infracciones"
+    checked={formIngresoUsado.doc_libre_deuda_infracciones}
+    onChange={actualizarCampoIngresoUsado}
+  />
+  <span className="font-medium">Libre deuda de infracciones</span>
+</label>
+
+<label className="flex items-center gap-3 rounded-lg border p-3">
+  <input
+    type="checkbox"
+    name="doc_informe_dominio"
+    checked={formIngresoUsado.doc_informe_dominio}
+    onChange={actualizarCampoIngresoUsado}
+  />
+  <span className="font-medium">Informe de dominio</span>
+</label>
+
+<label className="flex items-center gap-3 rounded-lg border p-3">
+  <input
+    type="checkbox"
+    name="doc_manuales"
+    checked={formIngresoUsado.doc_manuales}
+    onChange={actualizarCampoIngresoUsado}
+  />
+  <span className="font-medium">Manuales</span>
+</label>
+
+<label className="flex items-center gap-3 rounded-lg border p-3">
+  <input
+    type="checkbox"
+    name="doc_duplicado_llave"
+    checked={formIngresoUsado.doc_duplicado_llave}
+    onChange={actualizarCampoIngresoUsado}
+  />
+  <span className="font-medium">Duplicado de llave</span>
+</label>
+
+<label className="flex items-center gap-3 rounded-lg border p-3">
+  <input
+    type="checkbox"
+    name="doc_prenda_03"
+    checked={formIngresoUsado.doc_prenda_03}
+    onChange={actualizarCampoIngresoUsado}
+  />
+  <span className="font-medium">Prenda 03</span>
+</label>
+
+<label className="flex items-center gap-3 rounded-lg border p-3">
+  <input
+    type="checkbox"
+    name="doc_otros"
+    checked={formIngresoUsado.doc_otros}
+    onChange={actualizarCampoIngresoUsado}
+  />
+  <span className="font-medium">Otros</span>
+</label>
+{formIngresoUsado.doc_otros && (
+  <label className="grid gap-2">
+    <span className="font-medium">
+      Detalle de otros documentos o elementos
+    </span>
+
+    <input
+      type="text"
+      name="doc_otros_detalle"
+      value={formIngresoUsado.doc_otros_detalle}
+      onChange={actualizarCampoIngresoUsado}
+      placeholder="Ej. Segunda llave, comprobantes, accesorios..."
+      className="rounded-lg border p-3"
+    />
+  </label>
+)}
+  </section>
+)}
 
 
         {/* OBSERVACIONES OPERACIÓN */}
