@@ -81,11 +81,13 @@ export default async function MotosStock({
   }
 
   return (
-    <section
-      style={{
-        padding: "72px 20px",
-        background: "#f8fafc",
-      }}
+  <section
+    id="modelos"
+    style={{
+      scrollMarginTop: 90,
+      padding: "72px 20px",
+      background: "#f8fafc",
+    }}
     >
       <div
         style={{
