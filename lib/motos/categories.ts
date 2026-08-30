@@ -47,4 +47,20 @@ export const motoCategories = [
     image: "/images/categories/clasicas.webp",
     anchor: "/motos/clasicas",
   },
+  {
+  title: "Minicross",
+  subtitle: "Diversión sobre dos ruedas.",
+  brand: "GAF",
+  order: 7,
+  image: "/images/categories/minicross.webp",
+  anchor: "/motos/minicross",
+},
+{
+  title: "Cuatriciclos infantiles",
+  subtitle: "Aventura para los más chicos.",
+  brand: "GAF",
+  order: 8,
+  image: "/images/categories/cuatriciclos-infantiles.jpeg",
+  anchor: "/motos/cuatriciclos-infantiles",
+},
 ];
