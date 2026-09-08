@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import {
@@ -52,7 +52,7 @@ function nombreCliente(
   ) {
     return (
       cliente.razon_social ||
-      "Empresa sin razón social"
+      "Empresa sin razÃ³n social"
     );
   }
 
@@ -94,7 +94,7 @@ function nombreTipoOperacion(
     return "Compra";
   }
 
-  return "Consignación";
+  return "ConsignaciÃ³n";
 }
 
 
@@ -336,7 +336,7 @@ export default function EditarOperacionPage() {
         operacionId <= 0
       ) {
         setError(
-          "El identificador de la operación no es válido."
+          "El identificador de la operaciÃ³n no es vÃ¡lido."
         );
 
         setCargando(false);
@@ -383,7 +383,7 @@ export default function EditarOperacionPage() {
 
         if (!vehiculoCargado) {
           throw new Error(
-            "No se encontró el vehículo de la operación."
+            "No se encontrÃ³ el vehÃ­culo de la operaciÃ³n."
           );
         }
 
@@ -502,7 +502,7 @@ setFormIngresoUsado(
         setError(
           e instanceof Error
             ? e.message
-            : "No se pudo cargar la operación."
+            : "No se pudo cargar la operaciÃ³n."
         );
       } finally {
         if (activo) {
@@ -628,6 +628,56 @@ function actualizarCampoIngresoUsado(
       }
     );
   }
+  function actualizarCampoVehiculo(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const { name, value } = event.target;
+
+    setVehiculo((anterior) => {
+      if (!anterior) {
+        return anterior;
+      }
+
+      switch (name) {
+        case "anio":
+          return {
+            ...anterior,
+            anio:
+              value === ""
+                ? null
+                : Number(value),
+          };
+
+        case "color":
+          return {
+            ...anterior,
+            color: value,
+          };
+
+        case "dominio":
+          return {
+            ...anterior,
+            dominio: value,
+          };
+
+        case "numero_chasis":
+          return {
+            ...anterior,
+            numero_chasis: value,
+          };
+
+        case "numero_motor":
+          return {
+            ...anterior,
+            numero_motor: value,
+          };
+
+        default:
+          return anterior;
+      }
+    });
+  }
+
 
 
   async function guardar(
@@ -653,7 +703,7 @@ function actualizarCampoIngresoUsado(
       ) < 0
     ) {
       setError(
-        "El precio del vehículo no puede ser negativo."
+        "El precio del vehÃ­culo no puede ser negativo."
       );
 
       return;
@@ -666,7 +716,7 @@ function actualizarCampoIngresoUsado(
       ) < 0
     ) {
       setError(
-        "Los gastos de gestoría no pueden ser negativos."
+        "Los gastos de gestorÃ­a no pueden ser negativos."
       );
 
       return;
@@ -679,7 +729,7 @@ function actualizarCampoIngresoUsado(
       ) < 0
     ) {
       setError(
-        "La bonificación no puede ser negativa."
+        "La bonificaciÃ³n no puede ser negativa."
       );
 
       return;
@@ -703,7 +753,7 @@ function actualizarCampoIngresoUsado(
       !formCliente.nombre.trim()
     ) {
       setError(
-        "Ingresá el nombre del cliente."
+        "IngresÃ¡ el nombre del cliente."
       );
 
       return;
@@ -716,7 +766,7 @@ function actualizarCampoIngresoUsado(
       !formCliente.razon_social.trim()
     ) {
       setError(
-        "Ingresá la razón social."
+        "IngresÃ¡ la razÃ³n social."
       );
 
       return;
@@ -764,7 +814,7 @@ function actualizarCampoIngresoUsado(
       setError(
         e instanceof Error
           ? e.message
-          : "No se pudo actualizar la operación."
+          : "No se pudo actualizar la operaciÃ³n."
       );
     } finally {
       setGuardando(false);
@@ -775,7 +825,7 @@ function actualizarCampoIngresoUsado(
   if (cargando) {
     return (
       <main className="p-6 text-gray-500">
-        Cargando operación...
+        Cargando operaciÃ³n...
       </main>
     );
   }
@@ -792,14 +842,14 @@ function actualizarCampoIngresoUsado(
       <main className="p-6">
         <p className="text-red-600">
           {error ||
-            "No se pudo cargar la operación."}
+            "No se pudo cargar la operaciÃ³n."}
         </p>
 
         <Link
           href="/admin/operaciones"
           className="mt-4 inline-block font-medium text-blue-600"
         >
-          ← Volver a operaciones
+          â† Volver a operaciones
         </Link>
       </main>
     );
@@ -809,11 +859,11 @@ function actualizarCampoIngresoUsado(
   return (
     <main className="p-6">
       <PageHeader
-        titulo={`Editar operación ${
+        titulo={`Editar operaciÃ³n ${
           operacion.numero ??
           `#${operacion.id}`
         }`}
-        descripcion="Completá o corregí los datos administrativos de la operación"
+        descripcion="CompletÃ¡ o corregÃ­ los datos administrativos de la operaciÃ³n"
       />
 
 
@@ -853,7 +903,7 @@ function actualizarCampoIngresoUsado(
 
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-              Vehículo
+              VehÃ­culo
             </p>
 
             <p className="mt-1 font-semibold">
@@ -862,6 +912,107 @@ function actualizarCampoIngresoUsado(
               )}
             </p>
           </div>
+        </section>
+
+
+        {/* DATOS DEL VEHÍCULO VENDIDO */}
+
+        <section className="grid gap-5 rounded-xl border p-5 md:grid-cols-2">
+          <div className="md:col-span-2">
+            <h2 className="text-lg font-semibold">
+              Datos del vehículo vendido
+            </h2>
+
+            <p className="mt-1 text-sm text-gray-500">
+              Estos datos actualizan la unidad asociada a la operación y se utilizan en el boleto de venta.
+            </p>
+          </div>
+
+          <div className="md:col-span-2 rounded-lg bg-gray-50 p-4">
+            <span className="text-sm text-gray-500">
+              Unidad
+            </span>
+
+            <p className="mt-1 font-semibold">
+              {[
+                vehiculo.marca,
+                vehiculo.modelo,
+                vehiculo.version,
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            </p>
+          </div>
+
+          <label className="grid gap-2">
+            <span className="font-medium">
+              Año
+            </span>
+
+            <input
+              type="number"
+              name="anio"
+              value={vehiculo.anio ?? ""}
+              onChange={actualizarCampoVehiculo}
+              className="rounded-lg border p-3"
+            />
+          </label>
+
+          <label className="grid gap-2">
+            <span className="font-medium">
+              Color
+            </span>
+
+            <input
+              type="text"
+              name="color"
+              value={vehiculo.color ?? ""}
+              onChange={actualizarCampoVehiculo}
+              className="rounded-lg border p-3"
+            />
+          </label>
+
+          <label className="grid gap-2">
+            <span className="font-medium">
+              Dominio
+            </span>
+
+            <input
+              type="text"
+              name="dominio"
+              value={vehiculo.dominio ?? ""}
+              onChange={actualizarCampoVehiculo}
+              className="rounded-lg border p-3"
+            />
+          </label>
+
+          <label className="grid gap-2">
+            <span className="font-medium">
+              Número de chasis
+            </span>
+
+            <input
+              type="text"
+              name="numero_chasis"
+              value={vehiculo.numero_chasis ?? ""}
+              onChange={actualizarCampoVehiculo}
+              className="rounded-lg border p-3"
+            />
+          </label>
+
+          <label className="grid gap-2">
+            <span className="font-medium">
+              Número de motor
+            </span>
+
+            <input
+              type="text"
+              name="numero_motor"
+              value={vehiculo.numero_motor ?? ""}
+              onChange={actualizarCampoVehiculo}
+              className="rounded-lg border p-3"
+            />
+          </label>
         </section>
 
 
@@ -874,7 +1025,7 @@ function actualizarCampoIngresoUsado(
             </h2>
 
             <p className="mt-1 text-sm text-gray-500">
-              Estos cambios también actualizan la ficha general del cliente.
+              Estos cambios tambiÃ©n actualizan la ficha general del cliente.
             </p>
           </div>
 
@@ -981,7 +1132,7 @@ function actualizarCampoIngresoUsado(
 
               <label className="grid min-w-0 gap-2">
                 <span className="font-medium">
-                  Profesión
+                  ProfesiÃ³n
                 </span>
 
                 <input
@@ -1035,8 +1186,8 @@ function actualizarCampoIngresoUsado(
                     Viudo/a
                   </option>
 
-                  <option value="Unión convivencial">
-                    Unión convivencial
+                  <option value="UniÃ³n convivencial">
+                    UniÃ³n convivencial
                   </option>
                 </select>
               </label>
@@ -1048,7 +1199,7 @@ function actualizarCampoIngresoUsado(
                   <label className="grid min-w-0 gap-2">
                     <span className="font-medium">
                       Nombre y apellido
-                      del cónyuge
+                      del cÃ³nyuge
                     </span>
 
                     <input
@@ -1068,7 +1219,7 @@ function actualizarCampoIngresoUsado(
 
                   <label className="grid min-w-0 gap-2">
                     <span className="font-medium">
-                      DNI del cónyuge
+                      DNI del cÃ³nyuge
                     </span>
 
                     <input
@@ -1091,7 +1242,7 @@ function actualizarCampoIngresoUsado(
             <>
               <label className="grid gap-2 md:col-span-2">
                 <span className="font-medium">
-                  Razón social
+                  RazÃ³n social
                 </span>
 
                 <input
@@ -1133,7 +1284,7 @@ function actualizarCampoIngresoUsado(
 
           <label className="grid min-w-0 gap-2">
             <span className="font-medium">
-              Teléfono
+              TelÃ©fono
             </span>
 
             <input
@@ -1228,7 +1379,7 @@ function actualizarCampoIngresoUsado(
 
           <label className="grid min-w-0 gap-2">
             <span className="font-medium">
-              Dirección
+              DirecciÃ³n
             </span>
 
             <input
@@ -1271,7 +1422,7 @@ function actualizarCampoIngresoUsado(
         <section className="grid gap-5 rounded-xl border p-5 md:grid-cols-2">
           <div className="grid gap-2">
             <span className="font-medium">
-              Precio del vehículo
+              Precio del vehÃ­culo
             </span>
 
             <div className="grid grid-cols-[140px_1fr] gap-2">
@@ -1288,7 +1439,7 @@ function actualizarCampoIngresoUsado(
                 </option>
 
                 <option value="USD">
-                  USD - Dólares
+                  USD - DÃ³lares
                 </option>
               </select>
 
@@ -1312,7 +1463,7 @@ function actualizarCampoIngresoUsado(
 
           <label className="grid gap-2">
             <span className="font-medium">
-              Gastos de gestoría
+              Gastos de gestorÃ­a
               (ARS)
             </span>
 
@@ -1346,15 +1497,15 @@ function actualizarCampoIngresoUsado(
             />
 
             <span className="font-medium">
-              Gastos de gestoría
-              incluidos en la operación
+              Gastos de gestorÃ­a
+              incluidos en la operaciÃ³n
             </span>
           </label>
 
 
           <label className="grid gap-2">
             <span className="font-medium">
-              Bonificación
+              BonificaciÃ³n
             </span>
 
             <input
@@ -1429,7 +1580,7 @@ function actualizarCampoIngresoUsado(
               onChange={
                 actualizarCampo
               }
-              placeholder="Ej. Contado / Transferencia / Crédito prendario"
+              placeholder="Ej. Contado / Transferencia / CrÃ©dito prendario"
               className="rounded-lg border p-3"
             />
           </label>
@@ -1449,7 +1600,7 @@ function actualizarCampoIngresoUsado(
                 actualizarCampo
               }
               rows={4}
-              placeholder="Ej. Transferencia $10.000.000; saldo mediante crédito prendario..."
+              placeholder="Ej. Transferencia $10.000.000; saldo mediante crÃ©dito prendario..."
               className="rounded-lg border p-3"
             />
           </label>
@@ -1520,11 +1671,11 @@ function actualizarCampoIngresoUsado(
   <section className="grid gap-4 rounded-xl border p-5">
     <div>
       <h2 className="text-lg font-semibold">
-        Documentación recibida de la permuta
+        DocumentaciÃ³n recibida de la permuta
       </h2>
 
       <p className="mt-1 text-sm text-gray-500">
-        Marcá únicamente la documentación y los elementos efectivamente recibidos.
+        MarcÃ¡ Ãºnicamente la documentaciÃ³n y los elementos efectivamente recibidos.
       </p>
     </div>
     <label className="flex items-center gap-3 rounded-lg border p-3">
@@ -1536,7 +1687,7 @@ function actualizarCampoIngresoUsado(
   />
 
   <span className="font-medium">
-    Título de Propiedad
+    TÃ­tulo de Propiedad
   </span>
 </label>
 <label className="flex items-center gap-3 rounded-lg border p-3">
@@ -1556,7 +1707,7 @@ function actualizarCampoIngresoUsado(
     checked={formIngresoUsado.doc_cedula}
     onChange={actualizarCampoIngresoUsado}
   />
-  <span className="font-medium">Cédula de identificación</span>
+  <span className="font-medium">CÃ©dula de identificaciÃ³n</span>
 </label>
 
 <label className="flex items-center gap-3 rounded-lg border p-3">
@@ -1566,7 +1717,7 @@ function actualizarCampoIngresoUsado(
     checked={formIngresoUsado.doc_cedulas_adicionales}
     onChange={actualizarCampoIngresoUsado}
   />
-  <span className="font-medium">Cédulas adicionales</span>
+  <span className="font-medium">CÃ©dulas adicionales</span>
 </label>
 
 <label className="flex items-center gap-3 rounded-lg border p-3">
@@ -1586,7 +1737,7 @@ function actualizarCampoIngresoUsado(
     checked={formIngresoUsado.doc_verificacion_policial}
     onChange={actualizarCampoIngresoUsado}
   />
-  <span className="font-medium">Verificación policial / Formulario 12</span>
+  <span className="font-medium">VerificaciÃ³n policial / Formulario 12</span>
 </label>
 
 <label className="flex items-center gap-3 rounded-lg border p-3">
@@ -1678,13 +1829,13 @@ function actualizarCampoIngresoUsado(
 )}
 
 
-        {/* OBSERVACIONES OPERACIÓN */}
+        {/* OBSERVACIONES OPERACIÃ“N */}
 
         <section className="grid gap-5 rounded-xl border p-5">
           <label className="grid gap-2">
             <span className="font-medium">
               Observaciones de la
-              operación
+              operaciÃ³n
             </span>
 
             <textarea
@@ -1752,3 +1903,4 @@ function actualizarCampoIngresoUsado(
     </main>
   );
 }
+
