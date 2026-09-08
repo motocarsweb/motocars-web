@@ -690,6 +690,7 @@ function actualizarCampoIngresoUsado(
       !form ||
       !cliente ||
       !formCliente ||
+      !vehiculo ||
       guardando
     ) {
       return;
@@ -788,6 +789,31 @@ function actualizarCampoIngresoUsado(
         operacion.id,
         form
       );
+
+      const vehiculoActualizado =
+        await actualizarVehiculo(
+          vehiculo.id,
+          {
+            anio: vehiculo.anio,
+            color:
+              vehiculo.color?.trim() || null,
+            dominio:
+              vehiculo.dominio?.trim().toUpperCase() || null,
+            numero_chasis:
+              vehiculo.numero_chasis?.trim() || null,
+            numero_motor:
+              vehiculo.numero_motor?.trim() || null,
+          }
+        );
+
+      if (!vehiculoActualizado) {
+        throw new Error(
+          "No se pudieron guardar los datos del vehículo."
+        );
+      }
+
+      setVehiculo(vehiculoActualizado);
+
       if (
   ingresoUsado &&
   formIngresoUsado
