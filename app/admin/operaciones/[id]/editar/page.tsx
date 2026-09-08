@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import {
@@ -34,6 +34,7 @@ import {
 } from "@/lib/service/ingresos-usados";
 
 import {
+  actualizarVehiculo,
   obtenerVehiculoPorId,
   type VehiculoSupabase,
 } from "@/lib/supabase-vehicles";
@@ -52,7 +53,7 @@ function nombreCliente(
   ) {
     return (
       cliente.razon_social ||
-      "Empresa sin razÃ³n social"
+      "Empresa sin razón social"
     );
   }
 
@@ -94,7 +95,7 @@ function nombreTipoOperacion(
     return "Compra";
   }
 
-  return "ConsignaciÃ³n";
+  return "Consignación";
 }
 
 
@@ -336,7 +337,7 @@ export default function EditarOperacionPage() {
         operacionId <= 0
       ) {
         setError(
-          "El identificador de la operaciÃ³n no es vÃ¡lido."
+          "El identificador de la operación no es válido."
         );
 
         setCargando(false);
@@ -383,7 +384,7 @@ export default function EditarOperacionPage() {
 
         if (!vehiculoCargado) {
           throw new Error(
-            "No se encontrÃ³ el vehÃ­culo de la operaciÃ³n."
+            "No se encontró el vehículo de la operación."
           );
         }
 
@@ -502,7 +503,7 @@ setFormIngresoUsado(
         setError(
           e instanceof Error
             ? e.message
-            : "No se pudo cargar la operaciÃ³n."
+            : "No se pudo cargar la operación."
         );
       } finally {
         if (activo) {
@@ -678,8 +679,6 @@ function actualizarCampoIngresoUsado(
     });
   }
 
-
-
   async function guardar(
     event: FormEvent<HTMLFormElement>
   ) {
@@ -703,7 +702,7 @@ function actualizarCampoIngresoUsado(
       ) < 0
     ) {
       setError(
-        "El precio del vehÃ­culo no puede ser negativo."
+        "El precio del vehículo no puede ser negativo."
       );
 
       return;
@@ -716,7 +715,7 @@ function actualizarCampoIngresoUsado(
       ) < 0
     ) {
       setError(
-        "Los gastos de gestorÃ­a no pueden ser negativos."
+        "Los gastos de gestoría no pueden ser negativos."
       );
 
       return;
@@ -729,7 +728,7 @@ function actualizarCampoIngresoUsado(
       ) < 0
     ) {
       setError(
-        "La bonificaciÃ³n no puede ser negativa."
+        "La bonificación no puede ser negativa."
       );
 
       return;
@@ -753,7 +752,7 @@ function actualizarCampoIngresoUsado(
       !formCliente.nombre.trim()
     ) {
       setError(
-        "IngresÃ¡ el nombre del cliente."
+        "Ingresá el nombre del cliente."
       );
 
       return;
@@ -766,7 +765,7 @@ function actualizarCampoIngresoUsado(
       !formCliente.razon_social.trim()
     ) {
       setError(
-        "IngresÃ¡ la razÃ³n social."
+        "Ingresá la razón social."
       );
 
       return;
@@ -814,7 +813,7 @@ function actualizarCampoIngresoUsado(
       setError(
         e instanceof Error
           ? e.message
-          : "No se pudo actualizar la operaciÃ³n."
+          : "No se pudo actualizar la operación."
       );
     } finally {
       setGuardando(false);
@@ -825,7 +824,7 @@ function actualizarCampoIngresoUsado(
   if (cargando) {
     return (
       <main className="p-6 text-gray-500">
-        Cargando operaciÃ³n...
+        Cargando operación...
       </main>
     );
   }
@@ -842,14 +841,14 @@ function actualizarCampoIngresoUsado(
       <main className="p-6">
         <p className="text-red-600">
           {error ||
-            "No se pudo cargar la operaciÃ³n."}
+            "No se pudo cargar la operación."}
         </p>
 
         <Link
           href="/admin/operaciones"
           className="mt-4 inline-block font-medium text-blue-600"
         >
-          â† Volver a operaciones
+          ← Volver a operaciones
         </Link>
       </main>
     );
@@ -859,11 +858,11 @@ function actualizarCampoIngresoUsado(
   return (
     <main className="p-6">
       <PageHeader
-        titulo={`Editar operaciÃ³n ${
+        titulo={`Editar operación ${
           operacion.numero ??
           `#${operacion.id}`
         }`}
-        descripcion="CompletÃ¡ o corregÃ­ los datos administrativos de la operaciÃ³n"
+        descripcion="Completá o corregí los datos administrativos de la operación"
       />
 
 
@@ -903,7 +902,7 @@ function actualizarCampoIngresoUsado(
 
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-              VehÃ­culo
+              Vehículo
             </p>
 
             <p className="mt-1 font-semibold">
@@ -913,7 +912,6 @@ function actualizarCampoIngresoUsado(
             </p>
           </div>
         </section>
-
 
         {/* DATOS DEL VEHÍCULO VENDIDO */}
 
@@ -1015,7 +1013,6 @@ function actualizarCampoIngresoUsado(
           </label>
         </section>
 
-
         {/* DATOS DEL CLIENTE */}
 
         <section className="grid gap-6 rounded-xl border p-5 md:grid-cols-2">
@@ -1025,7 +1022,7 @@ function actualizarCampoIngresoUsado(
             </h2>
 
             <p className="mt-1 text-sm text-gray-500">
-              Estos cambios tambiÃ©n actualizan la ficha general del cliente.
+              Estos cambios también actualizan la ficha general del cliente.
             </p>
           </div>
 
@@ -1132,7 +1129,7 @@ function actualizarCampoIngresoUsado(
 
               <label className="grid min-w-0 gap-2">
                 <span className="font-medium">
-                  ProfesiÃ³n
+                  Profesión
                 </span>
 
                 <input
@@ -1186,8 +1183,8 @@ function actualizarCampoIngresoUsado(
                     Viudo/a
                   </option>
 
-                  <option value="UniÃ³n convivencial">
-                    UniÃ³n convivencial
+                  <option value="Unión convivencial">
+                    Unión convivencial
                   </option>
                 </select>
               </label>
@@ -1199,7 +1196,7 @@ function actualizarCampoIngresoUsado(
                   <label className="grid min-w-0 gap-2">
                     <span className="font-medium">
                       Nombre y apellido
-                      del cÃ³nyuge
+                      del cónyuge
                     </span>
 
                     <input
@@ -1219,7 +1216,7 @@ function actualizarCampoIngresoUsado(
 
                   <label className="grid min-w-0 gap-2">
                     <span className="font-medium">
-                      DNI del cÃ³nyuge
+                      DNI del cónyuge
                     </span>
 
                     <input
@@ -1242,7 +1239,7 @@ function actualizarCampoIngresoUsado(
             <>
               <label className="grid gap-2 md:col-span-2">
                 <span className="font-medium">
-                  RazÃ³n social
+                  Razón social
                 </span>
 
                 <input
@@ -1284,7 +1281,7 @@ function actualizarCampoIngresoUsado(
 
           <label className="grid min-w-0 gap-2">
             <span className="font-medium">
-              TelÃ©fono
+              Teléfono
             </span>
 
             <input
@@ -1379,7 +1376,7 @@ function actualizarCampoIngresoUsado(
 
           <label className="grid min-w-0 gap-2">
             <span className="font-medium">
-              DirecciÃ³n
+              Dirección
             </span>
 
             <input
@@ -1422,7 +1419,7 @@ function actualizarCampoIngresoUsado(
         <section className="grid gap-5 rounded-xl border p-5 md:grid-cols-2">
           <div className="grid gap-2">
             <span className="font-medium">
-              Precio del vehÃ­culo
+              Precio del vehículo
             </span>
 
             <div className="grid grid-cols-[140px_1fr] gap-2">
@@ -1439,7 +1436,7 @@ function actualizarCampoIngresoUsado(
                 </option>
 
                 <option value="USD">
-                  USD - DÃ³lares
+                  USD - Dólares
                 </option>
               </select>
 
@@ -1463,7 +1460,7 @@ function actualizarCampoIngresoUsado(
 
           <label className="grid gap-2">
             <span className="font-medium">
-              Gastos de gestorÃ­a
+              Gastos de gestoría
               (ARS)
             </span>
 
@@ -1497,15 +1494,15 @@ function actualizarCampoIngresoUsado(
             />
 
             <span className="font-medium">
-              Gastos de gestorÃ­a
-              incluidos en la operaciÃ³n
+              Gastos de gestoría
+              incluidos en la operación
             </span>
           </label>
 
 
           <label className="grid gap-2">
             <span className="font-medium">
-              BonificaciÃ³n
+              Bonificación
             </span>
 
             <input
@@ -1580,7 +1577,7 @@ function actualizarCampoIngresoUsado(
               onChange={
                 actualizarCampo
               }
-              placeholder="Ej. Contado / Transferencia / CrÃ©dito prendario"
+              placeholder="Ej. Contado / Transferencia / Crédito prendario"
               className="rounded-lg border p-3"
             />
           </label>
@@ -1600,7 +1597,7 @@ function actualizarCampoIngresoUsado(
                 actualizarCampo
               }
               rows={4}
-              placeholder="Ej. Transferencia $10.000.000; saldo mediante crÃ©dito prendario..."
+              placeholder="Ej. Transferencia $10.000.000; saldo mediante crédito prendario..."
               className="rounded-lg border p-3"
             />
           </label>
@@ -1671,11 +1668,11 @@ function actualizarCampoIngresoUsado(
   <section className="grid gap-4 rounded-xl border p-5">
     <div>
       <h2 className="text-lg font-semibold">
-        DocumentaciÃ³n recibida de la permuta
+        Documentación recibida de la permuta
       </h2>
 
       <p className="mt-1 text-sm text-gray-500">
-        MarcÃ¡ Ãºnicamente la documentaciÃ³n y los elementos efectivamente recibidos.
+        Marcá únicamente la documentación y los elementos efectivamente recibidos.
       </p>
     </div>
     <label className="flex items-center gap-3 rounded-lg border p-3">
@@ -1687,7 +1684,7 @@ function actualizarCampoIngresoUsado(
   />
 
   <span className="font-medium">
-    TÃ­tulo de Propiedad
+    Título de Propiedad
   </span>
 </label>
 <label className="flex items-center gap-3 rounded-lg border p-3">
@@ -1707,7 +1704,7 @@ function actualizarCampoIngresoUsado(
     checked={formIngresoUsado.doc_cedula}
     onChange={actualizarCampoIngresoUsado}
   />
-  <span className="font-medium">CÃ©dula de identificaciÃ³n</span>
+  <span className="font-medium">Cédula de identificación</span>
 </label>
 
 <label className="flex items-center gap-3 rounded-lg border p-3">
@@ -1717,7 +1714,7 @@ function actualizarCampoIngresoUsado(
     checked={formIngresoUsado.doc_cedulas_adicionales}
     onChange={actualizarCampoIngresoUsado}
   />
-  <span className="font-medium">CÃ©dulas adicionales</span>
+  <span className="font-medium">Cédulas adicionales</span>
 </label>
 
 <label className="flex items-center gap-3 rounded-lg border p-3">
@@ -1737,7 +1734,7 @@ function actualizarCampoIngresoUsado(
     checked={formIngresoUsado.doc_verificacion_policial}
     onChange={actualizarCampoIngresoUsado}
   />
-  <span className="font-medium">VerificaciÃ³n policial / Formulario 12</span>
+  <span className="font-medium">Verificación policial / Formulario 12</span>
 </label>
 
 <label className="flex items-center gap-3 rounded-lg border p-3">
@@ -1829,13 +1826,13 @@ function actualizarCampoIngresoUsado(
 )}
 
 
-        {/* OBSERVACIONES OPERACIÃ“N */}
+        {/* OBSERVACIONES OPERACIÓN */}
 
         <section className="grid gap-5 rounded-xl border p-5">
           <label className="grid gap-2">
             <span className="font-medium">
               Observaciones de la
-              operaciÃ³n
+              operación
             </span>
 
             <textarea
@@ -1903,4 +1900,3 @@ function actualizarCampoIngresoUsado(
     </main>
   );
 }
-
