@@ -676,6 +676,61 @@ export default function Boleto0KmPage() {
 </div>
 
           <h2 className="titulo-seccion-0km">
+  Datos de la unidad 0 km
+</h2>
+
+<div className="datos-0km">
+  <div className="dato-0km">
+    <strong>
+      Vehículo:
+    </strong>
+
+    <span>
+      {nombreVehiculo(vehiculo)}
+    </span>
+  </div>
+
+  <div className="dato-0km">
+    <strong>
+      Año:
+    </strong>
+
+    <span>
+      {vehiculo.anio ?? "—"}
+    </span>
+  </div>
+
+  <div className="dato-0km">
+    <strong>
+      Color:
+    </strong>
+
+    <span>
+      {vehiculo.color || "—"}
+    </span>
+  </div>
+
+  <div className="dato-0km">
+    <strong>
+      Motor:
+    </strong>
+
+    <span>
+      {vehiculo.numero_motor || "—"}
+    </span>
+  </div>
+
+  <div className="dato-0km">
+    <strong>
+      Chasis:
+    </strong>
+
+    <span>
+      {vehiculo.numero_chasis || "—"}
+    </span>
+  </div>
+</div>
+          <h2 className="titulo-seccion-0km">
             Forma de pago
           </h2>
 
