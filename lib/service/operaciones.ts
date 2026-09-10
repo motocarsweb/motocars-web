@@ -48,6 +48,10 @@ export type Operacion = {
   gastos_gestoria: number;
   gastos_gestoria_incluidos: boolean;
 
+  inscripcion_a_cargo_de:
+    | "vendedor"
+    | "comprador";
+
   fecha_entrega: string | null;
   hora_entrega: string | null;
 
@@ -83,6 +87,10 @@ export type OperacionFormulario = {
   gastos_gestoria: string;
   gastos_gestoria_incluidos: boolean;
 
+  inscripcion_a_cargo_de:
+    | "vendedor"
+    | "comprador";
+
   fecha_entrega: string;
   hora_entrega: string;
 
@@ -110,6 +118,9 @@ export const OPERACION_FORMULARIO_INICIAL: OperacionFormulario = {
 
   gastos_gestoria: "0",
   gastos_gestoria_incluidos: false,
+
+  inscripcion_a_cargo_de:
+    "vendedor",
 
   fecha_entrega: "",
   hora_entrega: "",
@@ -179,6 +190,9 @@ moneda:
       ),
       gastos_gestoria_incluidos:
   form.gastos_gestoria_incluidos,
+
+    inscripcion_a_cargo_de:
+      form.inscripcion_a_cargo_de,
 
     fecha_entrega:
       form.fecha_entrega ||

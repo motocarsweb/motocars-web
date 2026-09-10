@@ -114,8 +114,7 @@ function crearFormularioDesdeOperacion(
 
     precio_vehiculo:
       String(
-        operacion.precio_vehiculo ??
-          0
+        operacion.precio_vehiculo ?? 0
       ),
 
     moneda:
@@ -123,8 +122,7 @@ function crearFormularioDesdeOperacion(
 
     bonificacion:
       String(
-        operacion.bonificacion ??
-          0
+        operacion.bonificacion ?? 0
       ),
 
     gastos:
@@ -133,8 +131,7 @@ function crearFormularioDesdeOperacion(
       ),
 
     asesor_comercial:
-      operacion.asesor_comercial ??
-      "",
+      operacion.asesor_comercial ?? "",
 
     forma_pago:
       operacion.forma_pago ?? "",
@@ -144,15 +141,17 @@ function crearFormularioDesdeOperacion(
 
     gastos_gestoria:
       String(
-        operacion.gastos_gestoria ??
-          0
+        operacion.gastos_gestoria ?? 0
       ),
 
     gastos_gestoria_incluidos:
       Boolean(
-        operacion
-          .gastos_gestoria_incluidos
+        operacion.gastos_gestoria_incluidos
       ),
+
+    inscripcion_a_cargo_de:
+      operacion.inscripcion_a_cargo_de ??
+      "vendedor",
 
     fecha_entrega:
       operacion.fecha_entrega ?? "",
@@ -162,16 +161,14 @@ function crearFormularioDesdeOperacion(
 
     entrega_sin_patentar:
       Boolean(
-        operacion
-          .entrega_sin_patentar
+        operacion.entrega_sin_patentar
       ),
 
     observaciones:
       operacion.observaciones ?? "",
 
     observaciones_internas:
-      operacion
-        .observaciones_internas ??
+      operacion.observaciones_internas ??
       "",
   };
 }
@@ -973,7 +970,42 @@ function actualizarCampoIngresoUsado(
               Año
             </span>
 
-            <input
+            
+<div>
+  <label
+    style={{
+      display: "block",
+      marginBottom: 6,
+      fontWeight: 700,
+    }}
+  >
+    Inscripción inicial
+  </label>
+
+  <select
+    name="inscripcion_a_cargo_de"
+    value={form.inscripcion_a_cargo_de}
+    onChange={actualizarCampo}
+    style={{
+      width: "100%",
+      minHeight: 42,
+      padding: "0 10px",
+      border: "1px solid #d4d4d4",
+      borderRadius: 8,
+      background: "white",
+    }}
+  >
+    <option value="vendedor">
+      MotoCars realiza la inscripción
+    </option>
+
+    <option value="comprador">
+      El comprador realiza la inscripción
+    </option>
+  </select>
+</div>
+
+<input
               type="number"
               name="anio"
               value={vehiculo.anio ?? ""}

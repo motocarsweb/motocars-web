@@ -45,6 +45,12 @@ const [error, setError] = useState("");
 const [mostrarDetallePago, setMostrarDetallePago] =
   useState(false);
 
+const [mostrarPrecio, setMostrarPrecio] =
+  useState(true);
+
+const [mostrarObservaciones, setMostrarObservaciones] =
+  useState(false);
+
 const [detallePagoManual, setDetallePagoManual] =
   useState("");
 
@@ -426,6 +432,30 @@ margin-right: 6mm;
           Volver a la operación
         </Link>
         <button
+          type="button"
+          className="boton-documento"
+          onClick={() =>
+            setMostrarPrecio((anterior) => !anterior)
+          }
+        >
+          {mostrarPrecio
+            ? "Ocultar precio"
+            : "Mostrar precio"}
+        </button>
+
+        <button
+          type="button"
+          className="boton-documento"
+          onClick={() =>
+            setMostrarObservaciones((anterior) => !anterior)
+          }
+        >
+          {mostrarObservaciones
+            ? "Ocultar observaciones"
+            : "Mostrar observaciones"}
+        </button>
+
+        <button
   type="button"
   className="boton-documento"
   onClick={() =>
@@ -610,11 +640,26 @@ margin-right: 6mm;
         <div className="bloque-detalle">
           <strong>Detalle:</strong>
           <div className="detalle-operacion">
-            Precio total: {formatearImporteCompleto(operacion.total, operacion.moneda)}{"\n"}
+            {mostrarPrecio && (
+              <>
+                Precio total: {formatearImporteCompleto(
+                  operacion.total,
+                  operacion.moneda
+                )}{"\n"}
+              </>
+            )}
             Forma de pago: {operacion.forma_pago || "A definir"}
             {operacion.detalle_pago ? `\n${operacion.detalle_pago}` : ""}
+            {mostrarObservaciones &&
+              operacion.observaciones
+                ? `\nObservaciones: ${operacion.observaciones}`
+                : ""}
           </div>
         </div>
+
+        
+
+
 
         <div className="datos-unidad">
   <div className="columna-unidad">

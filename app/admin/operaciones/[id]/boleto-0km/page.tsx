@@ -681,58 +681,39 @@ export default function Boleto0KmPage() {
 
 <div className="datos-0km">
   <div className="dato-0km">
-    <strong>
-      Vehículo:
-    </strong>
-
-    <span>
-      {nombreVehiculo(vehiculo)}
-    </span>
+    <strong>Vehículo:</strong>
+    <span>{nombreVehiculo(vehiculo)}</span>
   </div>
 
   <div className="dato-0km">
-    <strong>
-      Año:
-    </strong>
-
-    <span>
-      {vehiculo.anio ?? "—"}
-    </span>
+    <strong>Año:</strong>
+    <span>{vehiculo.anio ?? "—"}</span>
   </div>
 
   <div className="dato-0km">
-    <strong>
-      Color:
-    </strong>
-
-    <span>
-      {vehiculo.color || "—"}
-    </span>
+    <strong>Color:</strong>
+    <span>{vehiculo.color || "—"}</span>
   </div>
 
   <div className="dato-0km">
-    <strong>
-      Motor:
-    </strong>
-
-    <span>
-      {vehiculo.numero_motor || "—"}
-    </span>
+    <strong>Motor:</strong>
+    <span>{vehiculo.numero_motor || "—"}</span>
   </div>
 
   <div className="dato-0km">
-    <strong>
-      Chasis:
-    </strong>
+    <strong>Chasis:</strong>
+    <span>{vehiculo.numero_chasis || "—"}</span>
+  </div>
 
-    <span>
-      {vehiculo.numero_chasis || "—"}
-    </span>
+  <div className="dato-0km">
+    <strong>Dominio:</strong>
+    <span>{vehiculo.dominio || "—"}</span>
   </div>
 </div>
-          <h2 className="titulo-seccion-0km">
-            Forma de pago
-          </h2>
+
+<h2 className="titulo-seccion-0km">
+  Forma de pago
+</h2>
 
           <div className="condiciones-pago">
             <strong>
@@ -779,17 +760,10 @@ export default function Boleto0KmPage() {
             <strong>
               3)
             </strong>{" "}
-            Los gastos de gestoría
-            correspondientes a la
-            inscripción de la unidad
-            adquirida por EL COMPRADOR
-            serán gestionados por la
-            Gestoría de la Concesionaria y
-            se componen de aranceles
-            registrales, formularios,
-            sellados provinciales, carpeta
-            prendaria —si correspondiera—
-            y honorarios.
+            {operacion.inscripcion_a_cargo_de ===
+            "comprador"
+              ? "La inscripción inicial de la unidad 0 km será realizada por EL COMPRADOR."
+              : "La inscripción inicial de la unidad 0 km será gestionada por la Gestoría de la Concesionaria."}
           </p>
 
           {operacion.gastos_gestoria_incluidos ? (

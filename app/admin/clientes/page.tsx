@@ -120,6 +120,10 @@ export default function ClientesPage() {
                 <th className="p-4 text-left">
                   Estado
                 </th>
+
+                <th className="p-4 text-left">
+                  Acciones
+                </th>
               </tr>
             </thead>
 
@@ -153,6 +157,15 @@ export default function ClientesPage() {
                     {cliente.activo
                       ? "Activo"
                       : "Inactivo"}
+                  </td>
+
+                  <td className="p-4">
+                    <Link
+                      href={`/admin/clientes/${cliente.id}/editar`}
+                      className="inline-flex rounded-lg border px-3 py-2 text-sm font-medium hover:bg-gray-50"
+                    >
+                      Editar
+                    </Link>
                   </td>
                 </tr>
               ))}

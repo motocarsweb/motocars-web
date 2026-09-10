@@ -355,38 +355,38 @@ export default function OperacionesPage() {
         !error &&
         operacionesFiltradas.length > 0 && (
           <div className="overflow-x-auto rounded-xl border bg-white">
-            <table className="w-full border-collapse">
+            <table className="w-full table-fixed border-collapse">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="p-4 text-left">
+                  <th className="w-[9%] p-4 text-left whitespace-nowrap">
                     Operación
                   </th>
 
-                  <th className="p-4 text-left">
+                  <th className="w-[7%] p-4 text-left">
                     Tipo
                   </th>
 
-                  <th className="p-4 text-left">
+                  <th className="w-[19%] p-4 text-left">
                     Cliente / Proveedor
                   </th>
 
-                  <th className="p-4 text-left">
+                  <th className="w-[27%] p-4 text-left">
                     Vehículo
                   </th>
 
-                  <th className="p-4 text-left">
+                  <th className="w-[13%] p-4 text-right">
                     Importe
                   </th>
 
-                  <th className="p-4 text-left">
+                  <th className="w-[9%] p-4 text-left">
                     Estado
                   </th>
 
-                  <th className="p-4 text-left">
+                  <th className="w-[9%] p-4 text-left whitespace-nowrap">
                     Fecha
                   </th>
 
-                  <th className="p-4 text-right">
+                  <th className="w-[10%] p-4 text-center">
                     Acción
                   </th>
                 </tr>
@@ -410,14 +410,8 @@ export default function OperacionesPage() {
                         key={operacion.id}
                         className="border-t hover:bg-gray-50"
                       >
-                        <td className="p-4 font-semibold">
-                          {operacion.numero ||
-                            `OP-${String(
-                              operacion.id
-                            ).padStart(
-                              6,
-                              "0"
-                            )}`}
+                        <td className="p-4 font-semibold whitespace-nowrap">
+                          {operacion.id}
                         </td>
 
                         <td className="p-4">
@@ -438,7 +432,7 @@ export default function OperacionesPage() {
                           )}
                         </td>
 
-                        <td className="p-4 font-medium">
+                        <td className="p-4 text-right font-medium whitespace-nowrap">
                           {formatearImporte(
                             operacion.precio_vehiculo
                           )}
@@ -456,12 +450,12 @@ export default function OperacionesPage() {
                           )}
                         </td>
 
-                        <td className="p-4 text-right">
+                        <td className="p-4 text-center">
                           <Link
                             href={`/admin/operaciones/${operacion.id}`}
-                            className="inline-flex rounded-lg border px-3 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50"
+                            className="inline-flex whitespace-nowrap rounded-lg border px-3 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50"
                           >
-                            Ver operación
+                            Ver
                           </Link>
                         </td>
                       </tr>
