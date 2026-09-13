@@ -9,6 +9,7 @@ import {
   CircleDollarSign,
   FileText,
   Gauge,
+  Images,
   LayoutDashboard,
   LogOut,
   Settings,
@@ -67,6 +68,11 @@ const menuItems: MenuItem[] = [
     icon: <CircleDollarSign size={19} strokeWidth={2} />,
   },
   {
+    href: "/admin/configuracion/salon",
+    label: "Fotos",
+    icon: <Images size={19} strokeWidth={2} />,
+  },
+  {
     href: "/admin/configuracion",
     label: "Configuración",
     icon: <Settings size={19} strokeWidth={2} />,
@@ -92,16 +98,24 @@ export default function AdminLayout({
   }
 
   function estaActivo(href: string) {
-    if (href === "/admin/dashboard") {
-      return pathname === href;
-    }
-
-   if (href === "/admin/operaciones") {
-  return pathname.startsWith("/admin/operaciones");
-}
-
-    return pathname.startsWith(href);
+  if (href === "/admin/dashboard") {
+    return pathname === href;
   }
+
+  if (href === "/admin/operaciones") {
+    return pathname.startsWith("/admin/operaciones");
+  }
+
+  if (href === "/admin/configuracion") {
+    return pathname === "/admin/configuracion";
+  }
+
+  if (href === "/admin/configuracion/salon") {
+    return pathname.startsWith("/admin/configuracion/salon");
+  }
+
+  return pathname.startsWith(href);
+}
 
   return (
     <div
