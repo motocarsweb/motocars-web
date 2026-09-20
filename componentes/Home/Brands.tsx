@@ -13,7 +13,7 @@ const marcas = [
   {
     nombre: "RVM Patagonia",
     descripcion: "Adventure, touring, enduro y motos para todos los caminos.",
-    logo: "/logos/rvm-white.png",
+    logo: "/logos/rvm-white.webp",
     href: "/motos#rvm",
     boton: "Ver motos RVM",
     clase: "brand-card brand-card-rvm",
@@ -21,7 +21,7 @@ const marcas = [
   {
     nombre: "JAWA Patagonia",
     descripcion: "Motos clásicas, urbanas y touring con identidad propia.",
-    logo: "/logos/jawa-white.png",
+    logo: "/logos/jawa-white.webp",
     href: "/motos#jawa",
     boton: "Ver motos JAWA",
     clase: "brand-card brand-card-jawa",
