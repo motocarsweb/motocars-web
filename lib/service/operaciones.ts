@@ -49,6 +49,17 @@ fecha_reserva: string | null;
 reserva_hasta: string | null;
   forma_pago_reserva: string | null;
   detalle_pago_reserva: string | null;
+    fecha_pago_consignacion: string | null;
+  importe_pago_consignacion: number | null;
+  forma_pago_consignacion: string | null;
+  detalle_pago_consignacion: string | null;
+    clausula_pago_consignacion_1: string | null;
+  clausula_pago_consignacion_2: string | null;
+  clausula_pago_consignacion_3: string | null;
+  clausula_pago_consignacion_4: string | null;
+  clausula_pago_consignacion_5: string | null;
+  clausula_pago_consignacion_6: string | null;
+  clausula_pago_consignacion_7: string | null;
   clausula_compra_1: string | null;
 clausula_compra_2: string | null;
 clausula_compra_3: string | null;
@@ -98,6 +109,19 @@ fecha_reserva: string;
 reserva_hasta: string;
   forma_pago_reserva: string;
   detalle_pago_reserva: string;
+    fecha_pago_consignacion: string;
+  importe_pago_consignacion: number | null;
+  forma_pago_consignacion: string;
+  detalle_pago_consignacion: string;
+
+  clausula_pago_consignacion_1: string;
+  clausula_pago_consignacion_2: string;
+  clausula_pago_consignacion_3: string;
+  clausula_pago_consignacion_4: string;
+  clausula_pago_consignacion_5: string;
+  clausula_pago_consignacion_6: string;
+  clausula_pago_consignacion_7: string;
+  
   clausula_compra_1: string;
 clausula_compra_2: string;
 clausula_compra_3: string;
@@ -140,6 +164,30 @@ fecha_reserva: "",
 reserva_hasta: "",
   forma_pago_reserva: "",
   detalle_pago_reserva: "",
+    clausula_pago_consignacion_1:
+    "EL CONSIGNANTE declara recibir de MotoCars Concesionaria el importe correspondiente al pago de la unidad individualizada precedentemente, mediante la forma de pago y bajo las condiciones detalladas en el presente instrumento.",
+
+  clausula_pago_consignacion_2:
+    "EL CONSIGNANTE declara bajo su exclusiva responsabilidad que es titular del vehículo o se encuentra debidamente facultado para disponer del mismo, y que los datos y antecedentes suministrados respecto de la unidad son correctos y veraces.",
+
+  clausula_pago_consignacion_3:
+    "EL CONSIGNANTE se obliga a entregar toda la documentación necesaria para efectuar la transferencia dominial del vehículo y los demás trámites que correspondan, debidamente suscripta y certificada cuando resulte exigible.",
+
+  clausula_pago_consignacion_4:
+    "EL CONSIGNANTE responde por cualquier gravamen, prenda, inhibición, deuda de patentes, multas, infracciones u otra restricción o deuda originada con anterioridad a la transferencia del vehículo que no hubiera sido expresamente informada y aceptada por MotoCars Concesionaria.",
+
+  clausula_pago_consignacion_5:
+    "La recepción del importe consignado en este recibo no libera a EL CONSIGNANTE de las obligaciones documentales, registrales o económicas que se encuentren pendientes respecto de la unidad, quien deberá cumplirlas hasta posibilitar la correcta transferencia dominial del vehículo.",
+
+  clausula_pago_consignacion_6:
+    "EL CONSIGNANTE ratifica las declaraciones y obligaciones asumidas en el Contrato de Unidad Automotor en Consignación celebrado respecto del vehículo aquí individualizado, en todo aquello que resulte aplicable y no se encuentre modificado por el presente instrumento.",
+
+  clausula_pago_consignacion_7:
+    "Para todos los efectos derivados del presente, las partes constituyen domicilio en los oportunamente denunciados y se someten a la jurisdicción de los Tribunales competentes del Departamento Confluencia, Provincia del Neuquén, con renuncia a cualquier otro fuero o jurisdicción que pudiera corresponder.",
+    fecha_pago_consignacion: "",
+  importe_pago_consignacion: null,
+  forma_pago_consignacion: "",
+  detalle_pago_consignacion: "",
   clausula_compra_1: "",
 clausula_compra_2: "",
 clausula_compra_3: "",
@@ -227,6 +275,38 @@ moneda:
 
     detalle_pago_reserva:
       form.detalle_pago_reserva || null,
+          fecha_pago_consignacion:
+      form.fecha_pago_consignacion || null,
+
+    importe_pago_consignacion:
+      form.importe_pago_consignacion ?? null,
+
+    forma_pago_consignacion:
+      form.forma_pago_consignacion.trim() || null,
+
+    detalle_pago_consignacion:
+      form.detalle_pago_consignacion.trim() || null,
+          clausula_pago_consignacion_1:
+      form.clausula_pago_consignacion_1.trim() || null,
+
+    clausula_pago_consignacion_2:
+      form.clausula_pago_consignacion_2.trim() || null,
+
+    clausula_pago_consignacion_3:
+      form.clausula_pago_consignacion_3.trim() || null,
+
+    clausula_pago_consignacion_4:
+      form.clausula_pago_consignacion_4.trim() || null,
+
+    clausula_pago_consignacion_5:
+      form.clausula_pago_consignacion_5.trim() || null,
+
+    clausula_pago_consignacion_6:
+      form.clausula_pago_consignacion_6.trim() || null,
+
+    clausula_pago_consignacion_7:
+      form.clausula_pago_consignacion_7.trim() || null,
+
       clausula_compra_1:
   form.clausula_compra_1 || null,
 

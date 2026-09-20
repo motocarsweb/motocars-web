@@ -21,6 +21,7 @@ export type TipoDocumentoOperacion =
   | "detalle_pago"
   | "recibo_reserva"
   | "recibo_pago"
+    | "recibo_pago_consignacion"
   | "acta_entrega";
 
 export type DocumentoOperacion = {

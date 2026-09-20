@@ -3102,9 +3102,19 @@ const [
             {esConsignacion && (
   <Link
     href={`/admin/operaciones/${operacion.id}/consignacion`}
+    
     className="rounded-lg bg-gray-900 px-5 py-2 font-medium text-white"
   >
     Ver / Imprimir contrato
+    
+  </Link>
+  )}
+  {esConsignacion && (
+  <Link
+    href={`/admin/operaciones/${operacion.id}/recibo-pago-consignacion`}
+    className="rounded-lg bg-green-600 px-5 py-2 font-medium text-white"
+  >
+    Emitir recibo de pago
   </Link>
 )}
             {esVenta && (

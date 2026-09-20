@@ -23,6 +23,7 @@ import {
 import {
   actualizarOperacion,
   obtenerOperacion,
+    OPERACION_FORMULARIO_INICIAL,
   type Operacion,
   type OperacionFormulario,
 } from "@/lib/service/operaciones";
@@ -153,6 +154,45 @@ reserva_hasta:
 
     detalle_pago_reserva:
       operacion.detalle_pago_reserva ?? "",
+    fecha_pago_consignacion:
+      operacion.fecha_pago_consignacion ?? "",
+
+    importe_pago_consignacion:
+      operacion.importe_pago_consignacion ?? null,
+
+    forma_pago_consignacion:
+      operacion.forma_pago_consignacion ?? "",
+
+    detalle_pago_consignacion:
+      operacion.detalle_pago_consignacion ?? "",
+          clausula_pago_consignacion_1:
+      operacion.clausula_pago_consignacion_1 ??
+      OPERACION_FORMULARIO_INICIAL.clausula_pago_consignacion_1,
+
+    clausula_pago_consignacion_2:
+      operacion.clausula_pago_consignacion_2 ??
+      OPERACION_FORMULARIO_INICIAL.clausula_pago_consignacion_2,
+
+    clausula_pago_consignacion_3:
+      operacion.clausula_pago_consignacion_3 ??
+      OPERACION_FORMULARIO_INICIAL.clausula_pago_consignacion_3,
+
+    clausula_pago_consignacion_4:
+      operacion.clausula_pago_consignacion_4 ??
+      OPERACION_FORMULARIO_INICIAL.clausula_pago_consignacion_4,
+
+    clausula_pago_consignacion_5:
+      operacion.clausula_pago_consignacion_5 ??
+      OPERACION_FORMULARIO_INICIAL.clausula_pago_consignacion_5,
+
+    clausula_pago_consignacion_6:
+      operacion.clausula_pago_consignacion_6 ??
+      OPERACION_FORMULARIO_INICIAL.clausula_pago_consignacion_6,
+
+    clausula_pago_consignacion_7:
+      operacion.clausula_pago_consignacion_7 ??
+      OPERACION_FORMULARIO_INICIAL.clausula_pago_consignacion_7,
+
       clausula_compra_1:
   operacion.clausula_compra_1 ??
     "EL VENDEDOR vende y entrega a EL COMPRADOR el vehículo individualizado precedentemente, por la suma total correspondiente al valor de compra indicado en este instrumento.",
@@ -1786,6 +1826,182 @@ function actualizarCampoIngresoUsado(
           </section>
         )}
 
+{operacion.tipo_operacion === "consignacion" && (
+  <section className="grid gap-5 rounded-xl border bg-white p-5 md:grid-cols-2">
+    <div className="md:col-span-2">
+      <h2 className="text-lg font-semibold">
+        Pago al consignante
+      </h2>
+
+      <p className="mt-1 text-sm text-gray-500">
+        Datos que se utilizarán para emitir el Recibo de Pago de Unidad en Consignación.
+      </p>
+    </div>
+
+    <label className="grid gap-2">
+      <span className="font-medium">
+        Fecha de pago
+      </span>
+
+      <input
+        type="date"
+        name="fecha_pago_consignacion"
+        value={form.fecha_pago_consignacion}
+        onChange={actualizarCampo}
+        className="rounded-lg border bg-white p-3"
+      />
+    </label>
+
+    <label className="grid gap-2">
+      <span className="font-medium">
+        Importe pagado
+      </span>
+
+      <input
+        type="number"
+        name="importe_pago_consignacion"
+        value={form.importe_pago_consignacion ?? ""}
+        onChange={actualizarCampo}
+        min="0"
+        step="0.01"
+        placeholder="0"
+        className="rounded-lg border bg-white p-3"
+      />
+    </label>
+
+    <label className="grid gap-2 md:col-span-2">
+      <span className="font-medium">
+        Forma de pago
+      </span>
+
+      <input
+        type="text"
+        name="forma_pago_consignacion"
+        value={form.forma_pago_consignacion}
+        onChange={actualizarCampo}
+        placeholder="Ej.: Efectivo, transferencia, cheque"
+        className="rounded-lg border bg-white p-3"
+      />
+    </label>
+
+    <label className="grid gap-2 md:col-span-2">
+      <span className="font-medium">
+        Detalle del pago
+      </span>
+
+      <textarea
+        name="detalle_pago_consignacion"
+        value={form.detalle_pago_consignacion}
+        onChange={actualizarCampo}
+        placeholder="Ej.: Transferencia Banco Galicia, comprobante N.º 12345..."
+        rows={4}
+        className="rounded-lg border bg-white p-3"
+      />
+    </label>
+        <div className="grid gap-4 md:col-span-2">
+      <div>
+        <h3 className="font-semibold">
+          Cláusulas del recibo
+        </h3>
+
+        <p className="mt-1 text-sm text-gray-500">
+          Estas cláusulas se imprimirán en el Recibo de Pago de Unidad en Consignación.
+        </p>
+      </div>
+
+      <label className="grid gap-2">
+        <span className="font-medium">
+          Cláusula Primera
+        </span>
+        <textarea
+          name="clausula_pago_consignacion_1"
+          value={form.clausula_pago_consignacion_1}
+          onChange={actualizarCampo}
+          rows={4}
+          className="rounded-lg border bg-white p-3"
+        />
+      </label>
+
+      <label className="grid gap-2">
+        <span className="font-medium">
+          Cláusula Segunda
+        </span>
+        <textarea
+          name="clausula_pago_consignacion_2"
+          value={form.clausula_pago_consignacion_2}
+          onChange={actualizarCampo}
+          rows={4}
+          className="rounded-lg border bg-white p-3"
+        />
+      </label>
+
+      <label className="grid gap-2">
+        <span className="font-medium">
+          Cláusula Tercera
+        </span>
+        <textarea
+          name="clausula_pago_consignacion_3"
+          value={form.clausula_pago_consignacion_3}
+          onChange={actualizarCampo}
+          rows={4}
+          className="rounded-lg border bg-white p-3"
+        />
+      </label>
+
+      <label className="grid gap-2">
+        <span className="font-medium">
+          Cláusula Cuarta
+        </span>
+        <textarea
+          name="clausula_pago_consignacion_4"
+          value={form.clausula_pago_consignacion_4}
+          onChange={actualizarCampo}
+          rows={4}
+          className="rounded-lg border bg-white p-3"
+        />
+      </label>
+
+      <label className="grid gap-2">
+        <span className="font-medium">
+          Cláusula Quinta
+        </span>
+        <textarea
+          name="clausula_pago_consignacion_5"
+          value={form.clausula_pago_consignacion_5}
+          onChange={actualizarCampo}
+          rows={4}
+          className="rounded-lg border bg-white p-3"
+        />
+      </label>
+
+      <label className="grid gap-2">
+        <span className="font-medium">
+          Cláusula Sexta
+        </span>
+        <textarea
+          name="clausula_pago_consignacion_6"
+          value={form.clausula_pago_consignacion_6}
+          onChange={actualizarCampo}
+          rows={4}
+          className="rounded-lg border bg-white p-3"
+        />
+      </label>
+
+      <label className="grid gap-2">
+        <span className="font-medium">
+          Cláusula Séptima
+        </span>
+        <textarea
+          name="clausula_pago_consignacion_7"
+          value={form.clausula_pago_consignacion_7}
+          onChange={actualizarCampo}
+          rows={4}
+          className="rounded-lg border bg-white p-3"
+        />
+      </label>
+    </div>
+  </section>
+)}
 
         {/* ENTREGA */}
 
