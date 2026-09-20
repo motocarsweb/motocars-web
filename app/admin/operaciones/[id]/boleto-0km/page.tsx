@@ -719,6 +719,36 @@ export default function Boleto0KmPage() {
             <strong>
               Forma de pago:
             </strong>{" "}
+                      {operacion.importe_reserva !== null &&
+            operacion.importe_reserva > 0 && (
+              <div className="condiciones-pago">
+                <strong>Precio total de venta:</strong>{" "}
+                {formatearImporteCompleto(
+                  operacion.precio_vehiculo,
+                  "ARS"
+                )}
+
+                <br />
+
+                <strong>Reserva abonada:</strong>{" "}
+                {formatearImporteCompleto(
+                  operacion.importe_reserva,
+                  "ARS"
+                )}
+
+                <br />
+
+                <strong>Saldo pendiente:</strong>{" "}
+                {formatearImporteCompleto(
+                  Math.max(
+                    0,
+                    operacion.precio_vehiculo -
+                      operacion.importe_reserva
+                  ),
+                  "ARS"
+                )}
+              </div>
+            )}
             {operacion.forma_pago ||
               "A definir"}
 

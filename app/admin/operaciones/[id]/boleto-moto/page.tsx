@@ -646,6 +646,23 @@ margin-right: 6mm;
                   operacion.total,
                   operacion.moneda
                 )}{"\n"}
+                                {operacion.importe_reserva !== null &&
+                  operacion.importe_reserva > 0 && (
+                    <>
+                      Reserva abonada: {formatearImporteCompleto(
+                        operacion.importe_reserva,
+                        operacion.moneda
+                      )}{"\n"}
+                      Saldo pendiente: {formatearImporteCompleto(
+                        Math.max(
+                          0,
+                          operacion.total -
+                            operacion.importe_reserva
+                        ),
+                        operacion.moneda
+                      )}{"\n"}
+                    </>
+                  )}
               </>
             )}
             Forma de pago: {operacion.forma_pago || "A definir"}

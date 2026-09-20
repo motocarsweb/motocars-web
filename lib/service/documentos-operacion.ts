@@ -19,7 +19,7 @@ export type TipoDocumentoOperacion =
   | "responsabilidad_civil"
   | "boleto_moto"
   | "detalle_pago"
-  | "recibo_senia"
+  | "recibo_reserva"
   | "recibo_pago"
   | "acta_entrega";
 

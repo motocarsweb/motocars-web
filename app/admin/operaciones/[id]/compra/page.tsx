@@ -622,44 +622,17 @@ export default function CompraPage() {
               </span>
             </div>
           </div>
-
-          <p style={{ marginTop: 15 }}>
-            <strong>Primera.</strong>{" "}
-            EL VENDEDOR vende y entrega a
-            EL COMPRADOR el vehículo
-            individualizado precedentemente,
-            por la suma total de{" "}
-            <strong>
-              {formatearImporte(
-                valorCompra
-              )}
-            </strong>
-            .
-          </p>
-
+<p style={{ marginTop: 15 }}>
+  <strong>Primera.</strong>{" "}
+  {operacion.clausula_compra_1 ||
+    "EL VENDEDOR vende y entrega a EL COMPRADOR el vehículo individualizado precedentemente, por la suma total correspondiente al valor de compra indicado en este instrumento."}
+</p>
+        
+            {operacion.clausula_compra_2 ||
+  "EL VENDEDOR declara bajo su responsabilidad que es titular o se encuentra debidamente facultado para disponer del vehículo y que los datos consignados en el presente instrumento son correctos."}
           <p>
-            <strong>Segunda.</strong>{" "}
-            EL VENDEDOR declara bajo su
-            responsabilidad que es titular
-            o se encuentra debidamente
-            facultado para disponer del
-            vehículo y que los datos
-            consignados en el presente
-            instrumento son correctos.
-          </p>
-
-          <p>
-            <strong>Tercera.</strong>{" "}
-            EL VENDEDOR se obliga a entregar
-            la documentación necesaria para
-            efectuar la transferencia
-            dominial y demás trámites
-            correspondientes, respondiendo
-            por gravámenes, inhibiciones,
-            deudas, multas u otras
-            restricciones anteriores a esta
-            operación que no hubieran sido
-            expresamente informadas.
+           {operacion.clausula_compra_3 ||
+  "EL VENDEDOR se obliga a entregar la documentación necesaria para efectuar la transferencia dominial y demás trámites correspondientes, respondiendo por gravámenes, inhibiciones, deudas, multas u otras restricciones anteriores a esta operación que no hubieran sido expresamente informadas."}
           </p>
 
           <h2 className="titulo-seccion-compra">
@@ -730,24 +703,13 @@ export default function CompraPage() {
 )}
 
 <p style={{ marginTop: 14 }}>
-  <strong>Cuarta.</strong>{" "}
-  EL VENDEDOR declara recibir de
-  conformidad los importes y/o medios
-  de pago detallados precedentemente,
-  de acuerdo con las condiciones
-  convenidas entre las partes.
+  {operacion.clausula_compra_4 ||
+  "EL VENDEDOR declara recibir de conformidad los importes y/o medios de pago detallados precedentemente, de acuerdo con las condiciones convenidas entre las partes."}
 </p>
 
 <p>
-  <strong>Quinta.</strong>{" "}
-  Las partes constituyen domicilios
-  en los indicados en este instrumento
-  y se someten a la jurisdicción de
-  los Tribunales competentes del
-  Departamento Confluencia, Provincia
-  del Neuquén, con renuncia a cualquier
-  otro fuero o jurisdicción que pudiera
-  corresponder.
+  {operacion.clausula_compra_5 ||
+  "Las partes constituyen domicilios en los indicados en este instrumento y se someten a la jurisdicción de los Tribunales competentes del Departamento Confluencia, Provincia del Neuquén, con renuncia a cualquier otro fuero o jurisdicción que pudiera corresponder."}
 </p>
 
 {operacion.observaciones && (

@@ -73,6 +73,11 @@ const menuItems: MenuItem[] = [
     icon: <Images size={19} strokeWidth={2} />,
   },
   {
+  href: "/admin/configuracion/portada",
+  label: "Portada",
+  icon: <Images size={19} strokeWidth={2} />,
+},
+  {
     href: "/admin/configuracion",
     label: "Configuración",
     icon: <Settings size={19} strokeWidth={2} />,

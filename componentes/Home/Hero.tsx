@@ -1,10 +1,38 @@
+"use client";
+
 import { ArrowRight, MessageCircle } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { obtenerFotoPortada } from "@/lib/service/foto-portada";
 
 export default function Hero() {
+  const [fotoPortada, setFotoPortada] = useState(
+  "/images/hero-salon.webp"
+);
+
+useEffect(() => {
+  async function cargarFotoPortada() {
+    try {
+      const foto =
+        await obtenerFotoPortada();
+
+      if (foto?.url) {
+        setFotoPortada(foto.url);
+      }
+    } catch {
+      // Mantiene la portada local como respaldo.
+    }
+  }
+
+  void cargarFotoPortada();
+}, []);
   return (
-    <section className="hero">
-      <div className="hero-overlay" />
+<section
+  className="hero"
+  style={{
+    backgroundImage: `url("${fotoPortada}")`,
+  }}
+>      <div className="hero-overlay" />
 
    <Image
   src="/logos/motocars-Isotipo-rojo.png"

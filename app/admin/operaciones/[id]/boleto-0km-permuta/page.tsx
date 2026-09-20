@@ -922,7 +922,36 @@ export default function Boleto0KmPermutaPage() {
           <h2 className="titulo-seccion-0km">
             Forma de pago
           </h2>
+          {operacion.importe_reserva !== null &&
+            operacion.importe_reserva > 0 && (
+              <div className="condiciones-pago">
+                <strong>Precio total de venta:</strong>{" "}
+                {formatearImporteCompleto(
+                  operacion.precio_vehiculo,
+                  "ARS"
+                )}
 
+                <br />
+
+                <strong>Reserva abonada:</strong>{" "}
+                {formatearImporteCompleto(
+                  operacion.importe_reserva,
+                  "ARS"
+                )}
+
+                <br />
+
+                <strong>Saldo pendiente:</strong>{" "}
+                {formatearImporteCompleto(
+                  Math.max(
+                    0,
+                    operacion.precio_vehiculo -
+                      operacion.importe_reserva
+                  ),
+                  "ARS"
+                )}
+              </div>
+            )}
           <div className="condiciones-pago">
             <strong>
               Forma de pago:

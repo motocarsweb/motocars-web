@@ -44,6 +44,16 @@ export type Operacion = {
 
   forma_pago: string | null;
   detalle_pago: string | null;
+  importe_reserva: number | null;
+fecha_reserva: string | null;
+reserva_hasta: string | null;
+  forma_pago_reserva: string | null;
+  detalle_pago_reserva: string | null;
+  clausula_compra_1: string | null;
+clausula_compra_2: string | null;
+clausula_compra_3: string | null;
+clausula_compra_4: string | null;
+clausula_compra_5: string | null;
 
   gastos_gestoria: number;
   gastos_gestoria_incluidos: boolean;
@@ -83,6 +93,16 @@ export type OperacionFormulario = {
 
   forma_pago: string;
   detalle_pago: string;
+  importe_reserva: number | null;
+fecha_reserva: string;
+reserva_hasta: string;
+  forma_pago_reserva: string;
+  detalle_pago_reserva: string;
+  clausula_compra_1: string;
+clausula_compra_2: string;
+clausula_compra_3: string;
+clausula_compra_4: string;
+clausula_compra_5: string;
 
   gastos_gestoria: string;
   gastos_gestoria_incluidos: boolean;
@@ -115,6 +135,16 @@ export const OPERACION_FORMULARIO_INICIAL: OperacionFormulario = {
 
   forma_pago: "",
   detalle_pago: "",
+  importe_reserva: null,
+fecha_reserva: "",
+reserva_hasta: "",
+  forma_pago_reserva: "",
+  detalle_pago_reserva: "",
+  clausula_compra_1: "",
+clausula_compra_2: "",
+clausula_compra_3: "",
+clausula_compra_4: "",
+clausula_compra_5: "",
 
   gastos_gestoria: "0",
   gastos_gestoria_incluidos: false,
@@ -183,6 +213,34 @@ moneda:
     detalle_pago:
       form.detalle_pago.trim() ||
       null,
+    importe_reserva:
+      form.importe_reserva ?? null,
+
+    fecha_reserva:
+      form.fecha_reserva || null,
+
+    reserva_hasta:
+      form.reserva_hasta || null,
+
+          forma_pago_reserva:
+      form.forma_pago_reserva || null,
+
+    detalle_pago_reserva:
+      form.detalle_pago_reserva || null,
+      clausula_compra_1:
+  form.clausula_compra_1 || null,
+
+clausula_compra_2:
+  form.clausula_compra_2 || null,
+
+clausula_compra_3:
+  form.clausula_compra_3 || null,
+
+clausula_compra_4:
+  form.clausula_compra_4 || null,
+
+clausula_compra_5:
+  form.clausula_compra_5 || null,
 
     gastos_gestoria:
       convertirImporte(

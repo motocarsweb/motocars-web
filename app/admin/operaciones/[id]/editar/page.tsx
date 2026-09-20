@@ -139,6 +139,40 @@ function crearFormularioDesdeOperacion(
     detalle_pago:
       operacion.detalle_pago ?? "",
 
+      importe_reserva:
+  operacion.importe_reserva ?? null,
+
+fecha_reserva:
+  operacion.fecha_reserva ?? "",
+
+reserva_hasta:
+  operacion.reserva_hasta ?? "",
+
+      forma_pago_reserva:
+      operacion.forma_pago_reserva ?? "",
+
+    detalle_pago_reserva:
+      operacion.detalle_pago_reserva ?? "",
+      clausula_compra_1:
+  operacion.clausula_compra_1 ??
+    "EL VENDEDOR vende y entrega a EL COMPRADOR el vehículo individualizado precedentemente, por la suma total correspondiente al valor de compra indicado en este instrumento.",
+
+clausula_compra_2:
+  operacion.clausula_compra_2 ??
+    "EL VENDEDOR declara bajo su responsabilidad que es titular o se encuentra debidamente facultado para disponer del vehículo y que los datos consignados en el presente instrumento son correctos.",
+
+clausula_compra_3:
+  operacion.clausula_compra_3 ??
+    "EL VENDEDOR se obliga a entregar la documentación necesaria para efectuar la transferencia dominial y demás trámites correspondientes, respondiendo por gravámenes, inhibiciones, deudas, multas u otras restricciones anteriores a esta operación que no hubieran sido expresamente informadas.",
+
+clausula_compra_4:
+  operacion.clausula_compra_4 ??
+    "EL VENDEDOR declara recibir de conformidad los importes y/o medios de pago detallados precedentemente, de acuerdo con las condiciones convenidas entre las partes.",
+
+clausula_compra_5:
+  operacion.clausula_compra_5 ??
+    "Las partes constituyen domicilios en los indicados en este instrumento y se someten a la jurisdicción de los Tribunales competentes del Departamento Confluencia, Provincia del Neuquén, con renuncia a cualquier otro fuero o jurisdicción que pudiera corresponder.",
+
     gastos_gestoria:
       String(
         operacion.gastos_gestoria ?? 0
@@ -1661,6 +1695,97 @@ function actualizarCampoIngresoUsado(
           </label>
         </section>
 
+        {/* RESERVA DE UNIDAD */}
+
+        {operacion.tipo_operacion === "venta" && (
+          <section className="grid gap-5 rounded-xl border border-amber-200 bg-amber-50/40 p-5 md:grid-cols-2">
+            <div className="md:col-span-2">
+              <h2 className="text-lg font-semibold">
+                Reserva de unidad
+              </h2>
+
+              <p className="mt-1 text-sm text-gray-500">
+                Datos utilizados para emitir el Recibo de Reserva.
+              </p>
+            </div>
+
+            <label className="grid gap-2">
+              <span className="font-medium">
+                Importe de reserva
+              </span>
+
+              <input
+                type="number"
+                name="importe_reserva"
+                min="0"
+                step="0.01"
+                value={form.importe_reserva ?? ""}
+                onChange={actualizarCampo}
+                placeholder="0"
+                className="rounded-lg border bg-white p-3"
+              />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="font-medium">
+                Fecha de reserva
+              </span>
+
+              <input
+                type="date"
+                name="fecha_reserva"
+                value={form.fecha_reserva}
+                onChange={actualizarCampo}
+                className="rounded-lg border bg-white p-3"
+              />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="font-medium">
+                Reserva vigente hasta
+              </span>
+
+              <input
+                type="date"
+                name="reserva_hasta"
+                value={form.reserva_hasta}
+                onChange={actualizarCampo}
+                className="rounded-lg border bg-white p-3"
+              />
+            </label>
+                        <label className="grid gap-2">
+              <span className="font-medium">
+                Forma de pago de la reserva
+              </span>
+
+              <input
+                type="text"
+                name="forma_pago_reserva"
+                value={form.forma_pago_reserva}
+                onChange={actualizarCampo}
+                placeholder="Ej.: Efectivo, transferencia, tarjeta"
+                className="rounded-lg border bg-white p-3"
+              />
+            </label>
+
+            <label className="grid gap-2 md:col-span-2">
+              <span className="font-medium">
+                Detalle del pago de la reserva
+              </span>
+
+              <textarea
+                name="detalle_pago_reserva"
+                value={form.detalle_pago_reserva}
+                onChange={actualizarCampo}
+                placeholder="Ej.: Transferencia Banco Galicia, comprobante N.º..."
+                rows={3}
+                className="rounded-lg border bg-white p-3"
+              />
+            </label>
+                                  
+          </section>
+        )}
+
 
         {/* ENTREGA */}
 
@@ -1934,7 +2059,115 @@ function actualizarCampoIngresoUsado(
           </div>
         )}
 
+{operacion.tipo_operacion === "compra" && (
+  <section className="rounded-xl border bg-white p-5">
+    <div className="mb-4">
+      <h2 className="text-lg font-semibold">
+        Cláusulas del Boleto de Compra
+      </h2>
+      <p className="mt-1 text-sm text-gray-500">
+        Podés modificar estos textos antes de emitir el boleto.
+      </p>
+    </div>
 
+    <div className="grid gap-4">
+      <label className="grid gap-2">
+        <span className="font-medium">Primera</span>
+        <textarea
+          value={form.clausula_compra_1}
+          onChange={(e) =>
+            setForm((actual) =>
+  actual
+    ? {
+        ...actual,
+        clausula_compra_1: e.target.value,
+      }
+    : actual
+)
+          }
+          rows={4}
+          className="w-full rounded-lg border px-3 py-2"
+        />
+      </label>
+
+      <label className="grid gap-2">
+        <span className="font-medium">Segunda</span>
+        <textarea
+          value={form.clausula_compra_2}
+          onChange={(e) =>
+         setForm((actual) =>
+  actual
+    ? {
+        ...actual,
+        clausula_compra_2: e.target.value,
+      }
+    : actual
+)
+          }
+          rows={4}
+          className="w-full rounded-lg border px-3 py-2"
+        />
+      </label>
+
+      <label className="grid gap-2">
+        <span className="font-medium">Tercera</span>
+        <textarea
+          value={form.clausula_compra_3}
+          onChange={(e) =>
+           setForm((actual) =>
+  actual
+    ? {
+        ...actual,
+        clausula_compra_3: e.target.value,
+      }
+    : actual
+)
+          }
+          rows={4}
+          className="w-full rounded-lg border px-3 py-2"
+        />
+      </label>
+
+      <label className="grid gap-2">
+        <span className="font-medium">Cuarta</span>
+        <textarea
+          value={form.clausula_compra_4}
+          onChange={(e) =>
+            setForm((actual) =>
+  actual
+    ? {
+        ...actual,
+        clausula_compra_4: e.target.value,
+      }
+    : actual
+)
+          }
+          rows={4}
+          className="w-full rounded-lg border px-3 py-2"
+        />
+      </label>
+
+      <label className="grid gap-2">
+        <span className="font-medium">Quinta</span>
+        <textarea
+          value={form.clausula_compra_5}
+          onChange={(e) =>
+            setForm((actual) =>
+  actual
+    ? {
+        ...actual,
+        clausula_compra_5: e.target.value,
+      }
+    : actual
+)
+          }
+          rows={4}
+          className="w-full rounded-lg border px-3 py-2"
+        />
+      </label>
+    </div>
+  </section>
+)}
         <div className="flex flex-wrap justify-between gap-3">
           <Link
             href={`/admin/operaciones/${operacion.id}`}

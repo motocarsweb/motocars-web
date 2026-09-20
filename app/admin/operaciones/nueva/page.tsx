@@ -359,6 +359,10 @@ export default function NuevaOperacionPage() {
   useState("");
     const [busquedaVehiculo, setBusquedaVehiculo] =
   useState("");
+    const [
+    cargarVehiculoNuevoVenta,
+    setCargarVehiculoNuevoVenta,
+  ] = useState(false);
 
   const esVenta =
     form.tipo_operacion ===
@@ -896,25 +900,26 @@ const pagosCompraCoinciden =
     }
 
     if (
-      vehiculoIngresoEsUsado &&
-      convertirNumero(
-        vehiculoIngreso
-          .precio_base_consignacion
-      ) <= 0
-    ) {
-      return "Ingresá el valor para el contrato de consignación.";
-    }
+  vehiculoIngresoEsUsado &&
+  !cargarVehiculoNuevoVenta &&
+  convertirNumero(
+    vehiculoIngreso
+      .precio_base_consignacion
+  ) <= 0
+) {
+  return "Ingresá el valor para el contrato de consignación.";
+}
 
     if (
-      vehiculoIngresoEsUsado &&
-      convertirNumero(
-        vehiculoIngreso
-          .plazo_consignacion_dias
-      ) <= 0
-    ) {
-      return "Ingresá un plazo válido para el contrato.";
-    }
-
+  vehiculoIngresoEsUsado &&
+  !cargarVehiculoNuevoVenta &&
+  convertirNumero(
+    vehiculoIngreso
+      .plazo_consignacion_dias
+  ) <= 0
+) {
+  return "Ingresá un plazo válido para el contrato.";
+}
     return "";
   }
 
@@ -1014,18 +1019,19 @@ const pagosCompraCoinciden =
 
     if (esVenta) {
       if (
-        !form.vehiculo_id
-      ) {
-        return "Seleccioná el vehículo vendido.";
-      }
-
+  !cargarVehiculoNuevoVenta &&
+  !form.vehiculo_id
+) {
+  return "Seleccioná el vehículo vendido.";
+}
       if (
-        convertirNumero(
-          form.precio_vehiculo
-        ) <= 0
-      ) {
-        return "Ingresá un precio de venta válido.";
-      }
+  !cargarVehiculoNuevoVenta &&
+  convertirNumero(
+    form.precio_vehiculo
+  ) <= 0
+) {
+  return "Ingresá un precio de venta válido.";
+}
 
       if (
         convertirNumero(
@@ -1043,7 +1049,11 @@ const pagosCompraCoinciden =
       ) {
         return "El total de la operación no puede ser negativo.";
       }
-
+if (
+  cargarVehiculoNuevoVenta
+) {
+  return validarDatosVehiculoIngreso();
+}
       if (
         hayPermuta
       ) {
@@ -1085,6 +1095,7 @@ const pagosCompraCoinciden =
       | "compra"
       | "permuta"
       | "consignacion"
+      | "carga_venta"
   ) {
     const {
       data,
@@ -1331,6 +1342,38 @@ const pagosCompraCoinciden =
   }
 
   async function guardarVenta() {
+        if (
+      cargarVehiculoNuevoVenta
+    ) {
+      const tipoIngresoId =
+        await obtenerTipoIngresoId(
+          "carga_venta"
+        );
+
+      const vehiculoNuevo =
+        await crearVehiculoDeIngreso(
+          tipoIngresoId
+        );
+
+      const formVenta: OperacionFormulario = {
+        ...form,
+
+        vehiculo_id:
+          String(
+            vehiculoNuevo.id
+          ),
+
+        precio_vehiculo:
+          vehiculoIngreso.precio_venta,
+      };
+
+      const operacion =
+        await crearOperacion(
+          formVenta
+        );
+
+      return operacion;
+    }
     const operacion =
       await crearOperacion(
         form
@@ -1680,6 +1723,53 @@ if (ingresoPermuta) {
 
             {esVenta && (
               <>
+                              <section className="rounded-xl border bg-gray-50 p-5">
+                  <p className="font-semibold">
+                    Unidad de la venta
+                  </p>
+
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCargarVehiculoNuevoVenta(false)
+                      }
+                      className={`rounded-lg border p-4 text-left ${
+                        !cargarVehiculoNuevoVenta
+                          ? "border-blue-600 bg-blue-600 text-white"
+                          : "bg-white text-gray-900"
+                      }`}
+                    >
+                      <strong className="block">
+                        Unidad existente
+                      </strong>
+                      <span className="mt-1 block text-xs">
+                        Seleccionar una unidad del stock.
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCargarVehiculoNuevoVenta(true)
+                      }
+                      className={`rounded-lg border p-4 text-left ${
+                        cargarVehiculoNuevoVenta
+                          ? "border-blue-600 bg-blue-600 text-white"
+                          : "bg-white text-gray-900"
+                      }`}
+                    >
+                      <strong className="block">
+                        Cargar unidad nueva
+                      </strong>
+                      <span className="mt-1 block text-xs">
+                        Para reservar o vender una unidad que todavía no está cargada.
+                      </span>
+                    </button>
+                  </div>
+                </section>
+                                {!cargarVehiculoNuevoVenta && (
+                  <>
                 <section className="grid gap-5 rounded-xl border p-5 md:grid-cols-2">
                   <label className="grid gap-2">
                     <span className="font-medium">
@@ -1773,7 +1863,8 @@ if (ingresoPermuta) {
                     </div>
                   </div>
                 </section>
-
+                  </>
+                )}
                 <section className="rounded-xl border bg-gray-50 p-5">
                   <p className="font-semibold">
                     ¿Se recibe un vehículo en permuta?
@@ -1821,7 +1912,43 @@ if (ingresoPermuta) {
                 </section>
               </>
             )}
+            {esVenta && cargarVehiculoNuevoVenta && (
+              <section className="rounded-xl border border-blue-200 bg-blue-50 p-5">
+                <h2 className="text-lg font-semibold">
+                  Condición de la unidad nueva
+                </h2>
 
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      seleccionarCondicionIngreso("0km")
+                    }
+                    className={`rounded-lg border p-4 text-left font-semibold ${
+                      vehiculoIngreso.condicion === "0km"
+                        ? "border-blue-600 bg-blue-600 text-white"
+                        : "bg-white text-gray-900"
+                    }`}
+                  >
+                    0 km
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      seleccionarCondicionIngreso("usado")
+                    }
+                    className={`rounded-lg border p-4 text-left font-semibold ${
+                      vehiculoIngreso.condicion === "usado"
+                        ? "border-blue-600 bg-blue-600 text-white"
+                        : "bg-white text-gray-900"
+                    }`}
+                  >
+                    Usado
+                  </button>
+                </div>
+              </section>
+            )}
             {operacionHaceIngresarVehiculo && (
               <section className="rounded-xl border border-blue-200 bg-blue-50 p-5">
                 <h2 className="text-lg font-semibold">
@@ -1867,7 +1994,8 @@ if (ingresoPermuta) {
             )}
 
             {(operacionHaceIngresarVehiculo ||
-              hayPermuta) && (
+              hayPermuta ||
+              (esVenta && cargarVehiculoNuevoVenta)) && (
               <section className="grid gap-6 rounded-xl border border-blue-200 bg-blue-50 p-5">
                 <div>
                   <h2 className="text-lg font-semibold">
@@ -2104,7 +2232,11 @@ if (ingresoPermuta) {
 
                 {vehiculoIngresoEsUsado && (
                   <>
-                    <section className="grid gap-4 rounded-lg border border-blue-200 bg-white p-4">
+                    <section
+  className={`grid gap-4 rounded-lg border border-blue-200 bg-white p-4 ${
+    cargarVehiculoNuevoVenta ? "hidden" : ""
+  }`}
+>
                       <div>
                         <h3 className="font-semibold">
                           Contrato de consignación

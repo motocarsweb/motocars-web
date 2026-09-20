@@ -1242,6 +1242,16 @@ const [
       origen:
         "operacion",
     });
+        documentosEsperados.push({
+      tipo:
+        "recibo_reserva",
+
+      nombre:
+        "Recibo de Reserva",
+
+      origen:
+        "operacion",
+    });
 
 
     if (vehiculo.tipo?.trim().toLowerCase() === "moto") {
@@ -1819,7 +1829,16 @@ const [
     >
       Editar operación
     </Link>
-
+    {operacion.tipo_operacion === "venta" &&
+      operacion.importe_reserva !== null &&
+      operacion.importe_reserva > 0 && (
+        <Link
+          href={`/admin/operaciones/${operacion.id}/recibo-reserva`}
+          className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white"
+        >
+          Imprimir Recibo de Reserva
+        </Link>
+      )}
     <span className="rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
       {obtenerTipoOperacionLegible(
         operacion.tipo_operacion
@@ -3072,6 +3091,14 @@ const [
 
 
           <div className="flex flex-wrap gap-3">
+           {esCompra && (
+  <Link
+    href={`/admin/operaciones/${operacion.id}/compra`}
+    className="rounded-lg bg-blue-600 px-5 py-2 font-medium text-white"
+  >
+    Ver / Imprimir boleto de compra
+  </Link>
+)}
             {esConsignacion && (
   <Link
     href={`/admin/operaciones/${operacion.id}/consignacion`}
