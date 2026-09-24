@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import PageHeader from "@/componentes/admin/PageHeader";
 
 import {
+  crearCliente,
   listarClientes,
   type Cliente,
 } from "@/lib/service/clientes";
@@ -47,6 +48,10 @@ import { supabase } from "@/lib/supabase";
 import {
   crearDocumentoOperacion,
 } from "@/lib/service/documentos-operacion";
+import {
+  obtenerPresupuesto,
+  type Presupuesto,
+} from "@/lib/service/presupuestos";
 
 type CondicionIngreso =
   | "0km"
@@ -294,7 +299,37 @@ const DOCUMENTOS_PERMUTA = [
 export default function NuevaOperacionPage() {
   const router =
     useRouter();
+   const [
+    presupuestoId,
+    setPresupuestoId,
+  ] = useState<string | null>(
+    null
+  );
 
+  useEffect(() => {
+    const parametros =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    setPresupuestoId(
+      parametros.get(
+        "presupuesto"
+      )
+    );
+  }, []);
+      const [
+    presupuestoOrigen,
+    setPresupuestoOrigen,
+  ] =
+    useState<Presupuesto | null>(
+      null
+    );
+      const [
+    creandoClientePresupuesto,
+    setCreandoClientePresupuesto,
+  ] =
+    useState(false);
   const [
     form,
     setForm,
@@ -363,7 +398,112 @@ export default function NuevaOperacionPage() {
     cargarVehiculoNuevoVenta,
     setCargarVehiculoNuevoVenta,
   ] = useState(false);
+  useEffect(() => {
+    if (!presupuestoId) {
+      return;
+    }
 
+    const id =
+      Number(presupuestoId);
+
+    if (
+      !Number.isInteger(id) ||
+      id <= 0
+    ) {
+      setError(
+        "El presupuesto indicado no es válido."
+      );
+      return;
+    }
+
+    async function cargarPresupuestoOrigen() {
+      try {
+        const presupuesto =
+          await obtenerPresupuesto(id);
+
+        setPresupuestoOrigen(
+          presupuesto
+        );
+                setForm(
+          (anterior) => ({
+            ...anterior,
+            tipo_operacion: "venta",
+            cliente_id:
+  presupuesto.cliente_id
+    ? String(
+        presupuesto.cliente_id
+      )
+    : anterior.cliente_id,
+            vehiculo_id: String(
+              presupuesto.vehiculo_id
+            ),
+            precio_vehiculo: String(
+              presupuesto.precio_vehiculo
+            ),
+            bonificacion: String(
+              presupuesto.bonificacion
+            ),
+            gastos: String(
+              presupuesto.gastos
+            ),
+            forma_pago:
+              presupuesto.forma_pago ??
+              "",
+            detalle_pago:
+              presupuesto.financiacion ??
+              "",
+            observaciones:
+              presupuesto.observaciones ??
+              "",
+          })
+        );
+                if (
+          presupuesto.valor_permuta > 0
+        ) {
+          setVentaConPermuta(true);
+
+          setVehiculoIngreso(
+            (anterior) => ({
+              ...anterior,
+              condicion: "usado",
+              marca:
+                presupuesto.permuta_marca ??
+                "",
+              modelo:
+                presupuesto.permuta_modelo ??
+                "",
+              anio:
+                presupuesto.permuta_anio
+                  ? String(
+                      presupuesto.permuta_anio
+                    )
+                  : "",
+              kilometros:
+                presupuesto.permuta_kilometros
+                  ? String(
+                      presupuesto.permuta_kilometros
+                    )
+                  : "",
+              valor_ingreso: String(
+                presupuesto.valor_permuta
+              ),
+            })
+          );
+        }
+        
+      } catch (
+        errorDesconocido
+      ) {
+        setError(
+          errorDesconocido instanceof Error
+            ? errorDesconocido.message
+            : "No se pudo cargar el presupuesto."
+        );
+      }
+    }
+
+    cargarPresupuestoOrigen();
+  }, [presupuestoId]);
   const esVenta =
     form.tipo_operacion ===
     "venta";
@@ -568,6 +708,100 @@ const pagosCompraCoinciden =
   Math.abs(
     diferenciaPagosCompra
   ) <= 0.01;
+
+    async function crearClienteDesdePresupuesto() {
+    if (
+      !presupuestoOrigen ||
+      presupuestoOrigen.cliente_id
+    ) {
+      return;
+    }
+
+    setCreandoClientePresupuesto(true);
+    setError("");
+
+    try {
+      const partesNombre =
+        presupuestoOrigen.nombre_cliente
+          .trim()
+          .split(/\s+/);
+
+      const nombre =
+        partesNombre.shift() ?? "";
+
+      const apellido =
+        partesNombre.join(" ");
+
+      const cliente =
+        await crearCliente({
+          tipo_persona: "fisica",
+
+          nombre,
+          apellido,
+          razon_social: "",
+
+          dni:
+            presupuestoOrigen.documento ??
+            "",
+          cuit: "",
+
+          telefono:
+            presupuestoOrigen.telefono ??
+            "",
+          whatsapp:
+            presupuestoOrigen.telefono ??
+            "",
+          email:
+            presupuestoOrigen.email ??
+            "",
+
+          provincia: "Neuquén",
+          ciudad:
+            presupuestoOrigen.ciudad ??
+            "Neuquén",
+          direccion:
+            presupuestoOrigen.direccion ??
+            "",
+
+          fecha_nacimiento: "",
+          profesion: "",
+          estado_civil: "",
+
+          conyuge_nombre: "",
+          conyuge_dni: "",
+
+          observaciones:
+            `Cliente creado desde presupuesto ${presupuestoOrigen.numero ?? presupuestoOrigen.id}.`,
+
+          activo: true,
+        });
+
+      setClientes(
+        (anteriores) => [
+          ...anteriores,
+          cliente,
+        ]
+      );
+
+      setForm(
+        (anterior) => ({
+          ...anterior,
+          cliente_id:
+            String(cliente.id),
+        })
+      );
+    } catch (
+      errorDesconocido
+    ) {
+      setError(
+        errorDesconocido instanceof Error
+          ? errorDesconocido.message
+          : "No se pudo crear el cliente."
+      );
+    } finally {
+      setCreandoClientePresupuesto(false);
+    }
+  }
 
   function seleccionarTipoOperacion(
     tipo: TipoOperacion
@@ -1711,7 +1945,33 @@ if (ingresoPermuta) {
                     )
                   )}
                 </select>
+{presupuestoOrigen &&
+  !presupuestoOrigen.cliente_id &&
+  !form.cliente_id && (
+    <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+      <p className="font-semibold text-gray-900">
+        Interesado del presupuesto
+      </p>
 
+      <p className="mt-1 text-sm text-gray-700">
+        {presupuestoOrigen.nombre_cliente}
+        {presupuestoOrigen.documento
+          ? ` · DNI/CUIT ${presupuestoOrigen.documento}`
+          : ""}
+      </p>
+
+      <button
+        type="button"
+        onClick={crearClienteDesdePresupuesto}
+        disabled={creandoClientePresupuesto}
+        className="mt-3 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+      >
+        {creandoClientePresupuesto
+          ? "Creando cliente..."
+          : "Crear y seleccionar este cliente"}
+      </button>
+    </div>
+  )}
                 <Link
                   href="/admin/clientes/nuevo"
                   className="text-sm font-medium text-blue-600"

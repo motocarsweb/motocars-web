@@ -5,7 +5,9 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import MotoCarsDocumentoLayout from "@/componentes/documentos/MotoCarsDocumentoLayout";
-
+import {
+  crearPresupuesto,
+} from "@/lib/service/presupuestos";
 import {
   obtenerVehiculoPorId,
   type VehiculoSupabase,
@@ -51,6 +53,14 @@ export default function PresupuestoVehiculoPage() {
 
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
+    const [guardandoPresupuesto, setGuardandoPresupuesto] =
+    useState(false);
+
+  const [presupuestoGuardado, setPresupuestoGuardado] =
+    useState(false);
+
+  const [errorGuardado, setErrorGuardado] =
+    useState("");
 
   const [cliente, setCliente] = useState("");
   const [documento, setDocumento] = useState("");
@@ -153,6 +163,85 @@ const [permutaKilometros, setPermutaKilometros] = useState("");
     permuta,
   ]);
 
+    async function guardarPresupuesto() {
+    if (presupuestoGuardado) {
+      return;
+    }
+    if (!vehiculo) {
+      setErrorGuardado(
+        "No se pudo identificar el vehículo."
+      );
+      return;
+    }
+    if (!cliente.trim()) {
+      setErrorGuardado(
+        "Ingresá el nombre del interesado antes de guardar el presupuesto."
+      );
+      return;
+    }
+
+    setGuardandoPresupuesto(true);
+    setErrorGuardado("");
+
+    try {
+      await crearPresupuesto({
+        vehiculo_id: vehiculo.id,
+
+        nombre_cliente: cliente,
+        documento,
+        telefono,
+        email,
+        ciudad,
+        direccion,
+
+        precio_vehiculo:
+          numeroDesdeInput(precio),
+        bonificacion:
+          numeroDesdeInput(bonificacion),
+        gastos:
+          numeroDesdeInput(gastos),
+
+        valor_permuta:
+          numeroDesdeInput(permuta),
+        permuta_marca: permutaMarca,
+        permuta_modelo: permutaModelo,
+        permuta_anio:
+          permutaAnio
+            ? numeroDesdeInput(permutaAnio)
+            : null,
+        permuta_kilometros:
+          permutaKilometros
+            ? numeroDesdeInput(
+                permutaKilometros
+              )
+            : null,
+
+        total,
+
+        forma_pago: formaPago,
+        financiacion,
+        observaciones,
+
+        validez_dias:
+          numeroDesdeInput(validezDias),
+
+        valido_hasta:
+          fechaVencimiento
+            .toISOString()
+            .slice(0, 10),
+      });
+
+      setPresupuestoGuardado(true);
+    } catch (errorDesconocido) {
+      setErrorGuardado(
+        errorDesconocido instanceof Error
+          ? errorDesconocido.message
+          : "No se pudo guardar el presupuesto."
+      );
+    } finally {
+      setGuardandoPresupuesto(false);
+    }
+  }
   const fechaActual = useMemo(
     () => new Date(),
     []
@@ -557,6 +646,21 @@ const [permutaKilometros, setPermutaKilometros] = useState("");
             className="boton-presupuesto boton-principal"
             onClick={() => window.print()}
           >
+                      <button
+            type="button"
+            className="boton-presupuesto"
+            onClick={guardarPresupuesto}
+            disabled={
+              guardandoPresupuesto ||
+              presupuestoGuardado
+            }
+          >
+            {guardandoPresupuesto
+              ? "Guardando..."
+              : presupuestoGuardado
+                ? "Presupuesto guardado"
+                : "Guardar presupuesto"}
+          </button>
             Imprimir / Guardar PDF
           </button>
         </div>

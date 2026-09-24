@@ -43,6 +43,11 @@ const menuItems: MenuItem[] = [
     icon: <UserRound size={19} strokeWidth={2} />,
   },
   {
+  href: "/admin/presupuestos",
+  label: "Presupuestos",
+  icon: <FileText size={19} strokeWidth={2} />,
+},
+  {
   href: "/admin/operaciones",
   label: "Operaciones",
   icon: <Gauge size={19} strokeWidth={2} />,
