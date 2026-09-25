@@ -259,7 +259,7 @@ export default function NuevoClientePage() {
 
             <label className="grid gap-2">
               <span className="font-medium">
-                CUIT
+                CUIL / CUIT
               </span>
 
               <input
@@ -354,6 +354,33 @@ export default function NuevoClientePage() {
               className="rounded-lg border p-3"
             />
           </label>
+                    <label className="grid gap-2">
+            <span className="font-medium">
+              Domicilio
+            </span>
+
+            <input
+              name="direccion"
+              value={form.direccion}
+              onChange={actualizarCampo}
+              className="rounded-lg border p-3"
+            />
+          </label>
+                    {form.tipo_persona === "fisica" && (
+            <label className="grid gap-2">
+              <span className="font-medium">
+                Fecha de nacimiento
+              </span>
+
+              <input
+                type="date"
+                name="fecha_nacimiento"
+                value={form.fecha_nacimiento}
+                onChange={actualizarCampo}
+                className="rounded-lg border p-3"
+              />
+            </label>
+          )}
         </div>
 
         <label className="grid gap-2">
