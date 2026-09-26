@@ -92,7 +92,10 @@ export default function EditarPresupuestoPage() {
 
   const [permuta, setPermuta] =
     useState("0");
-
+const [
+  permutaTipo,
+  setPermutaTipo,
+] = useState("");
   const [
     permutaMarca,
     setPermutaMarca,
@@ -217,7 +220,9 @@ export default function EditarPresupuestoPage() {
             cargado.valor_permuta ?? 0
           )
         );
-
+setPermutaTipo(
+  cargado.permuta_tipo ?? ""
+);
         setPermutaMarca(
           cargado.permuta_marca ?? ""
         );
@@ -336,7 +341,8 @@ export default function EditarPresupuestoPage() {
 
           valor_permuta:
             numeroDesdeInput(permuta),
-
+permuta_tipo:
+  permutaTipo,
           permuta_marca:
             permutaMarca,
 
@@ -620,6 +626,31 @@ export default function EditarPresupuestoPage() {
         </h2>
 
         <div className="grid gap-5 md:grid-cols-2">
+            <label className="grid gap-2">
+  <span className="font-medium">
+    Tipo de vehículo
+  </span>
+
+  <select
+    value={permutaTipo}
+    onChange={(event) =>
+      setPermutaTipo(event.target.value)
+    }
+    className="rounded-lg border p-3"
+  >
+    <option value="">
+      Seleccionar tipo
+    </option>
+    <option value="Auto">Auto</option>
+    <option value="SUV">SUV</option>
+    <option value="Utilitario">
+      Utilitario
+    </option>
+    <option value="Pickup">Pickup</option>
+    <option value="Moto">Moto</option>
+    <option value="Otros">Otros</option>
+  </select>
+</label>
           <label className="grid gap-2">
             <span className="font-medium">
               Marca

@@ -78,7 +78,7 @@ export default function PresupuestoVehiculoPage() {
   const [financiacion, setFinanciacion] = useState("");
   const [observaciones, setObservaciones] = useState("");
   const [validezDias, setValidezDias] = useState("5");
-
+const [permutaTipo, setPermutaTipo] = useState("");
   const [permutaMarca, setPermutaMarca] = useState("");
 const [permutaModelo, setPermutaModelo] = useState("");
 const [permutaAnio, setPermutaAnio] = useState("");
@@ -203,6 +203,7 @@ const [permutaKilometros, setPermutaKilometros] = useState("");
 
         valor_permuta:
           numeroDesdeInput(permuta),
+          permuta_tipo: permutaTipo,
         permuta_marca: permutaMarca,
         permuta_modelo: permutaModelo,
         permuta_anio:
@@ -670,7 +671,23 @@ const [permutaKilometros, setPermutaKilometros] = useState("");
         <h2 className="editor-titulo">
           Completar presupuesto
         </h2>
-
+<div className="campo">
+  <label>Tipo de permuta</label>
+  <select
+    value={permutaTipo}
+    onChange={(event) =>
+      setPermutaTipo(event.target.value)
+    }
+  >
+    <option value="">Seleccionar tipo</option>
+    <option value="Auto">Auto</option>
+    <option value="SUV">SUV</option>
+    <option value="Utilitario">Utilitario</option>
+    <option value="Pickup">Pickup</option>
+    <option value="Moto">Moto</option>
+    <option value="Otros">Otros</option>
+  </select>
+</div>
         <div className="editor-grid">
           <div className="campo">
             <label>Cliente</label>

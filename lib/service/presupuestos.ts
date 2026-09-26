@@ -26,6 +26,7 @@ export type Presupuesto = {
   gastos: number;
 
   valor_permuta: number;
+  permuta_tipo: string | null;
   permuta_marca: string | null;
   permuta_modelo: string | null;
   permuta_anio: number | null;
@@ -68,6 +69,7 @@ export type PresupuestoFormulario = {
   gastos: number;
 
   valor_permuta: number;
+  permuta_tipo: string;
   permuta_marca: string;
   permuta_modelo: string;
   permuta_anio: number | null;
@@ -120,6 +122,8 @@ export async function crearPresupuesto(
       gastos: form.gastos,
 
       valor_permuta: form.valor_permuta,
+      permuta_tipo:
+  textoOpcional(form.permuta_tipo),
       permuta_marca:
         textoOpcional(form.permuta_marca),
       permuta_modelo:
@@ -360,4 +364,30 @@ export async function actualizarPresupuesto(
   }
 
   return data as Presupuesto;
+}
+export async function marcarPresupuestoConvertido(
+  presupuestoId: number,
+  operacionId: number,
+  clienteId: number
+): Promise<void> {
+  const { error } = await supabase
+    .from("presupuestos")
+    .update({
+      estado: "vendido",
+      convertido_operacion: true,
+      operacion_id: operacionId,
+      cliente_id: clienteId,
+      fecha_conversion:
+        new Date().toISOString(),
+      updated_at:
+        new Date().toISOString(),
+    })
+    .eq("id", presupuestoId)
+    .eq("convertido_operacion", false);
+
+  if (error) {
+    throw new Error(
+      `La operación fue creada, pero no se pudo marcar el presupuesto como convertido: ${error.message}`
+    );
+  }
 }

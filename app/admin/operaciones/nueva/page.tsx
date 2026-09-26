@@ -49,10 +49,10 @@ import {
   crearDocumentoOperacion,
 } from "@/lib/service/documentos-operacion";
 import {
+  marcarPresupuestoConvertido,
   obtenerPresupuesto,
   type Presupuesto,
 } from "@/lib/service/presupuestos";
-
 type CondicionIngreso =
   | "0km"
   | "usado";
@@ -466,7 +466,9 @@ export default function NuevaOperacionPage() {
             (anterior) => ({
               ...anterior,
               condicion: "usado",
-              marca:
+  tipo:
+  presupuesto.permuta_tipo ?? "",            
+  marca:
                 presupuesto.permuta_marca ??
                 "",
               modelo:
@@ -1777,7 +1779,16 @@ if (ingresoPermuta) {
         esVenta
           ? await guardarVenta()
           : await guardarIngresoPrincipal();
-
+      if (
+        presupuestoOrigen &&
+        presupuestoId
+      ) {
+        await marcarPresupuestoConvertido(
+          Number(presupuestoId),
+          operacion.id,
+          Number(form.cliente_id)
+        );
+      }
       router.push(
         `/admin/operaciones/${operacion.id}`
       );
