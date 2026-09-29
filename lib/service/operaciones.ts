@@ -352,7 +352,73 @@ clausula_compra_5:
       null,
   };
 }
+export type VentaConPermutaAtomicaInput = {
+  operacion: Record<string, unknown>;
+  vehiculo_permuta: Record<string, unknown>;
+  ingreso: Record<string, unknown>;
+};
 
+export async function crearVentaConPermutaAtomica(
+  input: VentaConPermutaAtomicaInput
+): Promise<Operacion> {
+  const { data, error } =
+    await supabase.rpc(
+      "crear_venta_con_permuta_atomica",
+      {
+        p_operacion:
+          input.operacion,
+
+        p_vehiculo_permuta:
+          input.vehiculo_permuta,
+
+        p_ingreso:
+          input.ingreso,
+      }
+    );
+
+  if (error || !data) {
+    throw new Error(
+      error?.message
+        ? `No se pudo crear la venta con permuta: ${error.message}`
+        : "No se pudo crear la venta con permuta."
+    );
+  }
+
+  const resultado =
+    data as {
+      operacion_id?: number;
+    };
+
+  if (!resultado.operacion_id) {
+    throw new Error(
+      "La venta con permuta se creó sin devolver el ID de la operación."
+    );
+  }
+
+  const {
+    data: operacion,
+    error: errorOperacion,
+  } =
+    await supabase
+      .from("operaciones")
+      .select("*")
+      .eq(
+        "id",
+        resultado.operacion_id
+      )
+      .single();
+
+  if (
+    errorOperacion ||
+    !operacion
+  ) {
+    throw new Error(
+      "La venta con permuta fue creada, pero no se pudo recuperar la operación."
+    );
+  }
+
+  return operacion as Operacion;
+}
 export async function crearOperacion(
   form: OperacionFormulario
 ): Promise<Operacion> {

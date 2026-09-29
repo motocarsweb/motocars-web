@@ -19,6 +19,7 @@ import {
 
 import {
   crearOperacion,
+  crearVentaConPermutaAtomica,
   OPERACION_FORMULARIO_INICIAL,
   type OperacionFormulario,
   type TipoOperacion,
@@ -1610,60 +1611,206 @@ if (
 
       return operacion;
     }
-    const operacion =
-      await crearOperacion(
-        form
-      );
-
-    if (
+        if (
       !hayPermuta
     ) {
-      return operacion;
+      return await crearOperacion(
+        form
+      );
     }
 
-    const tipoIngresoId =
-      await obtenerTipoIngresoId(
-        "permuta"
-      );
+    const operacion =
+      await crearVentaConPermutaAtomica({
+        operacion: {
+          tipo_operacion:
+            form.tipo_operacion,
 
-    const vehiculoPermuta =
-      await crearVehiculoDeIngreso(
-        tipoIngresoId
-      );
+          cliente_id:
+            Number(form.cliente_id),
 
-    const ingresoPermuta =
-  await registrarIngresoUsado(
-    vehiculoPermuta.id,
-    operacion.id,
-    "permuta"
-  );
+          vehiculo_id:
+            Number(form.vehiculo_id),
 
-if (ingresoPermuta) {
-  await crearDocumentoOperacion({
-    ingreso_usado_id:
-      ingresoPermuta.id,
+          precio_vehiculo:
+            convertirNumero(
+              form.precio_vehiculo
+            ),
 
-    tipo_documento:
-      "contrato_consignacion",
+          moneda:
+            form.moneda,
 
-    datos_snapshot: {
-      operacion_id:
-        operacion.id,
+          bonificacion:
+            convertirNumero(
+              form.bonificacion
+            ),
 
-      vehiculo_id:
-        vehiculoPermuta.id,
+          gastos:
+            convertirNumero(
+              form.gastos
+            ),
 
-      valor_ingreso:
-        ingresoPermuta.valor_ingreso,
+          asesor_comercial:
+            form.asesor_comercial,
 
-      precio_base_consignacion:
-        ingresoPermuta.precio_base_consignacion,
+          forma_pago:
+            form.forma_pago,
 
-      plazo_consignacion_dias:
-        ingresoPermuta.plazo_consignacion_dias,
-    },
-  });
-}
+          detalle_pago:
+            form.detalle_pago,
+
+          importe_reserva:
+            form.importe_reserva,
+
+          fecha_reserva:
+            form.fecha_reserva,
+
+          reserva_hasta:
+            form.reserva_hasta,
+
+          forma_pago_reserva:
+            form.forma_pago_reserva,
+
+          detalle_pago_reserva:
+            form.detalle_pago_reserva,
+
+          gastos_gestoria:
+            convertirNumero(
+              form.gastos_gestoria
+            ),
+
+          gastos_gestoria_incluidos:
+            form.gastos_gestoria_incluidos,
+
+          inscripcion_a_cargo_de:
+            form.inscripcion_a_cargo_de,
+
+          fecha_entrega:
+            form.fecha_entrega,
+
+          hora_entrega:
+            form.hora_entrega,
+
+          entrega_sin_patentar:
+            form.entrega_sin_patentar,
+
+          observaciones:
+            form.observaciones,
+
+          observaciones_internas:
+            form.observaciones_internas,
+        },
+
+        vehiculo_permuta: {
+          marca:
+            vehiculoIngreso.marca,
+
+          modelo:
+            vehiculoIngreso.modelo,
+
+          version:
+            vehiculoIngreso.version,
+
+          anio:
+            vehiculoIngreso.anio,
+
+          kilometros:
+            vehiculoIngreso.kilometros,
+
+          color:
+            vehiculoIngreso.color,
+
+          tipo:
+            vehiculoIngreso.tipo,
+
+          condicion:
+            vehiculoIngreso.condicion,
+
+          precio:
+            vehiculoIngreso.precio_venta,
+
+          precio_compra:
+            vehiculoIngreso.valor_ingreso,
+
+          dominio:
+            vehiculoIngreso.dominio,
+
+          numero_chasis:
+            vehiculoIngreso.numero_chasis,
+
+          numero_motor:
+            vehiculoIngreso.numero_motor,
+
+          observaciones_internas:
+            vehiculoIngreso.observaciones,
+        },
+
+        ingreso: {
+          valor_ingreso:
+            vehiculoIngreso.valor_ingreso,
+
+          precio_base_consignacion:
+            vehiculoIngreso
+              .precio_base_consignacion,
+
+          plazo_consignacion_dias:
+            vehiculoIngreso
+              .plazo_consignacion_dias,
+
+          fecha_ingreso:
+            new Date()
+              .toISOString()
+              .slice(0, 10),
+
+          observaciones:
+            vehiculoIngreso.observaciones,
+
+          doc_titulo_propiedad:
+            vehiculoIngreso.doc_titulo_propiedad,
+
+          doc_cat:
+            vehiculoIngreso.doc_cat,
+
+          doc_cedula:
+            vehiculoIngreso.doc_cedula,
+
+          doc_cedulas_adicionales:
+            vehiculoIngreso
+              .doc_cedulas_adicionales,
+
+          doc_formulario_08:
+            vehiculoIngreso.doc_formulario_08,
+
+          doc_verificacion_policial:
+            vehiculoIngreso
+              .doc_verificacion_policial,
+
+          doc_libre_deuda_patentes:
+            vehiculoIngreso
+              .doc_libre_deuda_patentes,
+
+          doc_libre_deuda_infracciones:
+            vehiculoIngreso
+              .doc_libre_deuda_infracciones,
+
+          doc_informe_dominio:
+            vehiculoIngreso.doc_informe_dominio,
+
+          doc_manuales:
+            vehiculoIngreso.doc_manuales,
+
+          doc_duplicado_llave:
+            vehiculoIngreso.doc_duplicado_llave,
+
+          doc_prenda_03:
+            vehiculoIngreso.doc_prenda_03,
+
+          doc_otros:
+            vehiculoIngreso.doc_otros,
+
+          doc_otros_detalle:
+            vehiculoIngreso.doc_otros_detalle,
+        },
+      });
 
  return operacion;
   }

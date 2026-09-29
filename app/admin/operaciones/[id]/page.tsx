@@ -3099,16 +3099,14 @@ const [
     Ver / Imprimir boleto de compra
   </Link>
 )}
-            {esConsignacion && (
+           {(esConsignacion || tienePermuta) && (
   <Link
     href={`/admin/operaciones/${operacion.id}/consignacion`}
-    
     className="rounded-lg bg-gray-900 px-5 py-2 font-medium text-white"
   >
-    Ver / Imprimir contrato
-    
+    Ver / Imprimir contrato de consignación
   </Link>
-  )}
+)}
   {esConsignacion && (
   <Link
     href={`/admin/operaciones/${operacion.id}/recibo-pago-consignacion`}

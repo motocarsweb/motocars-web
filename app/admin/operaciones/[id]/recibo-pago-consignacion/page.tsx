@@ -305,13 +305,64 @@ export default function ReciboPagoConsignacionPage() {
           font-size: 10.5px;
         }
 
-        @media print {
+                       @media print {
           body {
             background: white;
           }
 
           .no-imprimir {
             display: none !important;
+          }
+
+          .documento-motocars {
+            left: 0 !important;
+            right: 0 !important;
+            margin: 0 auto !important;
+            width: 210mm !important;
+            max-width: 210mm !important;
+            min-height: 0 !important;
+height: 297mm !important;
+            padding-top: 10mm !important;
+            padding-bottom: 8mm !important;
+            box-sizing: border-box !important;
+          }
+
+          .documento-contenido {
+            flex: none !important;
+          }
+
+          .datos-recibo {
+            margin-top: 14px !important;
+          }
+
+          .fila-recibo {
+            min-height: 0 !important;
+          }
+
+          .etiqueta-recibo,
+          .valor-recibo {
+            padding-top: 5px !important;
+            padding-bottom: 5px !important;
+          }
+
+          .clausulas-recibo {
+            margin-top: 14px !important;
+            line-height: 1.35 !important;
+          }
+
+          .clausulas-recibo p {
+            margin-bottom: 6px !important;
+          }
+
+          .firmas-recibo {
+            margin-top: 55px !important;
+            margin-bottom: 8px !important;
+          }
+
+          .documento-pie {
+            margin-top: 8px !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
           }
         }
       `}</style>
