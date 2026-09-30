@@ -252,6 +252,40 @@ export default function DetalleCreditoPage() {
       setGuardandoPago(false);
     }
   }
+  async function eliminarPago(pago: PagoCredito) {
+  const confirmar = window.confirm(
+    `¿Eliminar el pago de ${formatearImporte(
+      Number(pago.importe),
+credito?.moneda ?? "ARS"    )}? La cuota será recalculada automáticamente.`
+  );
+
+  if (!confirmar) {
+    return;
+  }
+
+  setErrorPago("");
+
+  try {
+    await eliminarPagoCredito(pago.id);
+
+    const [
+      cuotasActualizadas,
+      pagosActualizados,
+    ] = await Promise.all([
+      listarCuotasCredito(creditoId),
+      listarPagosCredito(creditoId),
+    ]);
+
+    setCuotas(cuotasActualizadas);
+    setPagos(pagosActualizados);
+  } catch (errorDesconocido) {
+    setErrorPago(
+      errorDesconocido instanceof Error
+        ? errorDesconocido.message
+        : "No se pudo eliminar el pago."
+    );
+  }
+}
   const resumen = useMemo(() => {
     const totalCuotas = cuotas.reduce(
       (total, cuota) => total + Number(cuota.importe_original),
@@ -713,6 +747,92 @@ export default function DetalleCreditoPage() {
                     className="p-6 text-center text-gray-500"
                   >
                     Este crédito no tiene cuotas registradas.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+            <section className="overflow-hidden rounded-xl border bg-white">
+        <div className="border-b p-5">
+          <h2 className="text-lg font-semibold">
+            Pagos registrados
+          </h2>
+          <p className="mt-1 text-sm text-gray-500">
+            Historial de pagos realizados sobre las cuotas del crédito.
+          </p>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="p-4 text-left">Fecha</th>
+                <th className="p-4 text-center">Cuota</th>
+                <th className="p-4 text-right">Importe</th>
+                <th className="p-4 text-left">Forma</th>
+                <th className="p-4 text-left">Lugar</th>
+                <th className="p-4 text-left">Comprobante</th>
+                <th className="p-4 text-center">Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {pagos.map((pago) => {
+                const cuota = cuotas.find(
+                  (item) => item.id === pago.cuota_id
+                );
+
+                return (
+                  <tr key={pago.id} className="border-t">
+                    <td className="p-4 whitespace-nowrap">
+                      {formatearFecha(pago.fecha_pago)}
+                    </td>
+
+                    <td className="p-4 text-center">
+                      {cuota?.numero_cuota ?? "-"}
+                    </td>
+
+                    <td className="p-4 text-right font-semibold whitespace-nowrap">
+                      {formatearImporte(
+                        Number(pago.importe),
+                        credito.moneda
+                      )}
+                    </td>
+
+                    <td className="p-4">
+                      {pago.forma_pago || "-"}
+                    </td>
+
+                    <td className="p-4">
+                      {pago.lugar_pago || "-"}
+                    </td>
+
+                    <td className="p-4">
+                      {pago.numero_comprobante || "-"}
+                    </td>
+
+                    <td className="p-4 text-center">
+                      <button
+                        type="button"
+                        onClick={() => eliminarPago(pago)}
+                        className="rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+
+              {pagos.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="p-6 text-center text-gray-500"
+                  >
+                    Todavía no hay pagos registrados.
                   </td>
                 </tr>
               )}

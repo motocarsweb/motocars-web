@@ -633,8 +633,8 @@ export async function eliminarPagoCredito(
     0
   );
 
-  const importeCuota = Number(cuota.importe);
-  const nuevoSaldo = Math.max(
+const importeCuota = Number(cuota.importe_original);
+const nuevoSaldo = Math.max(
     importeCuota - totalPagado,
     0
   );
