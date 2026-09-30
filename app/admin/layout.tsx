@@ -52,6 +52,11 @@ const menuItems: MenuItem[] = [
   label: "Operaciones",
   icon: <Gauge size={19} strokeWidth={2} />,
 },
+{
+  href: "/admin/creditos",
+  label: "Créditos",
+  icon: <CircleDollarSign size={19} strokeWidth={2} />,
+},
   {
     href: "/admin/catalogos",
     label: "Catálogos",
