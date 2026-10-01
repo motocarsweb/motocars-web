@@ -662,3 +662,142 @@ const nuevoSaldo = Math.max(
     );
   }
 }
+export type EditarPagoCredito = {
+  fecha_pago: string;
+  importe: number;
+  forma_pago: string;
+  lugar_pago: string;
+  numero_comprobante?: string;
+  observaciones?: string;
+};
+
+export async function editarPagoCredito(
+  pagoId: number,
+  cambios: EditarPagoCredito
+): Promise<PagoCredito> {
+  if (!cambios.fecha_pago) {
+    throw new Error("Ingresá la fecha de pago.");
+  }
+
+  if (
+    !Number.isFinite(cambios.importe) ||
+    cambios.importe <= 0
+  ) {
+    throw new Error(
+      "El importe del pago debe ser mayor a cero."
+    );
+  }
+
+  const { data: pagoActual, error: errorPago } =
+    await supabase
+      .from("pagos_credito")
+      .select("*")
+      .eq("id", pagoId)
+      .single();
+
+  if (errorPago || !pagoActual) {
+    throw new Error("No se pudo obtener el pago.");
+  }
+
+  if (!pagoActual.cuota_id) {
+    throw new Error(
+      "El pago no está asociado a una cuota."
+    );
+  }
+
+  const { data: cuota, error: errorCuota } =
+    await supabase
+      .from("cuotas_credito")
+      .select("*")
+      .eq("id", pagoActual.cuota_id)
+      .single();
+
+  if (errorCuota || !cuota) {
+    throw new Error("No se pudo obtener la cuota.");
+  }
+
+  const { data: otrosPagos, error: errorOtrosPagos } =
+    await supabase
+      .from("pagos_credito")
+      .select("importe")
+      .eq("cuota_id", pagoActual.cuota_id)
+      .neq("id", pagoId);
+
+  if (errorOtrosPagos) {
+    throw new Error(
+      `No se pudieron verificar los pagos de la cuota: ${errorOtrosPagos.message}`
+    );
+  }
+
+  const totalOtrosPagos = (otrosPagos ?? []).reduce(
+    (total, pago) => total + Number(pago.importe),
+    0
+  );
+
+  const importeCuota = Number(cuota.importe_original);
+  const totalPagado =
+    totalOtrosPagos + cambios.importe;
+
+  if (totalPagado > importeCuota) {
+    throw new Error(
+      "El total pagado no puede superar el importe original de la cuota."
+    );
+  }
+
+  const nuevoSaldo = Math.max(
+    importeCuota - totalPagado,
+    0
+  );
+
+  const nuevoEstado: EstadoCuotaCredito =
+    nuevoSaldo <= 0
+      ? "pagada"
+      : totalPagado > 0
+        ? "parcial"
+        : "pendiente";
+
+  const { data: pagoEditado, error: errorEditar } =
+    await supabase
+      .from("pagos_credito")
+      .update({
+        fecha_pago: cambios.fecha_pago,
+        importe: cambios.importe,
+        forma_pago:
+          cambios.forma_pago.trim() || null,
+        lugar_pago:
+          cambios.lugar_pago.trim() || null,
+        numero_comprobante:
+          cambios.numero_comprobante?.trim() || null,
+        observaciones:
+          cambios.observaciones?.trim() || null,
+      })
+      .eq("id", pagoId)
+      .select("*")
+      .single();
+
+  if (errorEditar || !pagoEditado) {
+    throw new Error(
+      errorEditar?.message
+        ? `No se pudo editar el pago: ${errorEditar.message}`
+        : "No se pudo editar el pago."
+    );
+  }
+
+  const { error: errorActualizarCuota } =
+    await supabase
+      .from("cuotas_credito")
+      .update({
+        saldo_pendiente: nuevoSaldo,
+        estado: nuevoEstado,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", pagoActual.cuota_id);
+
+  if (errorActualizarCuota) {
+    throw new Error(
+      `El pago fue editado, pero no se pudo recalcular la cuota: ${errorActualizarCuota.message}`
+    );
+  }
+
+  return pagoEditado as PagoCredito;
+}

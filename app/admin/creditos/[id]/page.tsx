@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 
 import {
@@ -15,6 +15,7 @@ import {
   listarPagosCredito,
  registrarPagoCredito,
  eliminarPagoCredito,
+   editarPagoCredito,
   type Credito,
   type CuotaCredito,
   type PagoCredito,
@@ -111,6 +112,10 @@ export default function DetalleCreditoPage() {
 
   const [errorPago, setErrorPago] =
     useState("");
+      const [pagoEditando, setPagoEditando] =
+    useState<PagoCredito | null>(null);
+      const formularioPagoRef =
+    useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     let activo = true;
@@ -168,6 +173,7 @@ export default function DetalleCreditoPage() {
   }, [creditoId]);
 
     function abrirRegistroPago(cuota: CuotaCredito) {
+        setPagoEditando(null);
     setCuotaPago(cuota);
     setFechaPago(
       new Date().toISOString().slice(0, 10)
@@ -180,10 +186,17 @@ export default function DetalleCreditoPage() {
     setNumeroComprobante("");
     setObservacionesPago("");
     setErrorPago("");
+      setTimeout(() => {
+    formularioPagoRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 0);
   }
 
   function cerrarRegistroPago() {
     setCuotaPago(null);
+    setPagoEditando(null);
     setErrorPago("");
   }
     async function guardarPago() {
@@ -252,6 +265,94 @@ export default function DetalleCreditoPage() {
       setGuardandoPago(false);
     }
   }
+  function abrirEdicionPago(pago: PagoCredito) {
+  setPagoEditando(pago);
+
+  setFechaPago(pago.fecha_pago);
+  setImportePago(String(Number(pago.importe)));
+  setFormaPago(pago.forma_pago ?? "");
+  setLugarPago(pago.lugar_pago ?? "");
+  setNumeroComprobante(
+    pago.numero_comprobante ?? ""
+  );
+  setObservacionesPago(
+    pago.observaciones ?? ""
+  );
+
+  setErrorPago("");
+    setTimeout(() => {
+    formularioPagoRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 0);
+}
+async function guardarEdicionPago() {
+  if (!pagoEditando) {
+    return;
+  }
+
+  const importe = Number(importePago);
+
+  if (!fechaPago) {
+    setErrorPago("Ingresá la fecha de pago.");
+    return;
+  }
+
+  if (!Number.isFinite(importe) || importe <= 0) {
+    setErrorPago("Ingresá un importe válido.");
+    return;
+  }
+
+  if (!formaPago) {
+    setErrorPago("Seleccioná la forma de pago.");
+    return;
+  }
+
+  if (!lugarPago.trim()) {
+    setErrorPago(
+      "Indicá dónde se realizó el pago."
+    );
+    return;
+  }
+
+  setGuardandoPago(true);
+  setErrorPago("");
+
+  try {
+    await editarPagoCredito(
+      pagoEditando.id,
+      {
+        fecha_pago: fechaPago,
+        importe,
+        forma_pago: formaPago,
+        lugar_pago: lugarPago,
+        numero_comprobante: numeroComprobante,
+        observaciones: observacionesPago,
+      }
+    );
+
+    const [
+      cuotasActualizadas,
+      pagosActualizados,
+    ] = await Promise.all([
+      listarCuotasCredito(creditoId),
+      listarPagosCredito(creditoId),
+    ]);
+
+    setCuotas(cuotasActualizadas);
+    setPagos(pagosActualizados);
+    setPagoEditando(null);
+  } catch (errorDesconocido) {
+    setErrorPago(
+      errorDesconocido instanceof Error
+        ? errorDesconocido.message
+        : "No se pudo editar el pago."
+    );
+  } finally {
+    setGuardandoPago(false);
+  }
+}
   async function eliminarPago(pago: PagoCredito) {
   const confirmar = window.confirm(
     `¿Eliminar el pago de ${formatearImporte(
@@ -477,19 +578,23 @@ credito?.moneda ?? "ARS"    )}? La cuota será recalculada automáticamente.`
           </p>
         </div>
       </section>
-      {cuotaPago && (
-        <section className="rounded-xl border border-blue-200 bg-blue-50 p-5">
+      {(cuotaPago || pagoEditando) && (
+        <section 
+        ref={formularioPagoRef}
+        className="rounded-xl border border-blue-200 bg-blue-50 p-5">
           <div className="mb-5 flex items-start justify-between gap-4">
             <div>
               <h2 className="text-lg font-semibold">
-                Registrar pago — Cuota {cuotaPago.numero_cuota}
+                {pagoEditando
+  ? "Editar pago"
+  : `Registrar pago — Cuota ${cuotaPago?.numero_cuota ?? ""}`}
               </h2>
 
               <p className="mt-1 text-sm text-gray-600">
                 Saldo pendiente:{" "}
                 <strong>
                   {formatearImporte(
-                    Number(cuotaPago.saldo_pendiente),
+                    Number(cuotaPago?.saldo_pendiente ?? 0),
                     credito.moneda
                   )}
                 </strong>
@@ -643,13 +748,21 @@ credito?.moneda ?? "ARS"    )}? La cuota será recalculada automáticamente.`
 
             <button
               type="button"
-              onClick={guardarPago}
+              onClick={
+  pagoEditando
+    ? guardarEdicionPago
+    : guardarPago
+}
               disabled={guardandoPago}
               className="rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white disabled:opacity-50"
             >
               {guardandoPago
-                ? "Registrando..."
-                : "Confirmar pago"}
+  ? pagoEditando
+    ? "Guardando..."
+    : "Registrando..."
+  : pagoEditando
+    ? "Guardar cambios"
+    : "Confirmar pago"}
             </button>
           </div>
         </section>
@@ -814,6 +927,14 @@ credito?.moneda ?? "ARS"    )}? La cuota será recalculada automáticamente.`
                     </td>
 
                     <td className="p-4 text-center">
+                      <button
+
+  type="button"
+  onClick={() => abrirEdicionPago(pago)}
+  className="mr-2 rounded-lg border border-blue-200 px-3 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50"
+>
+  Editar
+</button>
                       <button
                         type="button"
                         onClick={() => eliminarPago(pago)}
