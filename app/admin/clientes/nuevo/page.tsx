@@ -105,9 +105,20 @@ export default function NuevoClientePage() {
     setError("");
 
     try {
-      await crearCliente(form);
-      router.push("/admin/clientes");
-      router.refresh();
+      const clienteCreado = await crearCliente(form);
+
+const parametros = new URLSearchParams(window.location.search);
+const volver = parametros.get("volver");
+
+if (volver) {
+  router.push(
+    `${volver}?cliente=${clienteCreado.id}`
+  );
+} else {
+  router.push("/admin/clientes");
+}
+
+router.refresh();
     } catch (errorDesconocido) {
       setError(
         errorDesconocido instanceof Error

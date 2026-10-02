@@ -7,7 +7,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import PageHeader from "@/componentes/admin/PageHeader";
 
@@ -300,6 +300,8 @@ const DOCUMENTOS_PERMUTA = [
 export default function NuevaOperacionPage() {
   const router =
     useRouter();
+    const searchParams = useSearchParams();
+const clienteIdDesdeUrl = searchParams.get("cliente");
    const [
     presupuestoId,
     setPresupuestoId,
@@ -336,8 +338,9 @@ export default function NuevaOperacionPage() {
     setForm,
   ] =
     useState<OperacionFormulario>({
-      ...OPERACION_FORMULARIO_INICIAL,
-    });
+  ...OPERACION_FORMULARIO_INICIAL,
+  cliente_id: clienteIdDesdeUrl ?? "",
+});
 
   const [
     clientes,
@@ -376,12 +379,23 @@ export default function NuevaOperacionPage() {
     useState<VehiculoIngresoFormulario>({
       ...VEHICULO_INGRESO_INICIAL,
     });
+    const [
+  vehiculoVentaNuevo,
+  setVehiculoVentaNuevo,
+] = useState<VehiculoIngresoFormulario>({
+  ...VEHICULO_INGRESO_INICIAL,
+  condicion: "0km",
+});
 
   const [
     ventaConPermuta,
     setVentaConPermuta,
   ] =
     useState(false);
+    const [
+  permutaIngresaStock,
+  setPermutaIngresaStock,
+] = useState(false);
 
   const [
     pagosCompra,
@@ -1366,7 +1380,87 @@ if (
 
     return data.id as string;
   }
+async function crearVehiculoDeVentaNuevo(
+  tipoIngresoId: string
+) {
+  const resultado = await crearVehiculo({
+    marca: vehiculoVentaNuevo.marca.trim(),
 
+    modelo: vehiculoVentaNuevo.modelo.trim(),
+
+    version:
+      vehiculoVentaNuevo.version.trim() || null,
+
+    anio:
+      numeroOpcional(
+        vehiculoVentaNuevo.anio
+      ),
+
+    kilometros:
+      vehiculoVentaNuevo.condicion === "0km"
+        ? 0
+        : numeroOpcional(
+            vehiculoVentaNuevo.kilometros
+          ),
+
+    color:
+      vehiculoVentaNuevo.color.trim() || null,
+
+    dominio:
+      vehiculoVentaNuevo.condicion === "0km"
+        ? null
+        : (
+            vehiculoVentaNuevo.dominio
+              .trim()
+              .toUpperCase() || null
+          ),
+
+    numero_chasis:
+      vehiculoVentaNuevo.numero_chasis.trim() ||
+      null,
+
+    numero_motor:
+      vehiculoVentaNuevo.numero_motor.trim() ||
+      null,
+
+    precio:
+      convertirNumero(
+        vehiculoVentaNuevo.precio_venta
+      ),
+
+    precio_compra: null,
+
+    tipo: vehiculoVentaNuevo.tipo,
+
+    tipo_ingreso_id: tipoIngresoId,
+
+    condicion: vehiculoVentaNuevo.condicion,
+
+    estado: "disponible",
+
+    destacado: false,
+
+    publicado: false,
+
+    descripcion: null,
+
+    observaciones_internas:
+      vehiculoVentaNuevo.observaciones.trim() ||
+      null,
+
+    imagen_principal: null,
+
+    imagenes: [],
+  });
+
+  if (!resultado) {
+    throw new Error(
+      "No se pudo crear la unidad vendida."
+    );
+  }
+
+  return resultado;
+}
   async function crearVehiculoDeIngreso(
     tipoIngresoId: string
   ) {
@@ -1579,6 +1673,8 @@ if (
   }
 
   async function guardarVenta() {
+    let vehiculoVendidoId = form.vehiculo_id;
+let precioVehiculoVendido = form.precio_vehiculo;
         if (
       cargarVehiculoNuevoVenta
     ) {
@@ -1588,7 +1684,7 @@ if (
         );
 
       const vehiculoNuevo =
-        await crearVehiculoDeIngreso(
+        await crearVehiculoDeVentaNuevo(
           tipoIngresoId
         );
 
@@ -1601,15 +1697,17 @@ if (
           ),
 
         precio_vehiculo:
-          vehiculoIngreso.precio_venta,
+          vehiculoVentaNuevo.precio_venta
       };
+      vehiculoVendidoId = String(vehiculoNuevo.id);
+precioVehiculoVendido =
+  vehiculoVentaNuevo.precio_venta;
 
-      const operacion =
-        await crearOperacion(
-          formVenta
-        );
-
-      return operacion;
+      if (!hayPermuta) {
+  return await crearOperacion(
+    formVenta
+  );
+}
     }
         if (
       !hayPermuta
@@ -1629,11 +1727,11 @@ if (
             Number(form.cliente_id),
 
           vehiculo_id:
-            Number(form.vehiculo_id),
+  Number(vehiculoVendidoId),
 
           precio_vehiculo:
             convertirNumero(
-              form.precio_vehiculo
+              precioVehiculoVendido
             ),
 
           moneda:
@@ -2131,7 +2229,7 @@ if (
     </div>
   )}
                 <Link
-                  href="/admin/clientes/nuevo"
+                  href="/admin/clientes/nuevo?volver=/admin/operaciones/nueva"
                   className="text-sm font-medium text-blue-600"
                 >
                   + Crear cliente nuevo
@@ -2340,10 +2438,13 @@ if (
                   <button
                     type="button"
                     onClick={() =>
-                      seleccionarCondicionIngreso("0km")
+                      setVehiculoVentaNuevo((anterior) => ({
+  ...anterior,
+  condicion: "0km",
+}))
                     }
                     className={`rounded-lg border p-4 text-left font-semibold ${
-                      vehiculoIngreso.condicion === "0km"
+                      vehiculoVentaNuevo.condicion === "0km"
                         ? "border-blue-600 bg-blue-600 text-white"
                         : "bg-white text-gray-900"
                     }`}
@@ -2354,10 +2455,13 @@ if (
                   <button
                     type="button"
                     onClick={() =>
-                      seleccionarCondicionIngreso("usado")
+                      setVehiculoVentaNuevo((anterior) => ({
+  ...anterior,
+  condicion: "usado",
+}))
                     }
                     className={`rounded-lg border p-4 text-left font-semibold ${
-                      vehiculoIngreso.condicion === "usado"
+                      vehiculoVentaNuevo.condicion === "usado"
                         ? "border-blue-600 bg-blue-600 text-white"
                         : "bg-white text-gray-900"
                     }`}
@@ -2367,6 +2471,95 @@ if (
                 </div>
               </section>
             )}
+            {esVenta && cargarVehiculoNuevoVenta && (
+  <section className="grid gap-6 rounded-xl border border-blue-200 bg-blue-50 p-5">
+    <div>
+      <h2 className="text-lg font-semibold">
+        Datos de la unidad vendida
+      </h2>
+    </div>
+    <div className="grid gap-4 md:grid-cols-2">
+  <label className="grid gap-2">
+    <span className="font-medium">
+      Tipo de vehículo *
+    </span>
+
+    <select
+      value={vehiculoVentaNuevo.tipo}
+      onChange={(event) =>
+        setVehiculoVentaNuevo((anterior) => ({
+          ...anterior,
+          tipo: event.target.value,
+        }))
+      }
+      className="rounded-lg border bg-white p-3"
+    >
+      <option value="">Seleccionar tipo</option>
+      <option value="Auto">Auto</option>
+      <option value="Hatchback">Hatchback</option>
+      <option value="SUV">SUV</option>
+      <option value="Pickup">Pickup</option>
+      <option value="Utilitario">Utilitario</option>
+      <option value="Moto">Moto</option>
+    </select>
+  </label>
+  <label className="grid gap-2">
+  <span className="font-medium">
+    Marca *
+  </span>
+
+  <input
+    type="text"
+    value={vehiculoVentaNuevo.marca}
+    onChange={(event) =>
+      setVehiculoVentaNuevo((anterior) => ({
+        ...anterior,
+        marca: event.target.value,
+      }))
+    }
+    className="rounded-lg border bg-white p-3"
+  />
+</label>
+
+<label className="grid gap-2">
+  <span className="font-medium">
+    Modelo *
+  </span>
+
+  <input
+    type="text"
+    value={vehiculoVentaNuevo.modelo}
+    onChange={(event) =>
+      setVehiculoVentaNuevo((anterior) => ({
+        ...anterior,
+        modelo: event.target.value,
+      }))
+    }
+    className="rounded-lg border bg-white p-3"
+  />
+</label>
+<label className="grid gap-2">
+  <span className="font-medium">
+    Precio de venta *
+  </span>
+
+  <input
+    type="number"
+    min="0"
+    step="1"
+    value={vehiculoVentaNuevo.precio_venta}
+    onChange={(event) =>
+      setVehiculoVentaNuevo((anterior) => ({
+        ...anterior,
+        precio_venta: event.target.value,
+      }))
+    }
+    className="rounded-lg border bg-white p-3"
+  />
+</label>
+</div>
+  </section>
+)}
             {operacionHaceIngresarVehiculo && (
               <section className="rounded-xl border border-blue-200 bg-blue-50 p-5">
                 <h2 className="text-lg font-semibold">
@@ -2412,8 +2605,7 @@ if (
             )}
 
             {(operacionHaceIngresarVehiculo ||
-              hayPermuta ||
-              (esVenta && cargarVehiculoNuevoVenta)) && (
+  hayPermuta) && (
               <section className="grid gap-6 rounded-xl border border-blue-200 bg-blue-50 p-5">
                 <div>
                   <h2 className="text-lg font-semibold">
@@ -2625,8 +2817,24 @@ if (
                         className="rounded-lg border bg-white p-3"
                       />
                     </label>
+                    
                   )}
+{hayPermuta && (
+  <label className="flex items-center gap-2 md:col-span-2">
+    <input
+      type="checkbox"
+      checked={permutaIngresaStock}
+      onChange={(event) =>
+        setPermutaIngresaStock(event.target.checked)
+      }
+    />
 
+    <span className="font-medium">
+      La unidad ingresa al stock de MotoCars
+    </span>
+  </label>
+)}
+{(!hayPermuta || permutaIngresaStock) && (
                   <label className="grid gap-2">
                     <span className="font-medium">
                       Precio de venta del stock *
