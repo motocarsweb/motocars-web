@@ -2794,67 +2794,60 @@ precioVehiculoVendido =
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
-                  {(esCompra ||
-                    hayPermuta) && (
-                    <label className="grid gap-2">
-                      <span className="font-medium">
-                        {esCompra
-                          ? "Valor de compra *"
-                          : "Valor de ingreso"}
-                      </span>
+  {(esCompra || hayPermuta) && (
+    <label className="grid gap-2">
+      <span className="font-medium">
+        {esCompra
+          ? "Valor de compra *"
+          : "Valor de ingreso"}
+      </span>
 
-                      <input
-                        type="number"
-                        name="valor_ingreso"
-                        min="0"
-                        step="1"
-                        value={
-                          vehiculoIngreso.valor_ingreso
-                        }
-                        onChange={
-                          actualizarCampoVehiculoIngreso
-                        }
-                        className="rounded-lg border bg-white p-3"
-                      />
-                    </label>
-                    
-                  )}
-{hayPermuta && (
-  <label className="flex items-center gap-2 md:col-span-2">
-    <input
-      type="checkbox"
-      checked={permutaIngresaStock}
-      onChange={(event) =>
-        setPermutaIngresaStock(event.target.checked)
-      }
-    />
+      <input
+        type="number"
+        name="valor_ingreso"
+        min="0"
+        step="1"
+        value={vehiculoIngreso.valor_ingreso}
+        onChange={actualizarCampoVehiculoIngreso}
+        className="rounded-lg border bg-white p-3"
+      />
+    </label>
+  )}
 
-    <span className="font-medium">
-      La unidad ingresa al stock de MotoCars
-    </span>
-  </label>
-)}
-{(!hayPermuta || permutaIngresaStock) && (
-                  <label className="grid gap-2">
-                    <span className="font-medium">
-                      Precio de venta del stock *
-                    </span>
+  {hayPermuta && (
+    <label className="flex items-center gap-2 md:col-span-2">
+      <input
+        type="checkbox"
+        checked={permutaIngresaStock}
+        onChange={(event) =>
+          setPermutaIngresaStock(event.target.checked)
+        }
+      />
 
-                    <input
-                      type="number"
-                      name="precio_venta"
-                      min="0"
-                      step="1"
-                      value={
-                        vehiculoIngreso.precio_venta
-                      }
-                      onChange={
-                        actualizarPrecioVentaIngreso
-                      }
-                      className="rounded-lg border bg-white p-3"
-                    />
-                  </label>
-                </div>
+      <span className="font-medium">
+        La unidad ingresa al stock de MotoCars
+      </span>
+    </label>
+  )}
+
+  {(!hayPermuta || permutaIngresaStock) && (
+    <label className="grid gap-2">
+      <span className="font-medium">
+        Precio de venta del stock *
+      </span>
+
+      <input
+        type="number"
+        name="precio_venta"
+        min="0"
+        step="1"
+        value={vehiculoIngreso.precio_venta}
+        onChange={actualizarPrecioVentaIngreso}
+        className="rounded-lg border bg-white p-3"
+      />
+    </label>
+  )}
+</div>
 
                 {vehiculoIngresoEsUsado && (
                   <>
