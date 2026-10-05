@@ -1125,12 +1125,13 @@ const pagosCompraCoinciden =
     }
 
     if (
-      convertirNumero(
-        vehiculoIngreso.precio_venta
-      ) <= 0
-    ) {
-      return "Ingresá el precio de venta para el stock.";
-    }
+  (!hayPermuta || permutaIngresaStock) &&
+  convertirNumero(
+    vehiculoIngreso.precio_venta
+  ) <= 0
+) {
+  return "Ingresá el precio de venta para el stock.";
+}
 
     if (
       esCompra &&
