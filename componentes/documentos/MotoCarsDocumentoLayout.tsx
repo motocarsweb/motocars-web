@@ -383,6 +383,29 @@ export default function MotoCarsDocumentoLayout({
     padding: 0 !important;
     background: white !important;
   }
+    .admin-sidebar,
+.admin-header {
+  display: none !important;
+}
+
+.admin-layout {
+  display: block !important;
+  min-height: 0 !important;
+  background: white !important;
+}
+
+.admin-content {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.admin-main {
+  display: block !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
 
   body * {
     visibility: hidden !important;
@@ -394,9 +417,9 @@ export default function MotoCarsDocumentoLayout({
   }
 
   .documento-motocars {
-    position: absolute;
-    left: 0;
-    top: 0;
+    position: relative;
+break-after: page;
+page-break-after: always;
 
     width: 210mm;
     min-height: 297mm;
@@ -418,6 +441,14 @@ export default function MotoCarsDocumentoLayout({
   .no-imprimir {
     display: none !important;
   }
+    .solo-imprimir {
+  display: block !important;
+  visibility: visible !important;
+}
+
+.solo-imprimir * {
+  visibility: visible !important;
+}
 }
 
         @media screen and (max-width: 850px) {

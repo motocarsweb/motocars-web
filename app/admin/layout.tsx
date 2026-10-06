@@ -134,6 +134,7 @@ export default function AdminLayout({
 
   return (
     <div
+    className="admin-layout"
       style={{
         display: "flex",
         minHeight: "100vh",
@@ -141,6 +142,7 @@ export default function AdminLayout({
       }}
     >
       <aside
+      className="admin-sidebar"
         style={{
           position: "sticky",
           top: 0,
@@ -277,12 +279,14 @@ export default function AdminLayout({
       </aside>
 
       <div
+      className="admin-content"
         style={{
           flex: 1,
           minWidth: 0,
         }}
       >
         <header
+        className="admin-header"
           style={{
             display: "flex",
             alignItems: "center",
@@ -334,6 +338,7 @@ export default function AdminLayout({
         </header>
 
         <main
+        className="admin-main"
           style={{
             padding: "30px 32px 44px",
           }}

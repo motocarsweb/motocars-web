@@ -1829,6 +1829,8 @@ precioVehiculoVendido =
 
           precio_compra:
             vehiculoIngreso.valor_ingreso,
+            en_stock:
+  permutaIngresaStock,
 
           dominio:
             vehiculoIngreso.dominio,

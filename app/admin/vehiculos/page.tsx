@@ -44,6 +44,7 @@ export default async function AdminVehiculosPage({
 const { data, error } = await supabase
   .from("vehiculos")
   .select("*")
+  .eq("en_stock", true)
   .order("destacado", { ascending: false })
   .order("created_at", { ascending: false });
 
