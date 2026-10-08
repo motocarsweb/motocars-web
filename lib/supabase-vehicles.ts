@@ -96,6 +96,7 @@ export async function obtenerVehiculosPublicos(): Promise<VehiculoSupabase[]> {
       imagenes
     `)
     .eq("publicado", true)
+    .eq("en_stock", true)
     .order("destacado", { ascending: false })
     .order("created_at", { ascending: false });
 
@@ -202,12 +203,25 @@ export async function actualizarVehiculo(
     .select("*")
     .single();
 
-  if (error) {
-    console.error("Error al actualizar el vehículo:", error.message);
-    return null;
-  }
+ if (error) {
+  console.error("ERROR COMPLETO AL ACTUALIZAR VEHÍCULO:");
+  console.error(error);
 
-  return data;
+  alert(
+    JSON.stringify(error, null, 2)
+  );
+
+  return null;
+}
+
+if (!data) {
+  alert(
+    "Supabase no devolvió el vehículo actualizado."
+  );
+  return null;
+}
+
+return data;
 }
 
 export async function eliminarVehiculo(id: number): Promise<boolean> {

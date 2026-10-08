@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 import MotoCarsDocumentoLayout from "@/componentes/documentos/MotoCarsDocumentoLayout";
-
+import DetallePagoOperacion from "@/componentes/documentos/DetallePagoOperacion";
 import {
   obtenerCliente,
   type Cliente,
@@ -88,6 +88,7 @@ function formatearFecha(
 }
 
 export default function Boleto0KmPage() {
+  const [mostrarDetallePago, setMostrarDetallePago] = useState(false);
   const params =
     useParams<{
       id: string;
@@ -461,6 +462,15 @@ export default function Boleto0KmPage() {
       `}</style>
 
       <div className="barra-documento no-imprimir">
+        <button
+  type="button"
+  className="boton-documento"
+  onClick={() => setMostrarDetallePago((anterior) => !anterior)}
+>
+  {mostrarDetallePago
+    ? "Quitar detalle de pago"
+    : "Agregar detalle de pago"}
+</button>
         <Link
           href={`/admin/operaciones/${operacion.id}`}
           className="boton-documento"
@@ -899,6 +909,14 @@ export default function Boleto0KmPage() {
           </div>
         </section>
       </MotoCarsDocumentoLayout>
+            <DetallePagoOperacion
+        numero={operacion.numero || operacion.id}
+        fecha={formatearFecha(operacion.created_at)}
+        mostrar={mostrarDetallePago}
+        onToggle={() =>
+          setMostrarDetallePago((anterior) => !anterior)
+        }
+      />
     </>
   );
 }

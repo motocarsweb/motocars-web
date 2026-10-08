@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 import MotoCarsDocumentoLayout from "@/componentes/documentos/MotoCarsDocumentoLayout";
-
+import DetallePagoOperacion from "@/componentes/documentos/DetallePagoOperacion";
 import {
   obtenerCliente,
   type Cliente,
@@ -722,14 +722,11 @@ function agregarTransferenciaPago() {
         >
           Volver a la operación
         </Link>
-
 <button
   type="button"
   className="boton-documento"
   onClick={() =>
-    setMostrarDetallePago(
-      (anterior) => !anterior
-    )
+    setMostrarDetallePago((anterior) => !anterior)
   }
 >
   {mostrarDetallePago
@@ -1446,239 +1443,14 @@ function agregarTransferenciaPago() {
           </div>
         </section>
       </MotoCarsDocumentoLayout>
-                 {mostrarDetallePago && (
-        <MotoCarsDocumentoLayout
-          titulo="Detalle de Pago"
-          numero={operacion.numero || operacion.id}
-          fecha={formatearFecha(operacion.created_at)}
-        >
-          <section className="boleto-0km-texto">
-            <h2 className="titulo-seccion-0km">
-              Pago / Condiciones de la operación
-            </h2>
-
-            {/* FORMULARIO EDITABLE - SOLO PANTALLA */}
-            <div className="no-imprimir">
-              {transferenciasPago.map(
-                (transferencia, indice) => (
-                  <div
-                    key={indice}
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns:
-                        "repeat(2, 1fr)",
-                      gap: 10,
-                      marginBottom: 18,
-                      padding: 14,
-                      border:
-                        "1px solid #d1d5db",
-                      borderRadius: 8,
-                    }}
-                  >
-                    <strong
-                      style={{
-                        gridColumn: "1 / -1",
-                      }}
-                    >
-                      Transferencia {indice + 1}
-                    </strong>
-
-                    <input
-                      type="number"
-                      placeholder="Importe"
-                      value={transferencia.importe}
-                      onChange={(e) =>
-                        actualizarTransferenciaPago(
-                          indice,
-                          "importe",
-                          e.target.value
-                        )
-                      }
-                      style={{ padding: 10 }}
-                    />
-
-                    <input
-                      type="text"
-                      placeholder="Banco"
-                      value={transferencia.banco}
-                      onChange={(e) =>
-                        actualizarTransferenciaPago(
-                          indice,
-                          "banco",
-                          e.target.value
-                        )
-                      }
-                      style={{ padding: 10 }}
-                    />
-
-                    <input
-                      type="text"
-                      placeholder="Titular"
-                      value={transferencia.titular}
-                      onChange={(e) =>
-                        actualizarTransferenciaPago(
-                          indice,
-                          "titular",
-                          e.target.value
-                        )
-                      }
-                      style={{ padding: 10 }}
-                    />
-
-                    <input
-                      type="text"
-                      placeholder="CUIT"
-                      value={transferencia.cuit}
-                      onChange={(e) =>
-                        actualizarTransferenciaPago(
-                          indice,
-                          "cuit",
-                          e.target.value
-                        )
-                      }
-                      style={{ padding: 10 }}
-                    />
-
-                    <input
-                      type="text"
-                      placeholder="CBU / CVU"
-                      value={transferencia.cbu}
-                      onChange={(e) =>
-                        actualizarTransferenciaPago(
-                          indice,
-                          "cbu",
-                          e.target.value
-                        )
-                      }
-                      style={{ padding: 10 }}
-                    />
-
-                    <input
-                      type="text"
-                      placeholder="Alias"
-                      value={transferencia.alias}
-                      onChange={(e) =>
-                        actualizarTransferenciaPago(
-                          indice,
-                          "alias",
-                          e.target.value
-                        )
-                      }
-                      style={{ padding: 10 }}
-                    />
-                  </div>
-                )
-              )}
-
-              <button
-                type="button"
-                onClick={agregarTransferenciaPago}
-                style={{
-                  marginBottom: 16,
-                  padding: "9px 14px",
-                  cursor: "pointer",
-                }}
-              >
-                + Agregar otra transferencia
-              </button>
-
-              <textarea
-                value={detallePagoManual}
-                onChange={(e) =>
-                  setDetallePagoManual(
-                    e.target.value
-                  )
-                }
-                placeholder="Observaciones o instrucciones adicionales..."
-                style={{
-                  width: "100%",
-                  minHeight: 70,
-                  padding: 10,
-                  marginBottom: 16,
-                  resize: "vertical",
-                }}
-              />
-            </div>
-
-            {/* DOCUMENTO LIMPIO - SOLO IMPRESIÓN */}
-            <div className="solo-imprimir">
-              {transferenciasPago.map(
-                (transferencia, indice) => (
-                  <div
-                    key={indice}
-                    className="condiciones-pago"
-                    style={{
-                      marginBottom: 14,
-                    }}
-                  >
-                    <strong>
-                      TRANSFERENCIA {indice + 1}
-                    </strong>
-
-                    <br />
-                    <br />
-
-                    <strong>Importe:</strong>{" "}
-                    {transferencia.importe
-                      ? formatearImporteCompleto(
-                          Number(
-                            transferencia.importe
-                          ),
-                          "ARS"
-                        )
-                      : "—"}
-
-                    <br />
-
-                    <strong>Banco:</strong>{" "}
-                    {transferencia.banco || "—"}
-
-                    <br />
-
-                    <strong>Titular:</strong>{" "}
-                    {transferencia.titular || "—"}
-
-                    <br />
-
-                    <strong>CUIT:</strong>{" "}
-                    {transferencia.cuit || "—"}
-
-                    <br />
-
-                    <strong>CBU / CVU:</strong>{" "}
-                    {transferencia.cbu || "—"}
-
-                    <br />
-
-                    <strong>Alias:</strong>{" "}
-                    {transferencia.alias || "—"}
-                  </div>
-                )
-              )}
-
-              {detallePagoManual.trim() && (
-                <div className="condiciones-pago">
-                  <strong>
-                    Observaciones / instrucciones
-                    adicionales:
-                  </strong>
-
-                  <br />
-                  <br />
-
-                  <span
-                    style={{
-                      whiteSpace: "pre-wrap",
-                    }}
-                  >
-                    {detallePagoManual}
-                  </span>
-                </div>
-              )}
-            </div>
-          </section>
-        </MotoCarsDocumentoLayout>
-      )}
+                 <DetallePagoOperacion
+  numero={operacion.numero || operacion.id}
+  fecha={formatearFecha(operacion.created_at)}
+  mostrar={mostrarDetallePago}
+  onToggle={() =>
+    setMostrarDetallePago((anterior) => !anterior)
+  }
+/>
     </>
   );
 }

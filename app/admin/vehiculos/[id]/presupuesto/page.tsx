@@ -685,8 +685,12 @@ const [permutaKilometros, setPermutaKilometros] = useState("");
     <option value="Utilitario">Utilitario</option>
     <option value="Pickup">Pickup</option>
     <option value="Moto">Moto</option>
-    <option value="Otros">Otros</option>
-  </select>
+<option value="Cuatriciclo">Cuatriciclo</option>
+<option value="UTV">UTV</option>
+<option value="Rodante">Rodante</option>
+<option value="Transporte">Transporte</option>
+<option value="Maquinaria">Maquinaria</option>  
+</select>
 </div>
         <div className="editor-grid">
           <div className="campo">

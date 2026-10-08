@@ -412,6 +412,11 @@ export default function ReciboReservaPage() {
 
       <MotoCarsDocumentoLayout
         titulo="RECIBO DE RESERVA"
+        marca={
+  vehiculo.tipo?.toLowerCase() === "moto"
+    ? "motos"
+    : "motocars"
+}
         numero={
           operacion.numero ||
           operacion.id
@@ -594,10 +599,12 @@ export default function ReciboReservaPage() {
             </div>
 
             <div className="firma-reserva">
-              MotoCars Concesionaria
-              <br />
-              Firma y aclaración
-            </div>
+  {vehiculo.tipo?.toLowerCase() === "moto"
+    ? "RVM PATAGONIA – GRUPO MOTOCARS"
+    : "MotoCars Concesionaria"}
+  <br />
+  Firma y aclaración
+</div>
           </div>
         </section>
       </MotoCarsDocumentoLayout>
