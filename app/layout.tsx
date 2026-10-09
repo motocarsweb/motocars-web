@@ -1,5 +1,7 @@
+
 import type { Metadata } from "next";
 import { Exo_2 } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/componentes/theme/ThemeProvider";
 import "./globals.css";
 
@@ -62,6 +64,7 @@ export default function RootLayout({
     >
       <body className="min-h-screen bg-white text-zinc-900 antialiased">
         <ThemeProvider>{children}</ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
