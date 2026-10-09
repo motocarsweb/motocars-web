@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {
   FormEvent,
+  Suspense,
   useEffect,
   useMemo,
   useState,
@@ -297,7 +298,7 @@ const DOCUMENTOS_PERMUTA = [
   },
 ] as const;
 
-export default function NuevaOperacionPage() {
+function NuevaOperacionContenido() {
   const router =
     useRouter();
     const searchParams = useSearchParams();
@@ -3525,5 +3526,12 @@ precioVehiculoVendido =
         </div>
       </form>
     </main>
+  );
+}
+export default function NuevaOperacionPage() {
+  return (
+    <Suspense fallback={<div>Cargando nueva operación...</div>}>
+      <NuevaOperacionContenido />
+    </Suspense>
   );
 }
