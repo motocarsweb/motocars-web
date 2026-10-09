@@ -1302,10 +1302,16 @@ const pagosCompraCoinciden =
       ) {
         return "El total de la operación no puede ser negativo.";
       }
-if (
-  cargarVehiculoNuevoVenta
-) {
-  return validarDatosVehiculoIngreso();
+if (cargarVehiculoNuevoVenta) {
+  if (!vehiculoVentaNuevo.marca.trim()) {
+    return "Ingresá la marca del vehículo.";
+  }
+
+  if (!vehiculoVentaNuevo.modelo.trim()) {
+    return "Ingresá el modelo del vehículo.";
+  }
+
+  return "";
 }
       if (
         hayPermuta
