@@ -614,29 +614,29 @@ const clienteIdDesdeUrl = searchParams.get("cliente");
     };
   }, []);
 
-  const totalVenta =
-    useMemo(() => {
-      if (!esVenta) {
-        return 0;
-      }
+  
+const totalVenta = useMemo(() => {
+  if (!esVenta) {
+    return 0;
+  }
 
-      return (
-        convertirNumero(
-          form.precio_vehiculo
-        ) -
-        convertirNumero(
-          form.bonificacion
-        ) +
-        convertirNumero(
-          form.gastos
-        )
-      );
-    }, [
-      esVenta,
-      form.precio_vehiculo,
-      form.bonificacion,
-      form.gastos,
-    ]);
+  const precio = cargarVehiculoNuevoVenta
+    ? vehiculoVentaNuevo.precio_venta
+    : form.precio_vehiculo;
+
+  return (
+    convertirNumero(precio) -
+    convertirNumero(form.bonificacion) +
+    convertirNumero(form.gastos)
+  );
+}, [
+  esVenta,
+  cargarVehiculoNuevoVenta,
+  vehiculoVentaNuevo.precio_venta,
+  form.precio_vehiculo,
+  form.bonificacion,
+  form.gastos,
+]);
 
   const valorCompra =
     esCompra
@@ -2548,6 +2548,30 @@ precioVehiculoVendido =
     className="rounded-lg border bg-white p-3"
   />
 </label>
+{[
+  { campo: "version", titulo: "Versión" },
+  { campo: "anio", titulo: "Año", tipo: "number" },
+  { campo: "dominio", titulo: "Dominio" },
+  { campo: "kilometros", titulo: "Kilometraje", tipo: "number" },
+  { campo: "color", titulo: "Color" },
+  { campo: "numero_chasis", titulo: "Número de chasis" },
+  { campo: "numero_motor", titulo: "Número de motor" },
+].map(({ campo, titulo, tipo }) => (
+  <label key={campo} className="grid gap-2">
+    <span className="font-medium">{titulo}</span>
+    <input
+      type={tipo || "text"}
+      min={tipo === "number" ? 0 : undefined}
+value={String(vehiculoVentaNuevo[campo as keyof typeof vehiculoVentaNuevo] ?? "")}      onChange={(evento) =>
+        setVehiculoVentaNuevo((anterior) => ({
+          ...anterior,
+          [campo]: evento.target.value,
+        }))
+      }
+      className="rounded-lg border bg-white p-3"
+    />
+  </label>
+))}
 <label className="grid gap-2">
   <span className="font-medium">
     Precio de venta *

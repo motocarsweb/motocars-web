@@ -29,6 +29,13 @@ import {
 import {
   formatearImporteCompleto,
 } from "@/lib/utils/numero-a-letras";
+import {
+  type DocumentacionEntrega,
+  DOCUMENTACION_INICIAL,
+  OPCIONES_DOCUMENTACION,
+  obtenerDocumentacionEntrega,
+  guardarDocumentacionEntrega,
+} from "@/lib/service/documentacion-entrega";
 
 function nombreCliente(
   cliente: Cliente
@@ -186,7 +193,56 @@ export default function BoletoUsadoPermutaPage() {
     setError,
   ] =
     useState("");
+const [
+  documentacion,
+  setDocumentacion,
+] = useState<DocumentacionEntrega>(
+  DOCUMENTACION_INICIAL
+);
 
+const [
+  guardandoDocumentacion,
+  setGuardandoDocumentacion,
+] = useState(false);
+const [
+  documentacionGuardada,
+  setDocumentacionGuardada,
+] = useState(false);
+
+const [
+  errorDocumentacion,
+  setErrorDocumentacion,
+] = useState("");
+
+async function guardarDocumentacion() {
+  const operacionId = Number(params.id);
+
+  if (!Number.isInteger(operacionId) || operacionId <= 0) {
+    setErrorDocumentacion("La operación no es válida.");
+    return;
+  }
+
+  try {
+    setGuardandoDocumentacion(true);
+    setErrorDocumentacion("");
+    setDocumentacionGuardada(false);
+
+    await guardarDocumentacionEntrega(
+      operacionId,
+      documentacion
+    );
+
+    setDocumentacionGuardada(true);
+  } catch (error) {
+    setErrorDocumentacion(
+      error instanceof Error
+        ? error.message
+        : "No se pudo guardar la documentación."
+    );
+  } finally {
+    setGuardandoDocumentacion(false);
+  }
+}
   useEffect(() => {
     let activo = true;
 
@@ -308,6 +364,16 @@ export default function BoletoUsadoPermutaPage() {
         setVehiculoPermuta(
           permutaCargada
         );
+        const documentacionCargada =
+  await obtenerDocumentacionEntrega(
+    operacionId
+  );
+
+if (activo) {
+  setDocumentacion(
+    documentacionCargada
+  );
+}
       } catch (
         errorDesconocido
       ) {
@@ -466,13 +532,11 @@ export default function BoletoUsadoPermutaPage() {
         }
 
         .datos-usado {
-          display: grid;
-
-          grid-template-columns:
-            repeat(
-              2,
-              minmax(0, 1fr)
-            );
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px 12px;
+  font-size: 11.5px;
+}
 
           gap: 4px 20px;
 
@@ -480,13 +544,20 @@ export default function BoletoUsadoPermutaPage() {
         }
 
         .dato-usado {
-          display: grid;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
 
-          grid-template-columns:
-            88px 1fr;
+.dato-usado strong {
+  flex-shrink: 0;
+}
 
-          gap: 5px;
-        }
+.dato-usado span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 
         .condiciones-pago {
           margin-top: 6px;
@@ -602,9 +673,10 @@ export default function BoletoUsadoPermutaPage() {
   }
 
   .dato-usado {
-    grid-template-columns: 88px 1fr;
-    gap: 4px;
-  }
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+  column-gap: 10px;
+  align-items: baseline;
+}
 
   .condiciones-pago {
     margin-top: 3px;
@@ -630,9 +702,9 @@ export default function BoletoUsadoPermutaPage() {
   }
 
   .firmas-usado {
-    margin-top: 42px;
-    margin-bottom: 0;
-  }
+  margin-top: 130px !important;
+  margin-bottom: 0 !important;
+}
 
   .firma-usado {
     padding-top: 4px;
@@ -680,7 +752,95 @@ export default function BoletoUsadoPermutaPage() {
           Imprimir / Guardar PDF
         </button>
       </div>
+<div
+  className="no-imprimir"
+  style={{
+    maxWidth: 850,
+    margin: "20px auto",
+    padding: 20,
+    background: "#fff",
+    border: "1px solid #ddd",
+    borderRadius: 8,
+  }}
+>
+  <h3>Documentación entregada al comprador</h3>
 
+  <div style={{ display: "grid", gap: 10 }}>
+    {OPCIONES_DOCUMENTACION.map((opcion) => (
+      <label key={opcion.campo}>
+        <input
+          type="checkbox"
+          checked={documentacion[opcion.campo]}
+          onChange={(evento) => {
+            setDocumentacion((anterior) => ({
+              ...anterior,
+              [opcion.campo]: evento.target.checked,
+            }));
+            setDocumentacionGuardada(false);
+          }}
+        />{" "}
+        {opcion.nombre}
+      </label>
+    ))}
+  </div>
+
+  <label style={{ display: "block", marginTop: 16 }}>
+    Observaciones
+    <textarea
+      value={documentacion.observaciones}
+      maxLength={2000}
+      onChange={(evento) => {
+        setDocumentacion((anterior) => ({
+          ...anterior,
+          observaciones: evento.target.value,
+        }));
+        setDocumentacionGuardada(false);
+      }}
+      rows={3}
+      style={{
+        display: "block",
+        width: "100%",
+        boxSizing: "border-box",
+        marginTop: 6,
+        padding: 8,
+      }}
+    />
+  </label>
+
+  <button
+  type="button"
+  onClick={guardarDocumentacion}
+  disabled={guardandoDocumentacion}
+  style={{
+    marginTop: 16,
+    padding: "12px 22px",
+    backgroundColor: guardandoDocumentacion ? "#9ca3af" : "#c8102e",
+    color: "#ffffff",
+    border: "none",
+    borderRadius: 8,
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: guardandoDocumentacion ? "not-allowed" : "pointer",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+  }}
+>
+  {guardandoDocumentacion
+    ? "Guardando..."
+    : "Guardar documentación"}
+</button>
+
+  {documentacionGuardada && (
+    <p style={{ color: "green" }}>
+      Documentación guardada correctamente.
+    </p>
+  )}
+
+  {errorDocumentacion && (
+    <p style={{ color: "red" }}>
+      {errorDocumentacion}
+    </p>
+  )}
+</div>
       <MotoCarsDocumentoLayout
         titulo="Contrato de Compra-Venta de Automotores"
         numero={
@@ -728,202 +888,96 @@ export default function BoletoUsadoPermutaPage() {
 <div
   style={{
     display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "4px 20px",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: "5px 12px",
     fontSize: "11.5px",
   }}
 >
-  {/* COLUMNA IZQUIERDA */}
-  <div
-    style={{
-      display: "grid",
-      alignContent: "start",
-      gap: "4px",
-    }}
-  >
-    <div className="dato-usado">
-      <strong>Comprador:</strong>
-      <span>{nombreCliente(cliente)}</span>
-    </div>
-
-    <div className="dato-usado">
-      <strong>Fecha nac.:</strong>
-      <span>
-        {cliente.fecha_nacimiento
-          ? formatearFecha(cliente.fecha_nacimiento)
-          : "—"}
-      </span>
-    </div>
-
-    <div className="dato-usado">
-      <strong>Estado civil:</strong>
-      <span>{cliente.estado_civil || "—"}</span>
-    </div>
-
-    <div className="dato-usado">
-      <strong>Domicilio:</strong>
-      <span>{cliente.direccion || "—"}</span>
-    </div>
-
-    <div className="dato-usado">
-      <strong>Teléfono:</strong>
-      <span>
-        {cliente.whatsapp ||
-          cliente.telefono ||
-          "—"}
-      </span>
-    </div>
-  </div>
-
-  {/* COLUMNA DERECHA */}
-  <div
-    style={{
-      display: "grid",
-      alignContent: "start",
-      gap: "4px",
-    }}
-  >
-    <div className="dato-usado">
-      <strong>DNI/CUIT:</strong>
-      <span>{documentoCliente(cliente)}</span>
-    </div>
-
-    <div className="dato-usado">
-      <strong>Profesión:</strong>
-      <span>{cliente.profesion || "—"}</span>
-    </div>
-
-    {cliente.estado_civil === "Casado/a" && (
-      <>
-        <div className="dato-usado">
-          <strong>Cónyuge:</strong>
-          <span>
-            {cliente.conyuge_nombre || "—"}
-          </span>
-        </div>
-
-        <div className="dato-usado">
-          <strong>DNI cónyuge:</strong>
-          <span>
-            {cliente.conyuge_dni || "—"}
-          </span>
-        </div>
-      </>
-    )}
-
-    <div className="dato-usado">
-      <strong>Localidad:</strong>
-      <span>
-        {[
-          cliente.ciudad,
-          cliente.provincia,
+  {[
+    ["Comprador:", nombreCliente(cliente)],
+    ["DNI/CUIT:", documentoCliente(cliente)],
+    ["Fecha nac.:", cliente.fecha_nacimiento
+      ? formatearFecha(cliente.fecha_nacimiento)
+      : "—"],
+    ["Estado civil:", cliente.estado_civil || "—"],
+    ["Profesión:", cliente.profesion || "—"],
+    ["Domicilio:", cliente.direccion || "—"],
+    ["Localidad:", [cliente.ciudad, cliente.provincia]
+      .filter(Boolean)
+      .join(", ") || "—"],
+    ["Teléfono:", cliente.whatsapp || cliente.telefono || "—"],
+    ["Email:", cliente.email || "—"],
+    ...(cliente.estado_civil === "Casado/a"
+      ? [
+          ["Cónyuge:", cliente.conyuge_nombre || "—"],
+          ["DNI cónyuge:", cliente.conyuge_dni || "—"],
         ]
-          .filter(Boolean)
-          .join(", ") || "—"}
+      : []),
+  ].map(([etiqueta, valor], indice) => (
+    <div
+      key={indice}
+      style={{
+        display: "flex",
+        alignItems: "baseline",
+        gap: "7px",
+        minWidth: 0,
+      }}
+    >
+      <strong style={{ flexShrink: 0 }}>
+        {etiqueta}
+      </strong>
+      <span style={{ minWidth: 0, overflowWrap: "anywhere" }}>
+        {valor}
       </span>
     </div>
-
-    <div className="dato-usado">
-      <strong>Email:</strong>
-      <span>{cliente.email || "—"}</span>
-    </div>
-  </div>
+  ))}
 </div>
 
           <h2 className="titulo-seccion-usado">
             Vehículo vendido
           </h2>
 
-          <div className="datos-usado">
-            <div className="dato-usado">
-              <strong>
-                Vehículo:
-              </strong>
-
-              <span>
-                {nombreVehiculo(
-                  vehiculo
-                )}
-              </span>
-            </div>
-
-            <div className="dato-usado">
-              <strong>
-                Año:
-              </strong>
-
-              <span>
-                {vehiculo.anio ??
-                  "—"}
-              </span>
-            </div>
-
-            <div className="dato-usado">
-              <strong>
-                Dominio:
-              </strong>
-
-              <span>
-                {vehiculo.dominio ||
-                  "—"}
-              </span>
-            </div>
-
-            <div className="dato-usado">
-              <strong>
-                Color:
-              </strong>
-
-              <span>
-                {vehiculo.color ||
-                  "—"}
-              </span>
-            </div>
-
-            <div className="dato-usado">
-              <strong>
-                Chasis:
-              </strong>
-
-              <span>
-                {vehiculo.numero_chasis ||
-                  "—"}
-              </span>
-            </div>
-
-            <div className="dato-usado">
-              <strong>
-                Motor:
-              </strong>
-
-              <span>
-                {vehiculo.numero_motor ||
-                  "—"}
-              </span>
-            </div>
-
-            <div className="dato-usado">
-              <strong>
-                Kilómetros:
-              </strong>
-
-              <span>
-                {formatearKilometros(
-                  vehiculo.kilometros
-                )}
-              </span>
-            </div>
-
-            <div className="dato-usado">
-              <strong>
-                Condición:
-              </strong>
-
-              <span>
-                Usado
-              </span>
-            </div>
-          </div>
+          <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: "5px 12px",
+    fontSize: "11.5px",
+  }}
+>
+  {[
+    ["Vehículo:", nombreVehiculo(vehiculo)],
+    ["Año:", vehiculo.anio ?? "—"],
+    ["Dominio:", vehiculo.dominio || "—"],
+    ["Color:", vehiculo.color || "—"],
+    ["Chasis:", vehiculo.numero_chasis || "—"],
+    ["Motor:", vehiculo.numero_motor || "—"],
+    ["Kilómetros:", formatearKilometros(vehiculo.kilometros)],
+    ["Condición:", "Usado"],
+  ].map(([etiqueta, valor], indice) => (
+    <div
+      key={indice}
+      style={{
+        display: "flex",
+        alignItems: "baseline",
+        gap: "7px",
+        minWidth: 0,
+      }}
+    >
+      <strong style={{ flexShrink: 0 }}>
+        {etiqueta}
+      </strong>
+      <span
+        style={{
+          minWidth: 0,
+          overflowWrap: "anywhere",
+        }}
+      >
+        {valor}
+      </span>
+    </div>
+  ))}
+</div>
 
           <p
             style={{
@@ -1244,23 +1298,30 @@ export default function BoletoUsadoPermutaPage() {
     />
   )}
 </div>
-          <p>
-            <strong>
-              5)
-            </strong>{" "}
-            En este acto se entregará al
-            COMPRADOR la siguiente
-            documentación y elementos,
-            según corresponda: a) Cédula
-            de identificación del titular
-            anterior; b) Seguro provisorio
-            (optativo); c) Copia del
-            Título de Propiedad; d)
-            Duplicado de llaves; e)
-            Manuales; f) Verificación
-            vehicular; g) Detalle de
-            servicios.
-          </p>
+        <p>
+  <strong>5)</strong>{" "}
+  En este acto se entrega al COMPRADOR
+  la siguiente documentación y elementos:
+</p>
+
+<div className="documentacion-permuta">
+  {OPCIONES_DOCUMENTACION
+    .filter((opcion) => documentacion[opcion.campo])
+    .map((opcion) => (
+      <CasilleroDocumento
+        key={opcion.campo}
+        marcado={true}
+        texto={opcion.nombre}
+      />
+    ))}
+</div>
+
+{documentacion.observaciones?.trim() && (
+  <p>
+    <strong>Observaciones sobre la documentación entregada: </strong>
+    {documentacion.observaciones.trim()}
+  </p>
+)}
 
           <p>
             <strong>

@@ -25,6 +25,16 @@ import {
   formatearImporteCompleto,
 } from "@/lib/utils/numero-a-letras";
 
+
+import {
+  DOCUMENTACION_INICIAL,
+  OPCIONES_DOCUMENTACION,
+  obtenerDocumentacionEntrega,
+  guardarDocumentacionEntrega,
+  type DocumentacionEntrega,
+} from "@/lib/service/documentacion-entrega";
+
+
 function nombreCliente(cliente: Cliente) {
   if (cliente.tipo_persona === "juridica") {
     return (
@@ -74,6 +84,21 @@ function formatearFecha(fecha: string) {
 }
 
 export default function BoletoUsadoPage() {
+  
+const [documentacion, setDocumentacion] =
+  useState<DocumentacionEntrega>({
+    ...DOCUMENTACION_INICIAL,
+  });
+
+const [guardandoDocumentacion, setGuardandoDocumentacion] =
+  useState(false);
+
+const [errorDocumentacion, setErrorDocumentacion] =
+  useState("");
+
+const [documentacionGuardada, setDocumentacionGuardada] =
+  useState(false);
+
   const [mostrarDetallePago, setMostrarDetallePago] = useState(false);
   const params =
     useParams<{
@@ -134,18 +159,25 @@ export default function BoletoUsadoPage() {
           );
         }
 
-        const [
-          clienteCargado,
-          vehiculoCargado,
-        ] = await Promise.all([
-          obtenerCliente(
-            operacionCargada.cliente_id
-          ),
+        
+const [
+  clienteCargado,
+  vehiculoCargado,
+  documentacionCargada,
+] = await Promise.all([
+  obtenerCliente(
+    operacionCargada.cliente_id
+  ),
 
-          obtenerVehiculoPorId(
-            operacionCargada.vehiculo_id
-          ),
-        ]);
+  obtenerVehiculoPorId(
+    operacionCargada.vehiculo_id
+  ),
+
+  obtenerDocumentacionEntrega(
+    operacionId
+  ),
+]);
+
 
         if (!vehiculoCargado) {
           throw new Error(
@@ -177,6 +209,8 @@ export default function BoletoUsadoPage() {
         setVehiculo(
           vehiculoCargado
         );
+        setDocumentacion(documentacionCargada);
+setDocumentacionGuardada(true);
       } catch (
         errorDesconocido
       ) {
@@ -202,6 +236,37 @@ export default function BoletoUsadoPage() {
       activo = false;
     };
   }, [params.id]);
+  
+async function guardarDocumentacion() {
+  const operacionId = Number(params.id);
+
+  if (!Number.isSafeInteger(operacionId) || operacionId <= 0) {
+    setErrorDocumentacion("Operación inválida.");
+    return;
+  }
+
+  try {
+    setGuardandoDocumentacion(true);
+    setErrorDocumentacion("");
+    setDocumentacionGuardada(false);
+
+    await guardarDocumentacionEntrega(
+      operacionId,
+      documentacion
+    );
+
+    setDocumentacionGuardada(true);
+  } catch (error) {
+    setErrorDocumentacion(
+      error instanceof Error
+        ? error.message
+        : "No se pudo guardar la documentación."
+    );
+  } finally {
+    setGuardandoDocumentacion(false);
+  }
+}
+
 
   if (cargando) {
     return (
@@ -287,16 +352,16 @@ export default function BoletoUsadoPage() {
         }
 
         .boleto-usado-texto {
-          margin-top: 20px;
+          margin-top: 5px;
 
           font-size: 11.2px;
-          line-height: 1.5;
+          line-height: 1.35;
 
           text-align: justify;
         }
 
         .boleto-usado-texto p {
-          margin: 0 0 10px;
+          margin: 0 0 2px;
         }
 
         .boleto-usado-texto strong {
@@ -304,7 +369,7 @@ export default function BoletoUsadoPage() {
         }
 
         .titulo-seccion-usado {
-          margin: 16px 0 8px;
+          margin: 6px 0 4px;
 
           padding-bottom: 5px;
 
@@ -323,12 +388,9 @@ export default function BoletoUsadoPage() {
           display: grid;
 
           grid-template-columns:
-            repeat(
-              2,
-              minmax(0, 1fr)
-            );
+  repeat(3, minmax(0, 1fr));
 
-          gap: 6px 24px;
+          gap: 2px 24px;
 
           font-size: 10.8px;
         }
@@ -337,7 +399,7 @@ export default function BoletoUsadoPage() {
           display: grid;
 
           grid-template-columns:
-            90px 1fr;
+            auto minmax(0, 1fr);
 
           gap: 6px;
         }
@@ -363,7 +425,7 @@ export default function BoletoUsadoPage() {
 
           gap: 70px;
 
-          margin-top: 150px;
+          margin-top: 40px;
           margin-bottom: 20px;
         }
 
@@ -380,9 +442,24 @@ export default function BoletoUsadoPage() {
         }
 
         @media print {
-          .no-imprimir {
-            display: none !important;
-          }
+  .no-imprimir {
+    display: none !important;
+  }
+    .documento-pie {
+  position: relative !important;
+  top: 35px !important;
+  margin-top: 4px !important;
+}
+
+  .documento-motocars {
+    display: flex !important;
+    min-height: 297mm !important;
+    height: auto !important;
+  }
+
+  .documento-contenido {
+    flex: 1 !important;
+  }
         }
 
         @media screen and (max-width: 850px) {
@@ -395,6 +472,88 @@ export default function BoletoUsadoPage() {
           }
         }
       `}</style>
+
+<div
+  className="no-imprimir"
+  style={{
+    maxWidth: 794,
+    margin: "16px auto",
+    padding: 20,
+    background: "#fff",
+    border: "1px solid #d4d4d4",
+    borderRadius: 8,
+  }}
+>
+  <h3 style={{ marginTop: 0 }}>
+    Documentación y elementos entregados al comprador
+  </h3>
+
+  <div style={{ display: "grid", gap: 10 }}>
+    {OPCIONES_DOCUMENTACION.map((opcion) => (
+      <label key={opcion.campo}>
+        <input
+          type="checkbox"
+          checked={documentacion[opcion.campo]}
+          onChange={(evento) => {
+            setDocumentacion((anterior) => ({
+              ...anterior,
+              [opcion.campo]: evento.target.checked,
+            }));
+            setDocumentacionGuardada(false);
+          }}
+        />{" "}
+        {opcion.nombre}
+      </label>
+    ))}
+  </div>
+
+  <label style={{ display: "block", marginTop: 16 }}>
+    Observaciones
+    <textarea
+      value={documentacion.observaciones}
+      maxLength={2000}
+      onChange={(evento) => {
+        setDocumentacion((anterior) => ({
+          ...anterior,
+          observaciones: evento.target.value,
+        }));
+        setDocumentacionGuardada(false);
+      }}
+      rows={3}
+      style={{
+        display: "block",
+        width: "100%",
+        boxSizing: "border-box",
+        marginTop: 6,
+        padding: 8,
+      }}
+    />
+  </label>
+
+  <button
+    type="button"
+    className="boton-documento boton-principal"
+    onClick={guardarDocumentacion}
+    disabled={guardandoDocumentacion}
+    style={{ marginTop: 16 }}
+  >
+    {guardandoDocumentacion
+      ? "Guardando..."
+      : "Guardar documentación"}
+  </button>
+
+  {documentacionGuardada && (
+    <p style={{ color: "#166534" }}>
+      Documentación guardada.
+    </p>
+  )}
+
+  {errorDocumentacion && (
+    <p style={{ color: "#b91c1c" }}>
+      {errorDocumentacion}
+    </p>
+  )}
+</div>
 
       <div className="barra-documento no-imprimir">
         <button
@@ -461,115 +620,90 @@ export default function BoletoUsadoPage() {
   </strong>
   , se celebra el presente
   contrato de compraventa de
-  automotor usado con permuta.
+  automotor usado.
 </p>
 
          <h2 className="titulo-seccion-usado">
   Datos del comprador
 </h2>
 
+
 <div
   style={{
     display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "4px 20px",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: "4px 12px",
     fontSize: "11.5px",
   }}
 >
-  <div
-    style={{
-      display: "grid",
-      alignContent: "start",
-      gap: "4px",
-    }}
-  >
-    <div className="dato-usado">
-      <strong>Comprador:</strong>
-      <span>{nombreCliente(cliente)}</span>
-    </div>
-
-    <div className="dato-usado">
-      <strong>Fecha nac.:</strong>
-      <span>
-        {cliente.fecha_nacimiento
-          ? formatearFecha(cliente.fecha_nacimiento)
-          : "—"}
-      </span>
-    </div>
-
-    <div className="dato-usado">
-      <strong>Estado civil:</strong>
-      <span>{cliente.estado_civil || "—"}</span>
-    </div>
-
-    <div className="dato-usado">
-      <strong>Domicilio:</strong>
-      <span>{cliente.direccion || "—"}</span>
-    </div>
-
-    <div className="dato-usado">
-      <strong>Teléfono:</strong>
-      <span>
-        {cliente.whatsapp ||
-          cliente.telefono ||
-          "—"}
-      </span>
-    </div>
+  <div className="dato-usado">
+    <strong>Comprador:</strong>
+    <span>{nombreCliente(cliente)}</span>
   </div>
 
-  <div
-    style={{
-      display: "grid",
-      alignContent: "start",
-      gap: "4px",
-    }}
-  >
-    <div className="dato-usado">
-      <strong>DNI/CUIT:</strong>
-      <span>{documentoCliente(cliente)}</span>
-    </div>
-
-    <div className="dato-usado">
-      <strong>Profesión:</strong>
-      <span>{cliente.profesion || "—"}</span>
-    </div>
-
-    {cliente.estado_civil === "Casado/a" && (
-      <>
-        <div className="dato-usado">
-          <strong>Cónyuge:</strong>
-          <span>
-            {cliente.conyuge_nombre || "—"}
-          </span>
-        </div>
-
-        <div className="dato-usado">
-          <strong>DNI cónyuge:</strong>
-          <span>
-            {cliente.conyuge_dni || "—"}
-          </span>
-        </div>
-      </>
-    )}
-
-    <div className="dato-usado">
-      <strong>Localidad:</strong>
-      <span>
-        {[
-          cliente.ciudad,
-          cliente.provincia,
-        ]
-          .filter(Boolean)
-          .join(", ") || "—"}
-      </span>
-    </div>
-
-    <div className="dato-usado">
-      <strong>Email:</strong>
-      <span>{cliente.email || "—"}</span>
-    </div>
+  <div className="dato-usado">
+    <strong>DNI/CUIT:</strong>
+    <span>{documentoCliente(cliente)}</span>
   </div>
+
+  <div className="dato-usado">
+    <strong>Fecha nac.:</strong>
+    <span>
+      {cliente.fecha_nacimiento
+        ? formatearFecha(cliente.fecha_nacimiento)
+        : "—"}
+    </span>
+  </div>
+
+  <div className="dato-usado">
+    <strong>Estado civil:</strong>
+    <span>{cliente.estado_civil || "—"}</span>
+  </div>
+
+  <div className="dato-usado">
+    <strong>Profesión:</strong>
+    <span>{cliente.profesion || "—"}</span>
+  </div>
+
+  <div className="dato-usado">
+    <strong>Teléfono:</strong>
+    <span>{cliente.whatsapp || cliente.telefono || "—"}</span>
+  </div>
+
+  <div className="dato-usado">
+    <strong>Domicilio:</strong>
+    <span>{cliente.direccion || "—"}</span>
+  </div>
+
+  <div className="dato-usado">
+    <strong>Localidad:</strong>
+    <span>
+      {[cliente.ciudad, cliente.provincia]
+        .filter(Boolean)
+        .join(", ") || "—"}
+    </span>
+  </div>
+
+  <div className="dato-usado">
+    <strong>Email:</strong>
+    <span>{cliente.email || "—"}</span>
+  </div>
+
+  {cliente.estado_civil === "Casado/a" && (
+    <>
+      <div className="dato-usado">
+        <strong>Cónyuge:</strong>
+        <span>{cliente.conyuge_nombre || "—"}</span>
+      </div>
+
+      <div className="dato-usado">
+        <strong>DNI cónyuge:</strong>
+        <span>{cliente.conyuge_dni || "—"}</span>
+      </div>
+    </>
+  )}
 </div>
+
           <h2 className="titulo-seccion-usado">
             Vehículo vendido
           </h2>
@@ -646,14 +780,9 @@ export default function BoletoUsadoPage() {
               </strong>
 
               <span>
-                {vehiculo.kilometros !==
-                null
-                  ? new Intl.NumberFormat(
-                      "es-AR"
-                    ).format(
-                      vehiculo.kilometros
-                    )
-                  : "—"}
+                {vehiculo.kilometros != null
+  ? new Intl.NumberFormat("es-AR").format(vehiculo.kilometros)
+  : "—"}
               </span>
             </div>
 
@@ -740,14 +869,28 @@ export default function BoletoUsadoPage() {
   )}
 </div>
 
+
 <p style={{ marginTop: 14 }}>
   <strong>2)</strong>{" "}
-  En este acto se entregará al COMPRADOR la siguiente documentación
-  y elementos, según corresponda: a) Cédula de identificación del
-  titular anterior; b) Seguro provisorio (optativo); c) Copia del
-  Título de Propiedad; d) Duplicado de llaves; e) Manuales; f)
-  Verificación vehicular; g) Detalle de servicios.
+  En este acto se entrega al COMPRADOR la siguiente
+  documentación y elementos:{" "}
+  {OPCIONES_DOCUMENTACION
+    .filter((opcion) => documentacion[opcion.campo])
+    .map((opcion, indice) =>
+      `${String.fromCharCode(97 + indice)}) ${opcion.nombre}`
+    )
+    .join("; ") || "Ninguno declarado"}
+  .
+
+  {documentacion.observaciones.trim() && (
+    <>
+      {" "}
+      <strong>Observaciones:</strong>{" "}
+      {documentacion.observaciones.trim()}
+    </>
+  )}
 </p>
+
 
 <p>
   <strong>3)</strong>{" "}
@@ -827,7 +970,7 @@ export default function BoletoUsadoPage() {
   </strong>
   .
 </p>
-          <div className="firmas-usado">
+          <div className="firmas-usado" style={{ transform: "translateY(25px)" }}>
             <div className="firma-usado">
               EL COMPRADOR
               <br />

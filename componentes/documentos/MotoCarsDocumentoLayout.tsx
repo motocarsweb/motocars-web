@@ -548,11 +548,11 @@ export default function MotoCarsDocumentoLayout({
 
 
 
-          gap: 5px;
+          gap: 2px;
 
 
 
-          margin-top: 13px;
+          margin-top: 6px;
 
 
 
@@ -668,11 +668,11 @@ export default function MotoCarsDocumentoLayout({
 
 
 
-          margin-top: 18px;
+          margin-top: 4px;
 
 
 
-          padding-top: 10px;
+          padding-top: 4px;
 
 
 
@@ -788,18 +788,12 @@ export default function MotoCarsDocumentoLayout({
 
 
 
-        @media print {
-
+ @media print {
   html,
-
   body {
-
     margin: 0 !important;
-
     padding: 0 !important;
-
     background: white !important;
-
   }
 
     .admin-sidebar,
@@ -871,10 +865,9 @@ export default function MotoCarsDocumentoLayout({
   .documento-motocars {
 
     position: relative;
-
-break-after: page;
-
-page-break-after: always;
+display: flex !important;
+break-after: auto;
+page-break-after: auto;
 
 
 
