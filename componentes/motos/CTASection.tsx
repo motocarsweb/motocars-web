@@ -10,7 +10,7 @@ export default function CTASection() {
       }}
     >
       <div style={{ maxWidth: 900, margin: "0 auto" }}>
-        <p style={{ color: "#ef4444", fontWeight: 800 }}>
+        <p style={{ color: "var(--mc-red)", fontWeight: 800 }}>
           RVM PATAGONIA | GRUPO MOTOCARS
         </p>
 
@@ -34,7 +34,7 @@ export default function CTASection() {
             display: "inline-block",
             padding: "16px 34px",
             borderRadius: 8,
-            background: "#dc2626",
+            background: "var(--mc-red)",
             color: "#ffffff",
             fontWeight: 800,
             textDecoration: "none",
