@@ -10,7 +10,7 @@
   overflow: hidden;
   isolation: isolate;
 
-  background-image: url("/images/showroom/hero-motos-bg.png");
+  background-image: url("/images/showroom/hero-motos-bg.webp");
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
