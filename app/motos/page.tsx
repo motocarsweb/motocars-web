@@ -5,6 +5,8 @@ import {
   RVMSection,
   JAWASection,
 } from "@/componentes/motos";
+
+import CTASection from "@/componentes/motos/CTASection";
 import MotosStock from "@/componentes/motos/MotosStock";
 
 export default function MotosPage() {
@@ -12,6 +14,7 @@ export default function MotosPage() {
     <>
       <main>
         <HeroMotos />
+        <CTASection />
         <BrandsSection />
         <RVMSection />
         <JAWASection />
