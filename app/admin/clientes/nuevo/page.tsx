@@ -110,10 +110,11 @@ export default function NuevoClientePage() {
 const parametros = new URLSearchParams(window.location.search);
 const volver = parametros.get("volver");
 
-if (volver) {
-  router.push(
-    `${volver}?cliente=${clienteCreado.id}`
-  );
+if (volver && volver.startsWith("/admin/")) {
+  const destino = new URL(volver, window.location.origin);
+  destino.searchParams.set("cliente", String(clienteCreado.id));
+
+  router.push(`${destino.pathname}${destino.search}`);
 } else {
   router.push("/admin/clientes");
 }

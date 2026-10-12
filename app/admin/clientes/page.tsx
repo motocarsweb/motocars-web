@@ -9,6 +9,7 @@ import Link from "next/link";
 
 import {
   listarClientes,
+  eliminarCliente,
   type Cliente,
 } from "@/lib/service/clientes";
 
@@ -27,6 +28,29 @@ export default function ClientesPage() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
+  async function confirmarEliminarCliente(cliente: Cliente) {
+  const nombre = obtenerNombreCliente(cliente);
+
+  const confirmado = window.confirm(
+    `¿Estás seguro de que querés eliminar definitivamente a ${nombre}?\n\nEsta acción no se puede deshacer.`
+  );
+
+  if (!confirmado) return;
+
+  try {
+    await eliminarCliente(cliente.id);
+
+    setClientes((anteriores) =>
+      anteriores.filter((item) => item.id !== cliente.id)
+    );
+  } catch (errorDesconocido) {
+    window.alert(
+      errorDesconocido instanceof Error
+        ? errorDesconocido.message
+        : "No se pudo eliminar el cliente."
+    );
+  }
+}
 
   useEffect(() => {
     let componenteActivo = true;
@@ -160,13 +184,23 @@ export default function ClientesPage() {
                   </td>
 
                   <td className="p-4">
-                    <Link
-                      href={`/admin/clientes/${cliente.id}/editar`}
-                      className="inline-flex rounded-lg border px-3 py-2 text-sm font-medium hover:bg-gray-50"
-                    >
-                      Editar
-                    </Link>
-                  </td>
+  <div className="flex items-center gap-2">
+    <Link
+      href={`/admin/clientes/${cliente.id}/editar`}
+      className="inline-flex rounded-lg border px-3 py-2 text-sm font-medium hover:bg-gray-50"
+    >
+      Editar
+    </Link>
+
+    <button
+      type="button"
+      onClick={() => confirmarEliminarCliente(cliente)}
+      className="inline-flex rounded-lg border border-red-300 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+    >
+      Eliminar
+    </button>
+  </div>
+</td>
                 </tr>
               ))}
             </tbody>

@@ -383,3 +383,43 @@ export async function cambiarEstadoCliente(
     );
   }
 }
+export async function eliminarCliente(
+  clienteId: number
+): Promise<void> {
+  const { data: operaciones, error: errorConsulta } =
+    await supabase
+      .from("operaciones")
+      .select("id")
+      .eq("cliente_id", clienteId)
+      .limit(1);
+
+  if (errorConsulta) {
+    throw new Error(
+      `No se pudo verificar si el cliente tiene operaciones: ${errorConsulta.message}`
+    );
+  }
+
+  if (operaciones && operaciones.length > 0) {
+    throw new Error(
+      "No se puede eliminar este cliente porque tiene operaciones asociadas."
+    );
+  }
+
+  const { data, error } = await supabase
+  .from("clientes")
+  .delete()
+  .eq("id", clienteId)
+  .select("id");
+
+if (!error && (!data || data.length === 0)) {
+  throw new Error(
+    "Supabase no eliminó el cliente. Es posible que los permisos de eliminación (RLS) estén bloqueando la operación."
+  );
+}
+
+  if (error) {
+    throw new Error(
+      `No se pudo eliminar el cliente: ${error.message}`
+    );
+  }
+}
