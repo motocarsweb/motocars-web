@@ -405,17 +405,14 @@ async function guardarDocumentacion() {
         }
 
         .condiciones-pago {
-          margin-top: 8px;
-
-          padding: 10px 12px;
-
-          border: 1px solid #d4d4d4;
-          border-radius: 6px;
-
-          font-size: 10.8px;
-
-          white-space: pre-wrap;
-        }
+  margin-top: 4px;
+  padding: 5px 12px;
+  border: 1px solid #d4d4d4;
+  border-radius: 6px;
+  font-size: 10.8px;
+  line-height: 1.25;
+  white-space: pre-wrap;
+}
 
         .firmas-usado {
           display: grid;
@@ -447,8 +444,8 @@ async function guardarDocumentacion() {
   }
     .documento-pie {
   position: relative !important;
-  top: 35px !important;
-  margin-top: 4px !important;
+  top: 0 !important;
+  margin-top: 0 !important;
 }
 
   .documento-motocars {
@@ -631,7 +628,7 @@ async function guardarDocumentacion() {
 <div
   style={{
     display: "grid",
-    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gridTemplateColumns: "1.3fr 1.2fr 0.9fr",
     gap: "4px 12px",
     fontSize: "11.5px",
   }}
@@ -676,18 +673,28 @@ async function guardarDocumentacion() {
   </div>
 
   <div className="dato-usado">
-    <strong>Localidad:</strong>
-    <span>
-      {[cliente.ciudad, cliente.provincia]
-        .filter(Boolean)
-        .join(", ") || "—"}
-    </span>
-  </div>
+  <strong>Localidad:</strong>
+<span style={{ textAlign: "left" }}>
+  {cliente.ciudad || "—"}
+</span>
+</div>
 
-  <div className="dato-usado">
-    <strong>Email:</strong>
-    <span>{cliente.email || "—"}</span>
-  </div>
+<div className="dato-usado">
+  <strong>Provincia:</strong>
+  <span>{cliente.provincia || "—"}</span>
+</div>
+
+  <div
+  className="dato-usado"
+  style={{
+    gridColumn: "1 / -1",
+    gridTemplateColumns: "auto 1fr",
+    justifySelf: "start",
+  }}
+>
+  <strong>Email:</strong>
+  <span>{cliente.email || "—"}</span>
+</div>
 
   {cliente.estado_civil === "Casado/a" && (
     <>
