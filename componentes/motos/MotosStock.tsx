@@ -337,7 +337,9 @@ export default async function MotosStock({
                       >
                         <a
                           href={`https://wa.me/5492995133023?text=${encodeURIComponent(
-                            `Hola, quiero consultar por la ${nombreMoto(moto)}`
+                            `Hola, quiero consultar por la moto ${nombreMoto(moto)}${
+  moto.anio ? `, año ${moto.anio}` : ""
+}. La vi publicada en la web de Rvm-Jawa Patagonia.`
                           )}`}
                           target="_blank"
                           rel="noopener noreferrer"

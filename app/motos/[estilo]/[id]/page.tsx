@@ -132,7 +132,7 @@ export default async function MotoDetailPage({
   const mensajeWhatsApp = encodeURIComponent(
     `Hola, quiero consultar por la moto ${titulo}${
       moto.anio ? `, año ${moto.anio}` : ""
-    }. La vi publicada en la web de MotoCars.`
+    }. La vi publicada en la web de Rvm-Jawa Patagonia.`
   );
 
   const whatsappUrl =
