@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import VehicleGallery from "@/componentes/VehicleGallery/VehicleGallery";
 import { obtenerVehiculoPublicoPorId } from "@/lib/supabase-vehicles";
 
+import WhatsAppReferido from "@/componentes/WhatsAppReferido";
+
 type VehicleDetailPageProps = {
   params: Promise<{
     slug: string;
@@ -72,15 +74,6 @@ export default async function VehicleDetailPage({
       Boolean(imagen?.trim()) &&
       listado.indexOf(imagen) === index
   );
-
-  const mensajeWhatsApp = encodeURIComponent(
-    `Hola, quiero consultar por el vehículo ${titulo}${
-      vehiculo.anio ? `, año ${vehiculo.anio}` : ""
-    }. Lo vi publicado en la web de MotoCars.`
-  );
-
-  const whatsappUrl =
-    `https://wa.me/5492995133023?text=${mensajeWhatsApp}`;
 
   return (
     <main className="vehicle-detail-page">
@@ -165,14 +158,10 @@ export default async function VehicleDetailPage({
                 </div>
               )}
 
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="vehicle-detail-whatsapp"
-              >
-                Consultar por WhatsApp
-              </a>
+              <WhatsAppReferido
+  titulo={titulo}
+  anio={vehiculo.anio}
+/>
 
               <p className="vehicle-detail-note">
                 Consultanos por financiación,

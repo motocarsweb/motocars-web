@@ -9,11 +9,11 @@ import {
 
 import type { VehiculoSupabase } from "@/lib/supabase-vehicles";
 
+import WhatsAppReferido from "@/componentes/WhatsAppReferido";
+
 type VehicleCardProps = {
   vehicle: VehiculoSupabase;
 };
-
-const WHATSAPP_NUMBER = "5492995133023";
 
 function formatearPrecio(precio: number | null) {
   if (precio === null) {
@@ -47,14 +47,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
     version ? ` ${version}` : ""
   }`;
 
-  const mensajeWhatsApp = encodeURIComponent(
-    `Hola, me interesa el ${nombreCompleto}${
-      vehicle.anio ? ` ${vehicle.anio}` : ""
-    } publicado en MotoCars. Quisiera recibir más información.`
-  );
-
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${mensajeWhatsApp}`;
-
+  
   return (
     <article className="vehicle-card">
       <Link
@@ -124,16 +117,11 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
             <ArrowUpRight size={16} />
           </Link>
 
-          <a
-            href={whatsappUrl}
-            className="vehicle-whatsapp-button"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Consultar por WhatsApp sobre ${nombreCompleto}`}
-          >
-            <MessageCircle size={17} />
-            WhatsApp
-          </a>
+          <WhatsAppReferido
+  titulo={nombreCompleto}
+  anio={vehicle.anio}
+  variante="tarjeta"
+/>
         </div>
       </div>
     </article>
