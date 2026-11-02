@@ -3,13 +3,14 @@
 import { useState, type FormEvent } from "react";
 
 type Vehiculo = { id: number; nombre: string; precio: number };
+type Comprobante = { numero: string; fecha: string; cliente: string; telefono: string; vehiculo: string; precio: number };
 
 export default function FormularioPresupuestoReferido({ vehiculos }: { vehiculos: Vehiculo[] }) {
   const [vehiculoId, setVehiculoId] = useState("");
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
   const [mensaje, setMensaje] = useState("");
-  const [numero, setNumero] = useState("");
+  const [comprobante, setComprobante] = useState<Comprobante | null>(null);
   const [cargando, setCargando] = useState(false);
 
   async function guardar(event: FormEvent<HTMLFormElement>) {
@@ -17,7 +18,7 @@ export default function FormularioPresupuestoReferido({ vehiculos }: { vehiculos
     if (cargando) return;
     setCargando(true);
     setMensaje("");
-    setNumero("");
+    setComprobante(null);
     try {
       const response = await fetch("/api/referidos/presupuestos", {
         method: "POST",
@@ -33,7 +34,7 @@ export default function FormularioPresupuestoReferido({ vehiculos }: { vehiculos
         setMensaje(result.error || "No se pudo generar el presupuesto.");
         return;
       }
-      setNumero(result.numero);
+      setComprobante(result as Comprobante);
       setNombre("");
       setTelefono("");
       setVehiculoId("");
@@ -72,7 +73,30 @@ export default function FormularioPresupuestoReferido({ vehiculos }: { vehiculos
         </button>
       </form>
       {mensaje && <p role="alert">{mensaje}</p>}
-      {numero && <p role="status">Presupuesto creado correctamente: <strong>{numero}</strong></p>}
+      {comprobante && (
+        <div role="status" style={{ marginTop: 24 }}>
+          <p>Presupuesto creado correctamente: <strong>{comprobante.numero}</strong></p>
+          <div className="ref-print" style={{ background: "#fff", padding: 24, border: "1px solid #ddd", borderRadius: 8 }}>
+            <h2 style={{ marginTop: 0 }}>MotoCars — Presupuesto</h2>
+            <p><strong>Número:</strong> {comprobante.numero}</p>
+            <p><strong>Fecha:</strong> {new Date(comprobante.fecha).toLocaleDateString("es-AR")}</p>
+            <p><strong>Cliente:</strong> {comprobante.cliente}</p>
+            {comprobante.telefono && <p><strong>Teléfono:</strong> {comprobante.telefono}</p>}
+            <p><strong>Vehículo:</strong> {comprobante.vehiculo}</p>
+            <p><strong>Precio:</strong> {comprobante.precio.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 })}</p>
+            <p>Validez: 7 días. Sujeto a disponibilidad y confirmación comercial.</p>
+          </div>
+          <button type="button" onClick={() => window.print()}
+            style={{ marginTop: 12, padding: "12px 18px", border: 0, borderRadius: 8, cursor: "pointer" }}>
+            Imprimir / Guardar como PDF
+          </button>
+        </div>
+      )}
+      <style>{`@media print {
+        body * { visibility: hidden !important; }
+        .ref-print, .ref-print * { visibility: visible !important; }
+        .ref-print { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; border: none !important; }
+      }`}</style>
     </section>
   );
 }
