@@ -58,7 +58,6 @@ export default function WhatsAppReferido({
     return (
       <a
         href={whatsappUrl}
-      onClick={() => { if (referido) registrarEventoReferido("whatsapp", referido); }}
         onClick={() => { if (referido) registrarEventoReferido("whatsapp", referido); }}
         className="vehicle-whatsapp-button"
         target="_blank"
@@ -74,6 +73,7 @@ export default function WhatsAppReferido({
   return (
     <a
       href={whatsappUrl}
+      onClick={() => { if (referido) registrarEventoReferido("whatsapp", referido); }}
       target="_blank"
       rel="noopener noreferrer"
       className="vehicle-detail-whatsapp"
