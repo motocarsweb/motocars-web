@@ -47,7 +47,25 @@ export default async function MotosPorMarcaPage({
   ] = await Promise.all([
     supabase
       .from("vehiculos")
-      .select("*")
+      .select(`
+  id,
+  created_at,
+  marca,
+  modelo,
+  version,
+  tipo,
+  estilo_moto_id,
+  anio,
+  precio,
+  kilometros,
+  color,
+  condicion,
+  destacado,
+  publicado,
+  descripcion,
+  imagen_principal,
+  imagenes
+`)
       .eq("tipo", "Moto")
       .eq("publicado", true)
       .ilike("marca", marcaNombre)

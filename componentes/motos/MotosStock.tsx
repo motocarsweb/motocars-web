@@ -48,6 +48,26 @@ export default async function MotosStock({
 
     supabase
       .from("vehiculos")
+.select(`
+  id,
+  created_at,
+  marca,
+  modelo,
+  version,
+  tipo,
+  estilo_moto_id,
+  anio,
+  precio,
+  kilometros,
+  color,
+  condicion,
+  destacado,
+  publicado,
+  descripcion,
+  imagen_principal,
+  imagenes
+`)
+.eq("tipo", "Moto")
       .select("*")
       .eq("tipo", "Moto")
       .eq("publicado", true)
