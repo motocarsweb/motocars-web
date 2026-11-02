@@ -138,7 +138,7 @@ export default function AdminLayout({
       }
       setRol(data.rol);
       setCargandoPerfil(false);
-      if (data.rol === "vendedor" && pathname !== "/admin/referidos") {
+      if (data.rol === "vendedor" && pathname !== "/admin/referidos" && pathname !== "/admin/referidos/presupuestos/nuevo") {
         router.replace("/admin/referidos");
       }
     }
