@@ -3,12 +3,13 @@
 
 import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import { registrarEventoReferido } from "@/lib/referidos-eventos";
 
 const CLAVE = "motocars_referido";
 const DURACION = 30 * 24 * 60 * 60 * 1000;
 
 // Códigos autorizados.
-// Incorporaremos los otros tres vendedores después.
+// Los seis códigos vigentes.
 const VENDEDORES = ["david", "nazareno", "alexander", "cristian", "jorge", "german"];
 
 export default function CapturarReferido() {
@@ -16,6 +17,12 @@ export default function CapturarReferido() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    const registrarVisita = (codigo: string) => {
+      const claveSesion = `motocars_visita_ref_${codigo}`;
+      if (sessionStorage.getItem(claveSesion)) return;
+      sessionStorage.setItem(claveSesion, "1");
+      registrarEventoReferido("visita", codigo);
+    };
     // No capturar referidos dentro del administrador.
     if (pathname.startsWith("/admin")) return;
 
@@ -33,7 +40,8 @@ export default function CapturarReferido() {
           ahora >= datos.fecha &&
           ahora - datos.fecha < DURACION
         ) {
-          // Primer vendedor conserva la atribución.
+          // Primer referido conserva la atribución.
+          if (searchParams.get("ref")?.toLowerCase().trim() === datos.codigo) registrarVisita(datos.codigo);
           return;
         }
 
@@ -51,6 +59,7 @@ export default function CapturarReferido() {
           fecha: ahora,
         })
       );
+      registrarVisita(codigo);
     } catch {
       localStorage.removeItem(CLAVE);
     }
