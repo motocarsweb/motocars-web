@@ -49,7 +49,7 @@ export async function proxy(request: NextRequest) {
   if (user && esAdmin) {
     const { data: perfil, error: errorPerfil } = await supabase
       .from("usuarios_permisos")
-      .select("rol, activo")
+      .select("rol, activo, puede_presupuestos")
       .eq("user_id", user.id)
       .maybeSingle();
 
@@ -72,7 +72,8 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    if (perfil.rol === "vendedor" && pathname !== "/admin/referidos") {
+    if (perfil.rol === "vendedor" && pathname !== "/admin/referidos" &&
+        !(perfil.puede_presupuestos && pathname === "/admin/referidos/presupuestos/nuevo")) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin/referidos";
       return NextResponse.redirect(url);
