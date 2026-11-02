@@ -1,0 +1,62 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+
+const nombres = ["David", "Nazareno", "Alexander", "Cristian", "Jorge", "German"];
+
+type Metrica = { codigo_referido: string; visitas: number; clics_whatsapp: number };
+
+export default function ReferidosPage() {
+  const [filas, setFilas] = useState<Metrica[]>([]);
+  const [estado, setEstado] = useState("Cargando estadísticas...");
+
+  useEffect(() => {
+    let activo = true;
+    async function cargar() {
+      const inicio = new Date();
+      inicio.setDate(inicio.getDate() - 29);
+      const { data, error } = await supabase
+        .from("referidos_metricas_diarias")
+        .select("codigo_referido, visitas, clics_whatsapp")
+        .gte("fecha", inicio.toISOString().slice(0, 10));
+      if (!activo) return;
+      if (error) { setEstado("No se pudieron consultar las estadísticas."); return; }
+      setFilas(data ?? []);
+      setEstado("");
+    }
+    void cargar();
+    return () => { activo = false; };
+  }, []);
+
+  const resumen = nombres.map((nombre) => {
+    const codigo = nombre.toLowerCase();
+    const registros = filas.filter((fila) => fila.codigo_referido === codigo);
+    return {
+      nombre,
+      visitas: registros.reduce((total, fila) => total + Number(fila.visitas), 0),
+      clics: registros.reduce((total, fila) => total + Number(fila.clics_whatsapp), 0),
+    };
+  }).sort((a, b) => b.clics - a.clics || b.visitas - a.visitas);
+
+  return (
+    <section>
+      <h1 style={{ fontSize: 32, marginTop: 0 }}>Referidos</h1>
+      <p>Visitas aproximadas por sesión y clics en WhatsApp de los últimos 30 días. Un clic no confirma un mensaje enviado.</p>
+      {estado ? <p role="status">{estado}</p> : (
+        <div style={{ background: "white", padding: 24, borderRadius: 12, overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+            <thead><tr><th>Referido</th><th>Visitas</th><th>Clics WhatsApp</th></tr></thead>
+            <tbody>{resumen.map((fila) => (
+              <tr key={fila.nombre}>
+                <td style={{ padding: 12, borderBottom: "1px solid #eee" }}>{fila.nombre}</td>
+                <td style={{ padding: 12, borderBottom: "1px solid #eee" }}>{fila.visitas}</td>
+                <td style={{ padding: 12, borderBottom: "1px solid #eee" }}>{fila.clics}</td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+}
