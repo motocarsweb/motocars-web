@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   }
 
   const { data: vehiculo, error: errorVehiculo } = await supabaseAdmin
-    .from("vehiculos").select("id, precio").eq("id", vehiculoId)
+    .from("vehiculos").select("id, precio, marca, modelo, version, anio").eq("id", vehiculoId)
     .eq("publicado", true).eq("en_stock", true).maybeSingle();
   if (errorVehiculo || !vehiculo || !Number.isFinite(Number(vehiculo.precio)) || Number(vehiculo.precio) < 0) {
     return NextResponse.json({ error: "Vehículo no disponible." }, { status: 400 });
@@ -62,5 +62,5 @@ export async function POST(request: Request) {
     console.error("Error al numerar presupuesto referido:", errorNumero);
     return NextResponse.json({ error: "Presupuesto creado, pero no se pudo asignar número. Contactá al administrador." }, { status: 500 });
   }
-  return NextResponse.json({ id: creado.id, numero }, { status: 201 });
+  return NextResponse.json({ id: creado.id, numero, fecha: new Date().toISOString(), cliente: nombre, telefono, vehiculo: [vehiculo.marca, vehiculo.modelo, vehiculo.version, vehiculo.anio].filter(Boolean).join(" "), precio }, { status: 201 });
 }
