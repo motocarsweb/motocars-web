@@ -68,8 +68,6 @@ export default async function MotosStock({
   imagenes
 `)
 .eq("tipo", "Moto")
-      .select("*")
-      .eq("tipo", "Moto")
       .eq("publicado", true)
       .order("destacado", { ascending: false })
       .order("created_at", { ascending: false }),
@@ -96,8 +94,17 @@ export default async function MotosStock({
     ? estilosMoto.filter((estilo) => estilo.slug === estiloSlug)
     : estilosMoto;
 
-  if (motosPublicadas.length === 0) {
-    return null;
+  if (errorMotos || errorEstilos || motosPublicadas.length === 0 || (estiloSlug && estilosVisibles.length === 0)) {
+    return (
+      <section style={{ minHeight: "35vh", padding: "72px 20px", background: "#f8fafc", textAlign: "center" }}>
+        <h2 style={{ color: "#0f172a" }}>Stock de motos</h2>
+        <p style={{ color: "#475569" }}>
+          {errorMotos || errorEstilos
+            ? "No pudimos cargar el stock en este momento. Intentá nuevamente más tarde."
+            : "No hay motos disponibles para mostrar en esta categoría."}
+        </p>
+      </section>
+    );
   }
 
   return (
