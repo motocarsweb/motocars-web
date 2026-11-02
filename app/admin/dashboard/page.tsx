@@ -1,8 +1,13 @@
-"use client";
-
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { obtenerPerfilAcceso } from "@/lib/permisos-acceso";
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const perfil = await obtenerPerfilAcceso();
+
+  if (!perfil) redirect("/admin/login");
+  if (perfil.rol !== "administrador") redirect("/admin/referidos");
+
   return (
     <section>
       <div
