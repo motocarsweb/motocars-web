@@ -11,6 +11,7 @@ import {
   Gauge,
   Images,
   LayoutDashboard,
+  Users,
   LogOut,
   Settings,
   SlidersHorizontal,
@@ -31,6 +32,11 @@ const menuItems: MenuItem[] = [
     href: "/admin/dashboard",
     label: "Dashboard",
     icon: <LayoutDashboard size={19} strokeWidth={2} />,
+  },
+  {
+    href: "/admin/referidos",
+    label: "Referidos",
+    icon: <Users size={19} strokeWidth={2} />,
   },
   {
     href: "/admin/vehiculos",
