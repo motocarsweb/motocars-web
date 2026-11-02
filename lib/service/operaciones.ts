@@ -596,34 +596,38 @@ export async function cambiarEstadoOperacion(
  * relaciones ON DELETE CASCADE existentes en Supabase.
  */
 
+
 export async function eliminarOperacionCompleta(
   operacionId: number
 ): Promise<void> {
-  if (
-    !Number.isInteger(
-      operacionId
-    ) ||
-    operacionId <= 0
-  ) {
+  if (!Number.isSafeInteger(operacionId) || operacionId <= 0) {
     throw new Error(
       "El identificador de la operación no es válido."
     );
   }
 
-  const {
-    error,
-  } =
-    await supabase.rpc(
-      "eliminar_operacion_completa",
-      {
-        p_operacion_id:
-          operacionId,
-      }
-    );
+  const respuesta = await fetch(
+    "/api/admin/operaciones/eliminar",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "same-origin",
+      body: JSON.stringify({
+        operacion_id: operacionId,
+      }),
+    }
+  );
 
-  if (error) {
+  if (!respuesta.ok) {
+    const resultado = await respuesta
+      .json()
+      .catch(() => null);
+
     throw new Error(
-      `No se pudo eliminar la operación: ${error.message}`
+      resultado?.error ??
+        "No se pudo eliminar la operación."
     );
   }
 }
