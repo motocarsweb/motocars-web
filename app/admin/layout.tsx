@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -107,6 +107,40 @@ export default function AdminLayout({
 }>) {
   const pathname = usePathname();
   const router = useRouter();
+  const [rol, setRol] = useState<"administrador" | "vendedor" | null>(null);
+
+  useEffect(() => {
+    if (pathname === "/admin/login") return;
+    let vigente = true;
+    async function verificarPerfil() {
+      setRol(null);
+      const { data: auth } = await supabase.auth.getUser();
+      if (!vigente) return;
+      if (!auth.user) {
+        router.replace("/admin/login");
+        return;
+      }
+      const { data: perfil, error } = await supabase
+        .from("usuarios_permisos")
+        .select("rol, activo, codigo_referido")
+        .eq("user_id", auth.user.id)
+        .maybeSingle();
+      if (!vigente) return;
+      if (error || !perfil?.activo ||
+          (perfil.rol !== "administrador" &&
+           !(perfil.rol === "vendedor" && perfil.codigo_referido))) {
+        router.replace("/admin/login");
+        return;
+      }
+      if (perfil.rol === "vendedor" && pathname !== "/admin/referidos") {
+        router.replace("/admin/referidos");
+        return;
+      }
+      setRol(perfil.rol as "administrador" | "vendedor");
+    }
+    void verificarPerfil();
+    return () => { vigente = false; };
+  }, [pathname, router]);
 
   if (pathname === "/admin/login") {
     return <>{children}</>;
@@ -205,7 +239,7 @@ export default function AdminLayout({
             marginTop: 24,
           }}
         >
-          {menuItems.map((item) => {
+          {(rol === "administrador" ? menuItems : menuItems.filter((item) => item.href === "/admin/referidos")).map((item) => {
             const activo = estaActivo(item.href);
 
             return (
