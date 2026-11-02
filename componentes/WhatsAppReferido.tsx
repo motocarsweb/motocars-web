@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { MessageCircle } from "lucide-react";
-import { registrarEventoReferido } from "@/lib/referidos-eventos";
+import { codigoReferidoVigente, registrarEventoReferido } from "@/lib/referidos-eventos";
 
 type Props = {
   titulo: string;
@@ -54,11 +54,22 @@ export default function WhatsAppReferido({
   const whatsappUrl =
     `https://wa.me/5492995133023?text=${encodeURIComponent(mensaje)}`;
 
+  // Leer el referido al hacer clic evita depender del orden de los efectos
+  // de captura y del boton en la primera carga de la pagina.
+  const abrirWhatsApp = (evento: React.MouseEvent<HTMLAnchorElement>) => {
+    const codigo = codigoReferidoVigente();
+    const mensajeActual = mensajeBase +
+      (codigo ? `\nVendedor referido: ${codigo.toUpperCase()}` : "");
+    evento.currentTarget.href =
+      `https://wa.me/5492995133023?text=${encodeURIComponent(mensajeActual)}`;
+    if (codigo) registrarEventoReferido("whatsapp", codigo);
+  };
+
   if (variante === "tarjeta") {
     return (
       <a
         href={whatsappUrl}
-        onClick={() => { if (referido) registrarEventoReferido("whatsapp", referido); }}
+        onClick={abrirWhatsApp}
         className="vehicle-whatsapp-button"
         target="_blank"
         rel="noopener noreferrer"
@@ -73,7 +84,7 @@ export default function WhatsAppReferido({
   return (
     <a
       href={whatsappUrl}
-      onClick={() => { if (referido) registrarEventoReferido("whatsapp", referido); }}
+      onClick={abrirWhatsApp}
       target="_blank"
       rel="noopener noreferrer"
       className="vehicle-detail-whatsapp"
