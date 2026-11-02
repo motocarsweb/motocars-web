@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -11,6 +11,7 @@ import {
   Gauge,
   Images,
   LayoutDashboard,
+  Users,
   LogOut,
   Settings,
   SlidersHorizontal,
@@ -26,11 +27,16 @@ type MenuItem = {
   icon: ReactNode;
 };
 
-const menuItems: MenuItem[] = [
+const menuItemsAdmin: MenuItem[] = [
   {
     href: "/admin/dashboard",
     label: "Dashboard",
     icon: <LayoutDashboard size={19} strokeWidth={2} />,
+  },
+  {
+    href: "/admin/referidos",
+    label: "Referidos",
+    icon: <Users size={19} strokeWidth={2} />,
   },
   {
     href: "/admin/vehiculos",
@@ -94,6 +100,14 @@ const menuItems: MenuItem[] = [
   },
 ];
 
+const menuItemsReferido: MenuItem[] = [
+  {
+    href: "/admin/referidos",
+    label: "Referidos",
+    icon: <Users size={19} strokeWidth={2} />,
+  },
+];
+
 export default function AdminLayout({
   children,
 }: Readonly<{
@@ -101,10 +115,50 @@ export default function AdminLayout({
 }>) {
   const pathname = usePathname();
   const router = useRouter();
+  const [rol, setRol] = useState<"administrador" | "vendedor" | null>(null);
+  const [cargandoPerfil, setCargandoPerfil] = useState(true);
+
+  useEffect(() => {
+    if (pathname === "/admin/login") return;
+    let cancelado = false;
+    async function cargarPerfil() {
+      setCargandoPerfil(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        if (!cancelado) router.replace("/admin/login");
+        return;
+      }
+      const { data, error } = await supabase.from("usuarios_permisos")
+        .select("rol, activo").eq("user_id", user.id).maybeSingle();
+      if (cancelado) return;
+      if (error || !data || !data.activo || (data.rol !== "administrador" && data.rol !== "vendedor")) {
+        await supabase.auth.signOut();
+        router.replace("/admin/login");
+        return;
+      }
+      setRol(data.rol);
+      setCargandoPerfil(false);
+      if (data.rol === "vendedor" && pathname !== "/admin/referidos" && pathname !== "/admin/referidos/presupuestos/nuevo") {
+        router.replace("/admin/referidos");
+      }
+    }
+    void cargarPerfil();
+    return () => { cancelado = true; };
+  }, [pathname, router]);
 
   if (pathname === "/admin/login") {
     return <>{children}</>;
   }
+
+  if (cargandoPerfil || !rol) {
+    return <div style={{ padding: 32 }}>Verificando acceso...</div>;
+  }
+
+  if (rol === "vendedor" && pathname !== "/admin/referidos") {
+    return <div style={{ padding: 32 }}>Redirigiendo al panel de referidos...</div>;
+  }
+
+  const menuItems = rol === "administrador" ? menuItemsAdmin : menuItemsReferido;
 
   async function cerrarSesion() {
     await supabase.auth.signOut();

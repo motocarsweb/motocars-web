@@ -1,8 +1,13 @@
-"use client";
-
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { obtenerPerfilAcceso } from "@/lib/permisos-acceso";
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const perfil = await obtenerPerfilAcceso();
+
+  if (!perfil) redirect("/admin/login");
+  if (perfil.rol !== "administrador") redirect("/admin/referidos");
+
   return (
     <section>
       <div
@@ -39,6 +44,25 @@ export default function AdminDashboardPage() {
           gap: "20px",
         }}
       >
+        <Link
+          href="/admin/referidos"
+          style={{
+            display: "block",
+            padding: "24px",
+            borderRadius: "12px",
+            backgroundColor: "#ffffff",
+            color: "#111827",
+            textDecoration: "none",
+            boxShadow: "0 4px 14px rgba(0, 0, 0, 0.08)",
+          }}
+        >
+          <div style={{ fontSize: "28px", marginBottom: "12px" }}>👥</div>
+          <h2 style={{ margin: 0, fontSize: "20px" }}>Referidos</h2>
+          <p style={{ marginTop: "8px", marginBottom: 0, color: "#6b7280", lineHeight: 1.5 }}>
+            Acceder al panel de seguimiento de referidos.
+          </p>
+        </Link>
+
         <Link
           href="/admin/vehiculos"
           style={{

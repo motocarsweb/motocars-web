@@ -29,7 +29,24 @@ export default function AdminLoginPage() {
       return;
     }
 
-    router.replace("/admin/dashboard");
+    const { data: perfil, error: errorPerfil } = await supabase
+      .from("usuarios_permisos")
+      .select("rol, activo")
+      .eq("user_id", data.user.id)
+      .maybeSingle();
+
+    if (errorPerfil || !perfil?.activo ||
+        (perfil.rol !== "administrador" && perfil.rol !== "vendedor")) {
+      await supabase.auth.signOut();
+      setMensaje("Tu usuario no tiene acceso habilitado. Consultá al administrador.");
+      setCargando(false);
+      return;
+    }
+
+    router.replace(perfil.rol === "administrador"
+      ? "/admin/dashboard"
+      : "/admin/referidos");
+    router.refresh();
   }
 
   return (
@@ -38,9 +55,9 @@ export default function AdminLoginPage() {
         <div className="admin-login-heading">
           <span className="admin-login-brand">MotoCars</span>
 
-          <h1>Panel de administración</h1>
+          <h1>Acceso MotoCars</h1>
 
-          <p>Ingresá con tu usuario administrador.</p>
+          <p>Ingresá con tu usuario autorizado.</p>
         </div>
 
         <form onSubmit={iniciarSesion} className="admin-login-form">
