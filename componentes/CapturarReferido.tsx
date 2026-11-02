@@ -9,7 +9,7 @@ const DURACION = 30 * 24 * 60 * 60 * 1000;
 
 // Códigos autorizados.
 // Incorporaremos los otros tres vendedores después.
-const VENDEDORES = ["juan"];
+const VENDEDORES = ["david", "nazareno", "alexander", "cristian", "jorge", "german"];
 
 export default function CapturarReferido() {
   const pathname = usePathname();
