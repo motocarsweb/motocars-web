@@ -29,7 +29,23 @@ export default function AdminLoginPage() {
       return;
     }
 
-    router.replace("/admin/dashboard");
+    const { data: perfil, error: errorPerfil } = await supabase
+      .from("usuarios_permisos")
+      .select("rol, activo, codigo_referido")
+      .eq("user_id", data.user.id)
+      .maybeSingle();
+
+    if (errorPerfil || !perfil?.activo ||
+        (perfil.rol !== "administrador" &&
+          (perfil.rol !== "vendedor" || !perfil.codigo_referido))) {
+      await supabase.auth.signOut();
+      setMensaje("Tu cuenta no tiene acceso habilitado. Consultá al administrador.");
+      setCargando(false);
+      return;
+    }
+
+    router.replace(perfil.rol === "administrador" ? "/admin/dashboard" : "/admin/referidos");
+    router.refresh();
   }
 
   return (
@@ -40,7 +56,7 @@ export default function AdminLoginPage() {
 
           <h1>Panel de administración</h1>
 
-          <p>Ingresá con tu usuario administrador.</p>
+          <p>Ingresá con tu correo y contraseña de MotoCars.</p>
         </div>
 
         <form onSubmit={iniciarSesion} className="admin-login-form">

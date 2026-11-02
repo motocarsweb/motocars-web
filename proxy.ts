@@ -48,11 +48,34 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (esLogin && user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/admin/dashboard";
+  if (user && esAdmin) {
+    const { data: perfil, error } = await supabase
+      .from("usuarios_permisos")
+      .select("rol, activo, codigo_referido")
+      .eq("user_id", user.id)
+      .maybeSingle();
 
-    return NextResponse.redirect(url);
+    if (error || !perfil?.activo || !["administrador", "vendedor"].includes(perfil.rol)) {
+      if (!esLogin) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/admin/login";
+        return NextResponse.redirect(url);
+      }
+      return response;
+    }
+
+    if (esLogin) {
+      const url = request.nextUrl.clone();
+      url.pathname = perfil.rol === "administrador" ? "/admin/dashboard" : "/admin/referidos";
+      return NextResponse.redirect(url);
+    }
+
+    if (perfil.rol === "vendedor" &&
+        (pathname !== "/admin/referidos" || !perfil.codigo_referido)) {
+      const url = request.nextUrl.clone();
+      url.pathname = perfil.codigo_referido ? "/admin/referidos" : "/admin/login";
+      return NextResponse.redirect(url);
+    }
   }
 
   return response;
