@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { obtenerPerfilAcceso } from "@/lib/permisos-acceso";
 
 export default async function ReferidosPage() {
@@ -16,6 +17,13 @@ export default async function ReferidosPage() {
           ? "Panel de seguimiento y administración de referidos de MotoCars."
           : `Bienvenido, ${perfil.nombre}. Este es tu panel de referido de MotoCars.`}
       </p>
+      {perfil.rol === "vendedor" && perfil.puedePresupuestos && (
+        <Link href="/admin/referidos/presupuestos/nuevo"
+          style={{ display: "inline-block", marginTop: 16, padding: "12px 18px",
+            borderRadius: 8, background: "#d71920", color: "#fff", textDecoration: "none" }}>
+          Crear presupuesto
+        </Link>
+      )}
       <div
         style={{
           background: "#ffffff",
