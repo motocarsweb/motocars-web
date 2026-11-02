@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { MessageCircle } from "lucide-react";
+import { registrarEventoReferido } from "@/lib/referidos-eventos";
 
 type Props = {
   titulo: string;
@@ -57,6 +58,8 @@ export default function WhatsAppReferido({
     return (
       <a
         href={whatsappUrl}
+      onClick={() => { if (referido) registrarEventoReferido("whatsapp", referido); }}
+        onClick={() => { if (referido) registrarEventoReferido("whatsapp", referido); }}
         className="vehicle-whatsapp-button"
         target="_blank"
         rel="noopener noreferrer"
