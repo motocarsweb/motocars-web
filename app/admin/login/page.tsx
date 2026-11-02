@@ -56,7 +56,7 @@ export default function AdminLoginPage() {
 
           <h1>Panel de administración</h1>
 
-          <p>Ingresá con tu usuario administrador.</p>
+          <p>Ingresá con tu correo y contraseña de MotoCars.</p>
         </div>
 
         <form onSubmit={iniciarSesion} className="admin-login-form">
