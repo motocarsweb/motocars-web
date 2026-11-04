@@ -630,8 +630,9 @@ function actualizarCampoIngresoUsado(
   event: React.ChangeEvent<
     | HTMLInputElement
     | HTMLTextAreaElement
+    | HTMLSelectElement
   >
-) {
+){
   const target = event.target;
 
   const valor =
@@ -2069,6 +2070,34 @@ function actualizarCampoIngresoUsado(
 
         {formIngresoUsado && (
   <section className="grid gap-4 rounded-xl border p-5">
+    {operacion.tipo_operacion === "consignacion" && (
+  <div className="grid gap-4 md:grid-cols-2">
+    <label className="grid gap-2">
+      <span className="font-medium">Moneda del contrato</span>
+      <select
+        name="moneda_precio_base_consignacion"
+        value={formIngresoUsado.moneda_precio_base_consignacion}
+        onChange={actualizarCampoIngresoUsado}
+        className="rounded-lg border bg-white p-3"
+      >
+        <option value="ARS">Pesos argentinos (ARS)</option>
+        <option value="USD">Dólares estadounidenses (USD)</option>
+      </select>
+    </label>
+
+    <label className="grid gap-2">
+      <span className="font-medium">Valor del contrato</span>
+      <input
+        type="number"
+        name="precio_base_consignacion"
+        value={formIngresoUsado.precio_base_consignacion}
+        onChange={actualizarCampoIngresoUsado}
+        min="0"
+        className="rounded-lg border bg-white p-3"
+      />
+    </label>
+  </div>
+)}
     <div>
       <h2 className="text-lg font-semibold">
         Documentación recibida de la permuta

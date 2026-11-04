@@ -41,10 +41,14 @@ function identificacionCliente(cliente: Cliente) {
   return cliente.cuit || cliente.dni || "—";
 }
 
-function formatearImporte(valor: number) {
+function formatearImporte(
+  valor: number,
+  moneda: "ARS" | "USD" = "ARS"
+) {
   return new Intl.NumberFormat("es-AR", {
     style: "currency",
-    currency: "ARS",
+    currency: moneda,
+    currencyDisplay: "code",
     maximumFractionDigits: 0,
   }).format(valor);
 }
@@ -375,9 +379,9 @@ export default function ConsignacionPage() {
             efectuará la venta se establece
             en la suma de{" "}
             <strong>
-              {formatearImporte(
-  ingresoUsado?.precio_base_consignacion ??
-    operacion.precio_vehiculo
+            {formatearImporte(
+  operacion.precio_vehiculo,
+  operacion.moneda === "USD" ? "USD" : "ARS"
 )}
             </strong>
             , pagaderos en la siguiente
