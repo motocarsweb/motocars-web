@@ -81,7 +81,8 @@ tipo_vehiculo_id: string;
   precio_venta: string;
 
   precio_base_consignacion: string;
-  plazo_consignacion_dias: string;
+moneda_precio_base_consignacion: "ARS" | "USD";
+plazo_consignacion_dias: string;
 
   observaciones: string;
 
@@ -122,8 +123,9 @@ tipo_vehiculo_id: "",
   valor_ingreso: "",
   precio_venta: "",
 
-  precio_base_consignacion: "",
-  plazo_consignacion_dias: "90",
+ precio_base_consignacion: "",
+moneda_precio_base_consignacion: "ARS",
+plazo_consignacion_dias: "90",
 
   observaciones: "",
 
@@ -937,10 +939,9 @@ const pagosCompraCoinciden =
   }
 
   function actualizarCampoVehiculoIngreso(
-    event: React.ChangeEvent<
-      | HTMLInputElement
-      | HTMLTextAreaElement
-    >
+ event: React.ChangeEvent<
+  HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+>
   ) {
     const target =
       event.target;
@@ -1620,6 +1621,9 @@ async function crearVehiculoDeVentaNuevo(
       precio_base_consignacion:
         vehiculoIngreso
           .precio_base_consignacion,
+          moneda_precio_base_consignacion:
+  vehiculoIngreso.moneda_precio_base_consignacion,
+          
 
       plazo_consignacion_dias:
         vehiculoIngreso
@@ -1859,6 +1863,8 @@ precioVehiculoVendido =
           precio_base_consignacion:
             vehiculoIngreso
               .precio_base_consignacion,
+              moneda_precio_base_consignacion:
+  vehiculoIngreso.moneda_precio_base_consignacion,
 
           plazo_consignacion_dias:
             vehiculoIngreso
@@ -2897,26 +2903,37 @@ value={String(vehiculoVentaNuevo[campo as keyof typeof vehiculoVentaNuevo] ?? ""
                       </div>
 
                       <div className="grid gap-4 md:grid-cols-2">
-                        <label className="grid gap-2">
-                          <span className="font-medium">
-                            Valor del contrato *
-                          </span>
+                       <div className="grid gap-2">
+  <span className="font-medium">
+    Valor del contrato *
+  </span>
 
-                          <input
-                            type="number"
-                            name="precio_base_consignacion"
-                            min="0"
-                            step="1"
-                            value={
-                              vehiculoIngreso
-                                .precio_base_consignacion
-                            }
-                            onChange={
-                              actualizarCampoVehiculoIngreso
-                            }
-                            className="rounded-lg border p-3"
-                          />
-                        </label>
+  <div className="flex gap-2">
+    <select
+      name="moneda_precio_base_consignacion"
+      value={
+        vehiculoIngreso.moneda_precio_base_consignacion
+      }
+      onChange={actualizarCampoVehiculoIngreso}
+      className="rounded-lg border p-3"
+    >
+      <option value="ARS">ARS - Pesos</option>
+      <option value="USD">USD - Dólares</option>
+    </select>
+
+    <input
+      type="number"
+      name="precio_base_consignacion"
+      min="0"
+      step="1"
+      value={
+        vehiculoIngreso.precio_base_consignacion
+      }
+      onChange={actualizarCampoVehiculoIngreso}
+      className="min-w-0 flex-1 rounded-lg border p-3"
+    />
+  </div>
+</div>
 
                         <label className="grid gap-2">
                           <span className="font-medium">

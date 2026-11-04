@@ -499,6 +499,10 @@ setFormIngresoUsado(
         precio_base_consignacion: String(
           ingresoUsadoCargado.precio_base_consignacion ?? 0
         ),
+        moneda_precio_base_consignacion:
+  ingresoUsadoCargado.moneda_precio_base_consignacion === "USD"
+    ? "USD"
+    : "ARS",
 
         plazo_consignacion_dias: String(
           ingresoUsadoCargado.plazo_consignacion_dias ?? 90

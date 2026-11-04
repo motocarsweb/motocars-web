@@ -13,6 +13,7 @@ export type IngresoUsado = {
   tipo_ingreso: TipoIngresoUsado;
   valor_ingreso: number;
   precio_base_consignacion: number;
+  moneda_precio_base_consignacion: "ARS" | "USD";
   plazo_consignacion_dias: number;
   fecha_ingreso: string;
   contrato_consignacion_emitido: boolean;
@@ -45,6 +46,7 @@ export type IngresoUsadoFormulario = {
   tipo_ingreso: TipoIngresoUsado;
   valor_ingreso: string;
   precio_base_consignacion: string;
+  moneda_precio_base_consignacion: "ARS" | "USD";
   plazo_consignacion_dias: string;
   fecha_ingreso: string;
   observaciones: string;
@@ -72,6 +74,7 @@ export const INGRESO_USADO_FORMULARIO_INICIAL: IngresoUsadoFormulario = {
   tipo_ingreso: "permuta",
   valor_ingreso: "0",
   precio_base_consignacion: "0",
+  moneda_precio_base_consignacion: "ARS",
   plazo_consignacion_dias: "90",
   fecha_ingreso: new Date().toISOString().slice(0, 10),
   observaciones: "",
@@ -112,6 +115,8 @@ function prepararIngresoUsado(
     precio_base_consignacion: convertirNumero(
       form.precio_base_consignacion
     ),
+    moneda_precio_base_consignacion:
+  form.moneda_precio_base_consignacion,
     plazo_consignacion_dias: Math.max(
       1,
       Math.trunc(
