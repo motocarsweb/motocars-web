@@ -1597,13 +1597,13 @@ const [
             vehiculo.color,
 
           dominio:
-            vehiculo.dominio,
+            operacion.dominio || vehiculo.dominio,
 
           numero_chasis:
-            vehiculo.numero_chasis,
+            operacion.numero_chasis || vehiculo.numero_chasis,
 
           numero_motor:
-            vehiculo.numero_motor,
+            operacion.numero_motor || vehiculo.numero_motor,
 
           combustible:
             vehiculo.combustible,
@@ -1953,7 +1953,7 @@ const [
                 <strong>
                   Dominio:
                 </strong>{" "}
-                {vehiculo.dominio ||
+                {operacion.dominio || vehiculo.dominio ||
                   "—"}
               </p>
 
@@ -1961,7 +1961,7 @@ const [
                 <strong>
                   Chasis:
                 </strong>{" "}
-                {vehiculo.numero_chasis ||
+                {operacion.numero_chasis || vehiculo.numero_chasis ||
                   "—"}
               </p>
 
@@ -1969,7 +1969,7 @@ const [
                 <strong>
                   Motor:
                 </strong>{" "}
-                {vehiculo.numero_motor ||
+                {operacion.numero_motor || vehiculo.numero_motor ||
                   "—"}
               </p>
             </div>
