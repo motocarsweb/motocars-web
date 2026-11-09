@@ -18,6 +18,7 @@ import {
 
 import {
   eliminarOperacionCompleta,
+  cambiarEstadoOperacion,
   obtenerOperacion,
   type Operacion,
 } from "@/lib/service/operaciones";
@@ -144,6 +145,9 @@ function obtenerEstadoLegible(
 
     entregada:
       "Entregada",
+
+    finalizada:
+      "Finalizada",
 
     cancelada:
       "Cancelada",
@@ -484,6 +488,11 @@ const [
     useState("");
 
 
+  const [estadoSeleccionado, setEstadoSeleccionado] = useState<Operacion["estado"]>("borrador");
+  const [guardandoEstado, setGuardandoEstado] = useState(false);
+  const [errorEstado, setErrorEstado] = useState("");
+  const [mensajeEstado, setMensajeEstado] = useState("");
+
   const [
     generandoDocumentacion,
     setGenerandoDocumentacion,
@@ -523,6 +532,24 @@ const [
    * CARGA GENERAL DEL EXPEDIENTE
    * =========================================================
    */
+
+  async function guardarEstadoOperacion() {
+    if (!operacion || guardandoEstado || estadoSeleccionado === operacion.estado) return;
+    if (estadoSeleccionado === "finalizada" &&
+        !window.confirm("¿Confirmás que esta operación está completamente cerrada? Esta acción no modifica pagos ni documentos.")) return;
+    try {
+      setGuardandoEstado(true);
+      setErrorEstado("");
+      setMensajeEstado("");
+      await cambiarEstadoOperacion(operacion.id, estadoSeleccionado);
+      setOperacion({ ...operacion, estado: estadoSeleccionado });
+      setMensajeEstado("Estado actualizado correctamente.");
+    } catch (errorDesconocido) {
+      setErrorEstado(errorDesconocido instanceof Error ? errorDesconocido.message : "No se pudo actualizar el estado.");
+    } finally {
+      setGuardandoEstado(false);
+    }
+  }
 
   useEffect(() => {
     let componenteActivo =
@@ -665,6 +692,7 @@ const [
         setOperacion(
           operacionCargada
         );
+        setEstadoSeleccionado(operacionCargada.estado);
 
 
         setCliente(
@@ -1856,6 +1884,39 @@ const [
 
 
       <div className="mx-auto grid max-w-5xl gap-6">
+        <section className="rounded-xl border bg-white p-5">
+          <h2 className="text-lg font-semibold">Estado de la operación</h2>
+          <p className="mt-1 text-sm text-gray-600">El estado se cambia manualmente. Emitir un boleto no significa que esté firmado ni que el vehículo se haya entregado.</p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <select
+              aria-label="Estado de la operación"
+              value={estadoSeleccionado}
+              onChange={(evento) => {
+                setEstadoSeleccionado(evento.target.value as Operacion["estado"]);
+                setErrorEstado("");
+                setMensajeEstado("");
+              }}
+              className="rounded-lg border px-3 py-2"
+              disabled={guardandoEstado}
+            >
+              <option value="borrador">Borrador</option>
+              <option value="presupuesto_emitido">Presupuesto emitido</option>
+              <option value="aceptada">Aceptada</option>
+              <option value="boleto_firmado">Boleto firmado</option>
+              <option value="entregada">Entregada</option>
+              <option value="finalizada">Finalizada</option>
+              <option value="cancelada">Cancelada</option>
+            </select>
+            <button type="button" onClick={guardarEstadoOperacion}
+              disabled={guardandoEstado || estadoSeleccionado === operacion.estado}
+              className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+              {guardandoEstado ? "Guardando..." : "Guardar estado"}
+            </button>
+          </div>
+          {errorEstado && <p role="alert" className="mt-2 text-sm text-red-700">{errorEstado}</p>}
+          {mensajeEstado && <p role="status" className="mt-2 text-sm text-green-700">{mensajeEstado}</p>}
+        </section>
+
 
         {/* =================================================
             PERSONA + VEHÍCULO PRINCIPAL
