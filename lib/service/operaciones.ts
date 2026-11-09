@@ -13,6 +13,7 @@ export type EstadoOperacion =
   | "aceptada"
   | "boleto_firmado"
   | "entregada"
+  | "finalizada"
   | "cancelada";
 
 export type Operacion = {
