@@ -113,6 +113,10 @@ function crearFormularioDesdeOperacion(
     vehiculo_id:
       String(operacion.vehiculo_id),
 
+    numero_chasis: operacion.numero_chasis ?? "",
+    numero_motor: operacion.numero_motor ?? "",
+    dominio: operacion.dominio ?? "",
+
     precio_vehiculo:
       String(
         operacion.precio_vehiculo ?? 0
