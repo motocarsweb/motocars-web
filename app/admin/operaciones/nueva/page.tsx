@@ -1709,7 +1709,12 @@ let precioVehiculoVendido = form.precio_vehiculo;
           ),
 
         precio_vehiculo:
-          vehiculoVentaNuevo.precio_venta
+          vehiculoVentaNuevo.precio_venta,
+        numero_chasis: vehiculoVentaNuevo.numero_chasis,
+        numero_motor: vehiculoVentaNuevo.numero_motor,
+        dominio: vehiculoVentaNuevo.condicion === "0km"
+          ? ""
+          : vehiculoVentaNuevo.dominio,
       };
       vehiculoVendidoId = String(vehiculoNuevo.id);
 precioVehiculoVendido =
@@ -1741,9 +1746,11 @@ precioVehiculoVendido =
           vehiculo_id:
   Number(vehiculoVendidoId),
 
-          numero_chasis: form.numero_chasis.trim() || null,
-          numero_motor: form.numero_motor.trim() || null,
-          dominio: form.dominio.trim().toUpperCase() || null,
+          numero_chasis: (cargarVehiculoNuevoVenta ? vehiculoVentaNuevo.numero_chasis : form.numero_chasis).trim() || null,
+          numero_motor: (cargarVehiculoNuevoVenta ? vehiculoVentaNuevo.numero_motor : form.numero_motor).trim() || null,
+          dominio: (cargarVehiculoNuevoVenta
+            ? (vehiculoVentaNuevo.condicion === "0km" ? "" : vehiculoVentaNuevo.dominio)
+            : form.dominio).trim().toUpperCase() || null,
 
           precio_vehiculo:
             convertirNumero(
