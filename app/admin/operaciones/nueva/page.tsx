@@ -1741,6 +1741,10 @@ precioVehiculoVendido =
           vehiculo_id:
   Number(vehiculoVendidoId),
 
+          numero_chasis: form.numero_chasis.trim() || null,
+          numero_motor: form.numero_motor.trim() || null,
+          dominio: form.dominio.trim().toUpperCase() || null,
+
           precio_vehiculo:
             convertirNumero(
               precioVehiculoVendido
@@ -2397,6 +2401,30 @@ precioVehiculoVendido =
                 </section>
                   </>
                 )}
+                <section className="grid gap-4 rounded-xl border p-5 md:grid-cols-3">
+                  <div className="md:col-span-3">
+                    <h3 className="font-semibold">Identificación de la unidad vendida</h3>
+                    <p className="text-sm text-gray-500">
+                      Estos datos pertenecen a esta operación y no modifican la publicación del vehículo.
+                    </p>
+                  </div>
+                  {([
+                    ["numero_chasis", "Número de chasis"],
+                    ["numero_motor", "Número de motor"],
+                    ["dominio", "Dominio (si corresponde)"],
+                  ] as const).map(([campo, titulo]) => (
+                    <label key={campo} className="grid gap-2">
+                      <span className="font-medium">{titulo}</span>
+                      <input
+                        type="text"
+                        name={campo}
+                        value={form[campo]}
+                        onChange={actualizarCampo}
+                        className="rounded-lg border p-3"
+                      />
+                    </label>
+                  ))}
+                </section>
                 <section className="rounded-xl border bg-gray-50 p-5">
                   <p className="font-semibold">
                     ¿Se recibe un vehículo en permuta?
