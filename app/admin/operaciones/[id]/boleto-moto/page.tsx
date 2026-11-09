@@ -2414,7 +2414,7 @@ margin-right: 6mm;
 
 
 
-      <div className="valor">{vehiculo.numero_chasis || "—"}</div>
+      <div className="valor">{operacion.numero_chasis || vehiculo.numero_chasis || "—"}</div>
 
 
 
@@ -2434,7 +2434,7 @@ margin-right: 6mm;
 
 
 
-      <div className="valor">{vehiculo.numero_motor || "—"}</div>
+      <div className="valor">{operacion.numero_motor || vehiculo.numero_motor || "—"}</div>
 
 
 
@@ -2458,7 +2458,7 @@ margin-right: 6mm;
 
 
 
-        <div className="valor">{vehiculo.dominio || "—"}</div>
+        <div className="valor">{operacion.dominio || vehiculo.dominio || "—"}</div>
 
 
 
