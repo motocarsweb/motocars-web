@@ -113,6 +113,10 @@ function crearFormularioDesdeOperacion(
     vehiculo_id:
       String(operacion.vehiculo_id),
 
+    numero_chasis: operacion.numero_chasis ?? "",
+    numero_motor: operacion.numero_motor ?? "",
+    dominio: operacion.dominio ?? "",
+
     precio_vehiculo:
       String(
         operacion.precio_vehiculo ?? 0
@@ -873,12 +877,7 @@ function actualizarCampoIngresoUsado(
             anio: vehiculo.anio,
             color:
               vehiculo.color?.trim() || null,
-            dominio:
-              vehiculo.dominio?.trim().toUpperCase() || null,
-            numero_chasis:
-              vehiculo.numero_chasis?.trim() || null,
-            numero_motor:
-              vehiculo.numero_motor?.trim() || null,
+
           }
         );
 
@@ -1024,7 +1023,7 @@ function actualizarCampoIngresoUsado(
             </h2>
 
             <p className="mt-1 text-sm text-gray-500">
-              Estos datos actualizan la unidad asociada a la operación y se utilizan en el boleto de venta.
+              El chasis, motor y dominio se guardan en esta operación sin modificar la publicación. El año y color siguen vinculados a la ficha del vehículo.
             </p>
           </div>
 
@@ -1115,8 +1114,8 @@ function actualizarCampoIngresoUsado(
             <input
               type="text"
               name="dominio"
-              value={vehiculo.dominio ?? ""}
-              onChange={actualizarCampoVehiculo}
+              value={form.dominio}
+              onChange={actualizarCampo}
               className="rounded-lg border p-3"
             />
           </label>
@@ -1129,8 +1128,8 @@ function actualizarCampoIngresoUsado(
             <input
               type="text"
               name="numero_chasis"
-              value={vehiculo.numero_chasis ?? ""}
-              onChange={actualizarCampoVehiculo}
+              value={form.numero_chasis}
+              onChange={actualizarCampo}
               className="rounded-lg border p-3"
             />
           </label>
@@ -1143,8 +1142,8 @@ function actualizarCampoIngresoUsado(
             <input
               type="text"
               name="numero_motor"
-              value={vehiculo.numero_motor ?? ""}
-              onChange={actualizarCampoVehiculo}
+              value={form.numero_motor}
+              onChange={actualizarCampo}
               className="rounded-lg border p-3"
             />
           </label>

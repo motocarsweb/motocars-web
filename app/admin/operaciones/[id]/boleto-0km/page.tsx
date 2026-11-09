@@ -1236,11 +1236,11 @@ export default function Boleto0KmPage() {
 
     ["Color:", vehiculo.color || "—"],
 
-    ["Motor:", vehiculo.numero_motor || "—"],
+    ["Motor:", operacion.numero_motor || vehiculo.numero_motor || "—"],
 
-    ["Chasis:", vehiculo.numero_chasis || "—"],
+    ["Chasis:", operacion.numero_chasis || vehiculo.numero_chasis || "—"],
 
-    ["Dominio:", vehiculo.dominio || "—"],
+    ["Dominio:", operacion.dominio || vehiculo.dominio || "—"],
 
   ].map(([etiqueta, valor], indice) => (
 

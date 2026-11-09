@@ -13,6 +13,7 @@ export type EstadoOperacion =
   | "aceptada"
   | "boleto_firmado"
   | "entregada"
+  | "finalizada"
   | "cancelada";
 
 export type Operacion = {
@@ -31,6 +32,9 @@ export type Operacion = {
    * Consignación → unidad que entra al stock.
    */
   vehiculo_id: number;
+  numero_chasis: string | null;
+  numero_motor: string | null;
+  dominio: string | null;
 
   estado: EstadoOperacion;
 
@@ -94,6 +98,9 @@ export type OperacionFormulario = {
    * Siempre corresponde al vehículo principal.
    */
   vehiculo_id: string;
+  numero_chasis: string;
+  numero_motor: string;
+  dominio: string;
 
   precio_vehiculo: string;
   moneda: MonedaOperacion;
@@ -149,6 +156,9 @@ export const OPERACION_FORMULARIO_INICIAL: OperacionFormulario = {
 
   cliente_id: "",
   vehiculo_id: "",
+  numero_chasis: "",
+  numero_motor: "",
+  dominio: "",
 
   precio_vehiculo: "",
   moneda: "ARS",
@@ -232,6 +242,9 @@ function prepararOperacion(
 
     vehiculo_id:
       Number(form.vehiculo_id),
+    numero_chasis: form.numero_chasis.trim() || null,
+    numero_motor: form.numero_motor.trim() || null,
+    dominio: form.dominio.trim().toUpperCase() || null,
 
     precio_vehiculo:
       convertirImporte(

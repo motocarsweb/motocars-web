@@ -743,7 +743,7 @@ async function guardarDocumentacion() {
               </strong>
 
               <span>
-                {vehiculo.dominio ||
+                {operacion.dominio || vehiculo.dominio ||
                   "—"}
               </span>
             </div>
@@ -765,7 +765,7 @@ async function guardarDocumentacion() {
               </strong>
 
               <span>
-                {vehiculo.numero_chasis ||
+                {operacion.numero_chasis || vehiculo.numero_chasis ||
                   "—"}
               </span>
             </div>
@@ -776,7 +776,7 @@ async function guardarDocumentacion() {
               </strong>
 
               <span>
-                {vehiculo.numero_motor ||
+                {operacion.numero_motor || vehiculo.numero_motor ||
                   "—"}
               </span>
             </div>

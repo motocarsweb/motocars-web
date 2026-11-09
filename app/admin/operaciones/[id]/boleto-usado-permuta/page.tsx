@@ -948,10 +948,10 @@ if (activo) {
   {[
     ["Vehículo:", nombreVehiculo(vehiculo)],
     ["Año:", vehiculo.anio ?? "—"],
-    ["Dominio:", vehiculo.dominio || "—"],
+    ["Dominio:", operacion.dominio || vehiculo.dominio || "—"],
     ["Color:", vehiculo.color || "—"],
-    ["Chasis:", vehiculo.numero_chasis || "—"],
-    ["Motor:", vehiculo.numero_motor || "—"],
+    ["Chasis:", operacion.numero_chasis || vehiculo.numero_chasis || "—"],
+    ["Motor:", operacion.numero_motor || vehiculo.numero_motor || "—"],
     ["Kilómetros:", formatearKilometros(vehiculo.kilometros)],
     ["Condición:", "Usado"],
   ].map(([etiqueta, valor], indice) => (

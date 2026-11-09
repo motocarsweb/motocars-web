@@ -946,7 +946,7 @@ function agregarTransferenciaPago() {
               </strong>
 
               <span>
-                {vehiculo.numero_chasis ||
+                {operacion.numero_chasis || vehiculo.numero_chasis ||
                   "—"}
               </span>
             </div>
@@ -957,7 +957,7 @@ function agregarTransferenciaPago() {
               </strong>
 
               <span>
-                {vehiculo.numero_motor ||
+                {operacion.numero_motor || vehiculo.numero_motor ||
                   "—"}
               </span>
             </div>
