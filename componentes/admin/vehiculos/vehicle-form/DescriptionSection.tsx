@@ -17,7 +17,7 @@ type DescriptionSectionProps = {
 };
 
 const OBSERVACION_0KM =
-  "Máxima financiación. Permutas. Valor referencial (todo 0 km se debe verificar precio, stock y color en el momento).";
+  "Máxima financiación. Permutas.\n\nValor referencial (todo 0 km se debe verificar precio, stock y color en el momento).\n\nSomos distribuidores autorizados de todos los 0KM con Garantía Oficial";
 
 export default function DescriptionSection({
   form,
@@ -88,11 +88,10 @@ export default function DescriptionSection({
               style={{
                 color: "#64748b",
                 fontSize: 12,
+                whiteSpace: "pre-line",
               }}
             >
-              Máxima financiación. Permutas. Valor referencial
-              (todo 0 km se debe verificar precio, stock y color
-              en el momento).
+              {OBSERVACION_0KM}
             </span>
           </span>
         </label>
