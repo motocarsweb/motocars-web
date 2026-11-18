@@ -689,6 +689,11 @@ if (activo) {
     margin-bottom: 4px;
   }
 
+  .pendientes-permuta {
+    white-space: pre-wrap;
+    break-inside: avoid;
+  }
+
   .titulo-seccion-usado {
     margin: 6px 0 3px;
     padding-bottom: 2px;
@@ -800,6 +805,27 @@ if (activo) {
     borderRadius: 8,
   }}
 >
+  <h3>Documentación pendiente de la unidad recibida en permuta</h3>
+  <p style={{ fontSize: 13, color: "#555" }}>
+    Indicá únicamente los documentos o elementos que el cliente se compromete a entregar.
+    No se consideran pendientes automáticamente los casilleros sin marcar.
+  </p>
+  <textarea
+    aria-label="Documentación pendiente de permuta"
+    value={documentacion.documentacion_pendiente_permuta}
+    maxLength={2000}
+    onChange={(evento) => {
+      setDocumentacion((anterior) => ({
+        ...anterior,
+        documentacion_pendiente_permuta: evento.target.value,
+      }));
+      setDocumentacionGuardada(false);
+    }}
+    rows={3}
+    style={{ width: "100%", boxSizing: "border-box", padding: 8 }}
+    placeholder="Ej.: Formulario 08 certificado, duplicado de llave..."
+  />
+
   <h3>Documentación entregada al comprador</h3>
 
   <div style={{ display: "grid", gap: 10 }}>
@@ -1310,6 +1336,12 @@ if (activo) {
     />
   )}
 </div>
+{documentacion.documentacion_pendiente_permuta.trim() && (
+  <p className="pendientes-permuta">
+    <strong>DOCUMENTACIÓN PENDIENTE DE ENTREGA POR EL COMPRADOR: </strong>
+    {documentacion.documentacion_pendiente_permuta.trim()}
+  </p>
+)}
         <p>
   <strong>5)</strong>{" "}
   En este acto se entrega al COMPRADOR
