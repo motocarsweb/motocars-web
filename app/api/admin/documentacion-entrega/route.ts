@@ -162,15 +162,18 @@ export async function PUT(request: NextRequest) {
     registro.observaciones = body.observaciones;
 
     if (
-      typeof body.documentacion_pendiente_permuta !== "string" ||
-      body.documentacion_pendiente_permuta.length > 2000
+      body.documentacion_pendiente_permuta !== undefined &&
+      (typeof body.documentacion_pendiente_permuta !== "string" ||
+        body.documentacion_pendiente_permuta.length > 2000)
     ) {
       return NextResponse.json(
         { error: "Documentación pendiente de permuta inválida." },
         { status: 400 }
       );
     }
-    registro.documentacion_pendiente_permuta = body.documentacion_pendiente_permuta;
+    if (body.documentacion_pendiente_permuta !== undefined) {
+      registro.documentacion_pendiente_permuta = body.documentacion_pendiente_permuta;
+    }
 
     const admin = clienteAdmin();
 
