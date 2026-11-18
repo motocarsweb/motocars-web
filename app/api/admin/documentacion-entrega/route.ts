@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
     const { data, error } = await clienteAdmin()
       .from("documentacion_entrega_operacion")
       .select(
-        "operacion_id, cedula_identificacion, seguro_provisorio, copia_titulo, duplicado_llaves, manuales, verificacion_vehicular, detalle_servicios, observaciones"
+        "operacion_id, cedula_identificacion, seguro_provisorio, copia_titulo, duplicado_llaves, manuales, verificacion_vehicular, detalle_servicios, observaciones, documentacion_pendiente_permuta"
       )
       .eq("operacion_id", operacionId)
       .maybeSingle();
@@ -160,6 +160,17 @@ export async function PUT(request: NextRequest) {
     }
 
     registro.observaciones = body.observaciones;
+
+    if (
+      typeof body.documentacion_pendiente_permuta !== "string" ||
+      body.documentacion_pendiente_permuta.length > 2000
+    ) {
+      return NextResponse.json(
+        { error: "Documentación pendiente de permuta inválida." },
+        { status: 400 }
+      );
+    }
+    registro.documentacion_pendiente_permuta = body.documentacion_pendiente_permuta;
 
     const admin = clienteAdmin();
 
