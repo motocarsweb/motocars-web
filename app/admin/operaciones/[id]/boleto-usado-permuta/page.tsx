@@ -546,8 +546,18 @@ if (activo) {
         .dato-usado {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 5px;
   min-width: 0;
+}
+
+.dato-usado strong {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.dato-usado span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .dato-usado strong {
@@ -650,11 +660,40 @@ if (activo) {
   .no-imprimir {
     display: none !important;
   }
+   .documento-motocars {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 200mm !important;
+  min-height: 0 !important;
+  height: 285mm !important;
+  margin: 0 auto !important;
+  padding: 8mm 10mm !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
+  position: relative !important;
+}
+
+.documento-contenido {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+}
+
+.documento-pie {
+  position: absolute !important;
+  bottom: 8mm !important;
+  left: 10mm !important;
+  right: 10mm !important;
+  top: auto !important;
+  margin: 0 !important;
+  padding-top: 2mm !important;
+  break-inside: avoid !important;
+}
 
   .boleto-usado-texto {
     margin-top: 8px;
     font-size: 10.5px;
     line-height: 1.22;
+    text-align: left !important;
   }
 
   .boleto-usado-texto p {
@@ -673,9 +712,9 @@ if (activo) {
   }
 
   .dato-usado {
-  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
-  column-gap: 10px;
+  display: flex;
   align-items: baseline;
+  gap: 5px;
 }
 
   .condiciones-pago {
@@ -702,15 +741,24 @@ if (activo) {
   }
 
   .firmas-usado {
-  margin-top: 130px !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 40px !important;
+
+  margin-top: 28mm !important;
   margin-bottom: 0 !important;
+
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
 }
 
-  .firma-usado {
-    padding-top: 4px;
-    font-size: 9.5px;
-    line-height: 1.2;
-  }
+.firma-usado {
+  padding-top: 4px;
+  font-size: 9.5px;
+  line-height: 1.2;
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
 }
 
         @media screen and (max-width: 850px) {
@@ -888,9 +936,11 @@ if (activo) {
 <div
   style={{
     display: "grid",
-    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-    gap: "5px 12px",
+    gridTemplateColumns: "minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1.45fr)",
+    columnGap: "8px",
+    rowGap: "2px",
     fontSize: "11.5px",
+    lineHeight: 1.2,
   }}
 >
   {[
@@ -919,8 +969,9 @@ if (activo) {
       style={{
         display: "flex",
         alignItems: "baseline",
-        gap: "7px",
+        gap: "4px",
         minWidth: 0,
+        textAlign: "left",
       }}
     >
       <strong style={{ flexShrink: 0 }}>
@@ -940,9 +991,11 @@ if (activo) {
           <div
   style={{
     display: "grid",
-    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-    gap: "5px 12px",
+    gridTemplateColumns: "minmax(0, 1.6fr) minmax(0, 1.2fr) minmax(0, 1.2fr)",
+    columnGap: "8px",
+    rowGap: "2px",
     fontSize: "11.5px",
+    lineHeight: 1.2,
   }}
 >
   {[
@@ -960,8 +1013,9 @@ if (activo) {
       style={{
         display: "flex",
         alignItems: "baseline",
-        gap: "7px",
+        gap: "4px",
         minWidth: 0,
+        textAlign: "left",
       }}
     >
       <strong style={{ flexShrink: 0 }}>
@@ -1016,54 +1070,23 @@ if (activo) {
           </h2>
 
           <div className="condiciones-pago">
-            <strong>
-              Forma de pago:
-            </strong>{" "}
-            {operacion.forma_pago ||
-              "A definir"}
+  <div>
+    <strong>Forma de pago:</strong>{" "}
+    {operacion.forma_pago || "A definir"}
+  </div>
 
-            {operacion.detalle_pago && (
-              <>
-                <br />
-                <br />
+  {operacion.detalle_pago && (
+    <div style={{ marginTop: 3 }}>
+      <strong>Detalle:</strong>{" "}
+      {operacion.detalle_pago}
+    </div>
+  )}
 
-                <strong>
-                  Detalle:
-                </strong>{" "}
-                {
-                  operacion.detalle_pago
-                }
-              </>
-            )}
-
-            <br />
-            <br />
-
-            <strong>
-              Unidad recibida en permuta:
-            </strong>{" "}
-            {nombreVehiculo(
-              vehiculoPermuta
-            )}
-            {vehiculoPermuta.dominio
-              ? ` - Dominio ${vehiculoPermuta.dominio}`
-              : ""}
-
-            {ingresoUsado.valor_ingreso >
-              0 && (
-              <>
-                <br />
-
-                <strong>
-                  Valor asignado:
-                </strong>{" "}
-                {formatearImporteCompleto(
-                  ingresoUsado.valor_ingreso,
-                  "ARS"
-                )}
-              </>
-            )}
-          </div>
+  <div style={{ marginTop: 3 }}>
+    <strong>Unidad recibida en permuta:</strong>{" "}
+    Ver detalle en el punto 3.
+  </div>
+</div>
 
           <p
             style={{

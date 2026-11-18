@@ -449,10 +449,14 @@ async function guardarDocumentacion() {
 }
 
   .documento-motocars {
-    display: flex !important;
-    min-height: 297mm !important;
-    height: auto !important;
-  }
+  display: flex !important;
+  width: 200mm !important;
+  min-height: 0 !important;
+  height: 285mm !important;
+  margin: 0 auto !important;
+  padding: 8mm 10mm 8mm !important;
+  box-sizing: border-box !important;
+}
 
   .documento-contenido {
     flex: 1 !important;
