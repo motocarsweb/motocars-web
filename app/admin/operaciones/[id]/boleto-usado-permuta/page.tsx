@@ -538,11 +538,6 @@ if (activo) {
   font-size: 11.5px;
 }
 
-          gap: 4px 20px;
-
-          font-size: 11.5px;
-        }
-
         .dato-usado {
   display: flex;
   align-items: baseline;
@@ -560,15 +555,6 @@ if (activo) {
   overflow-wrap: anywhere;
 }
 
-.dato-usado strong {
-  flex-shrink: 0;
-}
-
-.dato-usado span {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
         .condiciones-pago {
           margin-top: 6px;
 
@@ -579,7 +565,7 @@ if (activo) {
 
           font-size: 11.5px;
 
-          white-space: pre-wrap;
+          white-space: normal;
         }
 
         .bloque-permuta {
@@ -660,34 +646,37 @@ if (activo) {
   .no-imprimir {
     display: none !important;
   }
-   .documento-motocars {
-  display: flex !important;
-  flex-direction: column !important;
-  width: 200mm !important;
-  min-height: 0 !important;
-  height: 285mm !important;
-  margin: 0 auto !important;
-  padding: 8mm 10mm !important;
-  box-sizing: border-box !important;
-  overflow: visible !important;
-  position: relative !important;
-}
+  /* Una única geometría A4, sin posicionamiento absoluto del pie. */
+  .documento-motocars {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    height: auto !important;
+    margin: 0 auto !important;
+    padding: 12mm 12mm 10mm !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+  }
 
-.documento-contenido {
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-}
+  .documento-contenido {
+    flex: 0 0 auto !important;
+    min-height: 0 !important;
+  }
 
-.documento-pie {
-  position: absolute !important;
-  bottom: 8mm !important;
-  left: 10mm !important;
-  right: 10mm !important;
-  top: auto !important;
-  margin: 0 !important;
-  padding-top: 2mm !important;
-  break-inside: avoid !important;
-}
+  .documento-pie {
+    position: relative !important;
+    top: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    margin-top: auto !important;
+    padding-top: 2mm !important;
+    flex-shrink: 0 !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
 
   .boleto-usado-texto {
     margin-top: 8px;
@@ -745,7 +734,7 @@ if (activo) {
   grid-template-columns: 1fr 1fr !important;
   gap: 40px !important;
 
-  margin-top: 28mm !important;
+  margin-top: 22mm !important;
   margin-bottom: 0 !important;
 
   break-inside: avoid !important;
@@ -936,7 +925,7 @@ if (activo) {
 <div
   style={{
     display: "grid",
-    gridTemplateColumns: "minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1.45fr)",
+    gridTemplateColumns: "minmax(0, 1.2fr) minmax(0, 1.05fr) minmax(0, 1.55fr)",
     columnGap: "8px",
     rowGap: "2px",
     fontSize: "11.5px",
@@ -991,7 +980,7 @@ if (activo) {
           <div
   style={{
     display: "grid",
-    gridTemplateColumns: "minmax(0, 1.6fr) minmax(0, 1.2fr) minmax(0, 1.2fr)",
+    gridTemplateColumns: "minmax(0, 1.6fr) minmax(0, 1.15fr) minmax(0, 1.25fr)",
     columnGap: "8px",
     rowGap: "2px",
     fontSize: "11.5px",
