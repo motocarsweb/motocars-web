@@ -642,6 +642,37 @@ if (activo) {
           line-height: 1.35;
         }
 
+        /* Pie exclusivo de este boleto: cuatro columnas simétricas en pantalla e impresión. */
+        .documento-motocars .documento-pie {
+          display: grid !important;
+          grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+          column-gap: 2mm !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          box-sizing: border-box !important;
+          font-size: 7.5px !important;
+          line-height: 1.25 !important;
+        }
+        .documento-motocars .pie-item,
+        .documento-motocars .pie-item-izquierda,
+        .documento-motocars .pie-item-derecha {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          text-align: left !important;
+          min-width: 0 !important;
+          gap: 4px !important;
+        }
+        .documento-motocars .pie-item svg {
+          width: 10px !important;
+          height: 10px !important;
+          flex: 0 0 10px !important;
+        }
+        .documento-motocars .pie-item span {
+          min-width: 0 !important;
+          overflow-wrap: anywhere !important;
+        }
+
         @media print {
   .no-imprimir {
     display: none !important;
@@ -653,15 +684,15 @@ if (activo) {
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.95fr) minmax(0, 1.65fr) minmax(0, 1.15fr) !important;
-    column-gap: 3mm !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    column-gap: 2mm !important;
     font-size: 7.5px !important;
     line-height: 1.25 !important;
   }
   .documento-motocars .pie-item {
     min-width: 0 !important;
     gap: 3px !important;
-    justify-content: flex-start !important;
+    justify-content: center !important;
     text-align: left !important;
   }
   .documento-motocars .pie-item svg {
