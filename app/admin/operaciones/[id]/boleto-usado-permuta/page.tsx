@@ -538,11 +538,6 @@ if (activo) {
   font-size: 11.5px;
 }
 
-          gap: 4px 20px;
-
-          font-size: 11.5px;
-        }
-
         .dato-usado {
   display: flex;
   align-items: baseline;
@@ -560,15 +555,6 @@ if (activo) {
   overflow-wrap: anywhere;
 }
 
-.dato-usado strong {
-  flex-shrink: 0;
-}
-
-.dato-usado span {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
         .condiciones-pago {
           margin-top: 6px;
 
@@ -579,7 +565,7 @@ if (activo) {
 
           font-size: 11.5px;
 
-          white-space: pre-wrap;
+          white-space: normal;
         }
 
         .bloque-permuta {
@@ -656,38 +642,102 @@ if (activo) {
           line-height: 1.35;
         }
 
+        /* Pie exclusivo de este boleto: cuatro columnas simétricas en pantalla e impresión. */
+        .documento-motocars .documento-pie {
+          display: grid !important;
+          grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+          column-gap: 2mm !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          box-sizing: border-box !important;
+          font-size: 9px !important;
+          line-height: 1.25 !important;
+        }
+        .documento-motocars .pie-item,
+        .documento-motocars .pie-item-izquierda,
+        .documento-motocars .pie-item-derecha {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          text-align: left !important;
+          min-width: 0 !important;
+          gap: 4px !important;
+        }
+        .documento-motocars .pie-item svg {
+          width: 10px !important;
+          height: 10px !important;
+          flex: 0 0 10px !important;
+        }
+        .documento-motocars .pie-item span {
+          min-width: 0 !important;
+          overflow-wrap: anywhere !important;
+        }
+
         @media print {
   .no-imprimir {
     display: none !important;
   }
-   .documento-motocars {
-  display: flex !important;
-  flex-direction: column !important;
-  width: 200mm !important;
-  min-height: 0 !important;
-  height: 285mm !important;
-  margin: 0 auto !important;
-  padding: 8mm 10mm !important;
-  box-sizing: border-box !important;
-  overflow: visible !important;
-  position: relative !important;
-}
+  /* El documento ocupa la hoja completa, sin desplazamiento horizontal. */
+  @page { size: A4; margin: 0; }
+  html, body { width: 100% !important; }
+  .documento-motocars .documento-pie {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    column-gap: 2mm !important;
+    font-size: 9px !important;
+    line-height: 1.25 !important;
+  }
+  .documento-motocars .pie-item {
+    min-width: 0 !important;
+    gap: 3px !important;
+    justify-content: center !important;
+    text-align: left !important;
+  }
+  .documento-motocars .pie-item svg {
+    width: 10px !important;
+    height: 10px !important;
+    flex: 0 0 10px !important;
+  }
+  .documento-motocars .pie-item span {
+    min-width: 0 !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+  }
 
-.documento-contenido {
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-}
+  /* Una única geometría A4, sin posicionamiento absoluto del pie. */
+  .documento-motocars {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 210mm !important;
+    min-height: 297mm !important;
+    height: auto !important;
+    margin: 0 auto !important;
+    padding: 12mm 12mm 10mm !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+  }
 
-.documento-pie {
-  position: absolute !important;
-  bottom: 8mm !important;
-  left: 10mm !important;
-  right: 10mm !important;
-  top: auto !important;
-  margin: 0 !important;
-  padding-top: 2mm !important;
-  break-inside: avoid !important;
-}
+  .documento-contenido {
+    flex: 0 0 auto !important;
+    min-height: 0 !important;
+  }
+
+  .documento-pie {
+    position: relative !important;
+    top: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    margin-top: auto !important;
+    padding-top: 2mm !important;
+    flex-shrink: 0 !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
 
   .boleto-usado-texto {
     margin-top: 8px;
@@ -698,6 +748,11 @@ if (activo) {
 
   .boleto-usado-texto p {
     margin-bottom: 4px;
+  }
+
+  .pendientes-permuta {
+    white-space: pre-wrap;
+    break-inside: avoid;
   }
 
   .titulo-seccion-usado {
@@ -745,7 +800,7 @@ if (activo) {
   grid-template-columns: 1fr 1fr !important;
   gap: 40px !important;
 
-  margin-top: 28mm !important;
+  margin-top: 22mm !important;
   margin-bottom: 0 !important;
 
   break-inside: avoid !important;
@@ -811,6 +866,27 @@ if (activo) {
     borderRadius: 8,
   }}
 >
+  <h3>Documentación pendiente de la unidad recibida en permuta</h3>
+  <p style={{ fontSize: 13, color: "#555" }}>
+    Indicá únicamente los documentos o elementos que el cliente se compromete a entregar.
+    No se consideran pendientes automáticamente los casilleros sin marcar.
+  </p>
+  <textarea
+    aria-label="Documentación pendiente de permuta"
+    value={documentacion.documentacion_pendiente_permuta}
+    maxLength={2000}
+    onChange={(evento) => {
+      setDocumentacion((anterior) => ({
+        ...anterior,
+        documentacion_pendiente_permuta: evento.target.value,
+      }));
+      setDocumentacionGuardada(false);
+    }}
+    rows={3}
+    style={{ width: "100%", boxSizing: "border-box", padding: 8 }}
+    placeholder="Ej.: Formulario 08 certificado, duplicado de llave..."
+  />
+
   <h3>Documentación entregada al comprador</h3>
 
   <div style={{ display: "grid", gap: 10 }}>
@@ -936,7 +1012,7 @@ if (activo) {
 <div
   style={{
     display: "grid",
-    gridTemplateColumns: "minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1.45fr)",
+    gridTemplateColumns: "minmax(0, 1.2fr) minmax(0, 1.05fr) minmax(0, 1.55fr)",
     columnGap: "8px",
     rowGap: "2px",
     fontSize: "11.5px",
@@ -991,7 +1067,7 @@ if (activo) {
           <div
   style={{
     display: "grid",
-    gridTemplateColumns: "minmax(0, 1.6fr) minmax(0, 1.2fr) minmax(0, 1.2fr)",
+    gridTemplateColumns: "minmax(0, 1.6fr) minmax(0, 1.15fr) minmax(0, 1.25fr)",
     columnGap: "8px",
     rowGap: "2px",
     fontSize: "11.5px",
@@ -1321,6 +1397,12 @@ if (activo) {
     />
   )}
 </div>
+{documentacion.documentacion_pendiente_permuta.trim() && (
+  <p className="pendientes-permuta">
+    <strong>DOCUMENTACIÓN PENDIENTE DE ENTREGA POR EL COMPRADOR: </strong>
+    {documentacion.documentacion_pendiente_permuta.trim()}
+  </p>
+)}
         <p>
   <strong>5)</strong>{" "}
   En este acto se entrega al COMPRADOR

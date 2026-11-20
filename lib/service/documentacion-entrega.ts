@@ -8,6 +8,7 @@ export type DocumentacionEntrega = {
   verificacion_vehicular: boolean;
   detalle_servicios: boolean;
   observaciones: string;
+  documentacion_pendiente_permuta: string;
 };
 
 export const DOCUMENTACION_INICIAL: DocumentacionEntrega = {
@@ -19,6 +20,7 @@ export const DOCUMENTACION_INICIAL: DocumentacionEntrega = {
   verificacion_vehicular: false,
   detalle_servicios: false,
   observaciones: "",
+  documentacion_pendiente_permuta: "",
 };
 
 export const OPCIONES_DOCUMENTACION = [
@@ -84,6 +86,7 @@ export async function obtenerDocumentacionEntrega(
     verificacion_vehicular: datos.verificacion_vehicular,
     detalle_servicios: datos.detalle_servicios,
     observaciones: datos.observaciones ?? "",
+    documentacion_pendiente_permuta: datos.documentacion_pendiente_permuta ?? "",
   };
 }
 
