@@ -650,7 +650,7 @@ if (activo) {
           width: 100% !important;
           max-width: 100% !important;
           box-sizing: border-box !important;
-          font-size: 7.5px !important;
+          font-size: 9px !important;
           line-height: 1.25 !important;
         }
         .documento-motocars .pie-item,
@@ -686,7 +686,7 @@ if (activo) {
     box-sizing: border-box !important;
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     column-gap: 2mm !important;
-    font-size: 7.5px !important;
+    font-size: 9px !important;
     line-height: 1.25 !important;
   }
   .documento-motocars .pie-item {
