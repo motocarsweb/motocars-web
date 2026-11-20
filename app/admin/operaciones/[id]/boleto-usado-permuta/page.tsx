@@ -646,12 +646,42 @@ if (activo) {
   .no-imprimir {
     display: none !important;
   }
+  /* El documento ocupa la hoja completa, sin desplazamiento horizontal. */
+  @page { size: A4; margin: 0; }
+  html, body { width: 100% !important; }
+  .documento-motocars .documento-pie {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.95fr) minmax(0, 1.65fr) minmax(0, 1.15fr) !important;
+    column-gap: 3mm !important;
+    font-size: 7.5px !important;
+    line-height: 1.25 !important;
+  }
+  .documento-motocars .pie-item {
+    min-width: 0 !important;
+    gap: 3px !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+  }
+  .documento-motocars .pie-item svg {
+    width: 10px !important;
+    height: 10px !important;
+    flex: 0 0 10px !important;
+  }
+  .documento-motocars .pie-item span {
+    min-width: 0 !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+  }
+
   /* Una única geometría A4, sin posicionamiento absoluto del pie. */
   .documento-motocars {
     position: relative !important;
     display: flex !important;
     flex-direction: column !important;
-    width: 210mm !important;
+    width: 100% !important;
+    max-width: 210mm !important;
     min-height: 297mm !important;
     height: auto !important;
     margin: 0 auto !important;
