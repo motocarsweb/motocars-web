@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import EmptyState from "@/componentes/admin/EmptyState";
 import PageHeader from "@/componentes/admin/PageHeader";
@@ -24,8 +24,42 @@ function obtenerNombreCliente(cliente: Cliente) {
   );
 }
 
+const comparadorClientes = new Intl.Collator("es-AR", {
+  sensitivity: "base",
+  numeric: true,
+  ignorePunctuation: true,
+});
+
+function claveOrdenCliente(cliente: Cliente) {
+  if (cliente.tipo_persona === "juridica") {
+    return (cliente.razon_social || "").trim();
+  }
+  return [cliente.apellido, cliente.nombre]
+    .map((valor) => (valor || "").trim())
+    .filter(Boolean)
+    .join(" ");
+}
+
+function nombreListadoCliente(cliente: Cliente) {
+  if (cliente.tipo_persona === "juridica") {
+    return cliente.razon_social || "Empresa sin razón social";
+  }
+  const apellido = (cliente.apellido || "").trim();
+  const nombre = (cliente.nombre || "").trim();
+  return apellido && nombre
+    ? `${apellido}, ${nombre}`
+    : apellido || nombre || "Cliente sin nombre";
+}
+
 export default function ClientesPage() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
+  const clientesOrdenados = useMemo(
+    () => [...clientes].sort((a, b) =>
+      comparadorClientes.compare(claveOrdenCliente(a), claveOrdenCliente(b)) ||
+      a.id - b.id
+    ),
+    [clientes]
+  );
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
   async function confirmarEliminarCliente(cliente: Cliente) {
@@ -152,13 +186,13 @@ export default function ClientesPage() {
             </thead>
 
             <tbody>
-              {clientes.map((cliente) => (
+              {clientesOrdenados.map((cliente) => (
                 <tr
                   key={cliente.id}
                   className="border-t"
                 >
                   <td className="p-4 font-medium">
-                    {obtenerNombreCliente(cliente)}
+                    {nombreListadoCliente(cliente)}
                   </td>
 
                   <td className="p-4">
