@@ -355,48 +355,48 @@ export default function OperacionesPage() {
         !error &&
         operacionesFiltradas.length > 0 && (
           <div className="overflow-x-auto rounded-xl border bg-white">
-            <table className="w-full min-w-[1280px] table-fixed border-collapse">
+            <table className="w-full table-fixed border-collapse" style={{ width: "100%", minWidth: 1080, borderCollapse: "collapse" }}>
               <colgroup>
                 <col style={{ width: "7%" }} />
-                <col style={{ width: "12%" }} />
-                <col style={{ width: "19%" }} />
-                <col style={{ width: "23%" }} />
-                <col style={{ width: "13%" }} />
                 <col style={{ width: "11%" }} />
+                <col style={{ width: "18%" }} />
+                <col style={{ width: "24%" }} />
+                <col style={{ width: "14%" }} />
+                <col style={{ width: "12%" }} />
                 <col style={{ width: "9%" }} />
                 <col style={{ width: "6%" }} />
               </colgroup>
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-3 py-4 text-left whitespace-nowrap">
+                  <th className="px-3 py-4 text-left whitespace-nowrap" style={{ padding: "12px 10px", verticalAlign: "middle" }}>
                     Operación
                   </th>
 
-                  <th className="px-3 py-4 text-left">
+                  <th className="px-3 py-4 text-left" style={{ padding: "12px 10px", verticalAlign: "middle" }}>
                     Tipo
                   </th>
 
-                  <th className="px-3 py-4 text-left">
+                  <th className="px-3 py-4 text-left" style={{ padding: "12px 10px", verticalAlign: "middle" }}>
                     Cliente / Proveedor
                   </th>
 
-                  <th className="px-3 py-4 text-left">
+                  <th className="px-3 py-4 text-left" style={{ padding: "12px 10px", verticalAlign: "middle" }}>
                     Vehículo
                   </th>
 
-                  <th className="px-3 py-4 text-right">
+                  <th className="px-3 py-4 text-right" style={{ padding: "12px 10px", verticalAlign: "middle" }}>
                     Importe
                   </th>
 
-                  <th className="px-3 py-4 text-left">
+                  <th className="px-3 py-4 text-left" style={{ padding: "12px 10px", verticalAlign: "middle" }}>
                     Estado
                   </th>
 
-                  <th className="px-3 py-4 text-left whitespace-nowrap">
+                  <th className="px-3 py-4 text-left whitespace-nowrap" style={{ padding: "12px 10px", verticalAlign: "middle" }}>
                     Fecha
                   </th>
 
-                  <th className="px-3 py-4 text-center">
+                  <th className="px-3 py-4 text-center" style={{ padding: "12px 10px", verticalAlign: "middle" }}>
                     Acción
                   </th>
                 </tr>
@@ -420,47 +420,47 @@ export default function OperacionesPage() {
                         key={operacion.id}
                         className="border-t hover:bg-gray-50"
                       >
-                        <td className="px-3 py-4 font-semibold whitespace-nowrap">
+                        <td className="px-3 py-4 font-semibold whitespace-nowrap" style={{ padding: "10px", verticalAlign: "middle" }}>
                           {operacion.id}
                         </td>
 
-                        <td className="px-3 py-4 whitespace-nowrap">
+                        <td className="px-3 py-4 whitespace-nowrap" style={{ padding: "10px", verticalAlign: "middle" }}>
                           {obtenerTextoTipoOperacion(
                             operacion.tipo_operacion
                           )}
                         </td>
 
-                        <td className="px-3 py-4 break-words">
+                        <td className="px-3 py-4 break-words" style={{ padding: "10px", verticalAlign: "middle" }}>
                           {obtenerNombreCliente(
                             cliente
                           )}
                         </td>
 
-                        <td className="px-3 py-4 break-words">
+                        <td className="px-3 py-4 break-words" style={{ padding: "10px", verticalAlign: "middle" }}>
                           {obtenerNombreVehiculo(
                             vehiculo
                           )}
                         </td>
 
-                        <td className="px-3 py-4 text-right font-medium whitespace-nowrap">
+                        <td className="px-3 py-4 text-right font-medium whitespace-nowrap" style={{ padding: "10px 18px 10px 8px", verticalAlign: "middle", textAlign: "right", whiteSpace: "nowrap" }}>
                           {formatearImporte(
                             operacion.precio_vehiculo
                           )}
                         </td>
 
-                        <td className="px-3 py-4 break-words">
+                        <td className="px-3 py-4 break-words" style={{ padding: "10px 10px 10px 20px", verticalAlign: "middle", borderLeft: "1px solid #e5e7eb" }}>
                           {obtenerTextoEstado(
                             operacion.estado
                           )}
                         </td>
 
-                        <td className="px-3 py-4 whitespace-nowrap">
+                        <td className="px-3 py-4 whitespace-nowrap" style={{ padding: "10px", verticalAlign: "middle" }}>
                           {formatearFecha(
                             operacion.created_at
                           )}
                         </td>
 
-                        <td className="px-3 py-4 text-center">
+                        <td className="px-3 py-4 text-center" style={{ padding: "10px", verticalAlign: "middle" }}>
                           <Link
                             href={`/admin/operaciones/${operacion.id}`}
                             className="inline-flex whitespace-nowrap rounded-lg border px-2 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50"
