@@ -548,12 +548,14 @@ function agregarTransferenciaPago() {
         }
         .ubicacion-comprador-0km {
           display: grid;
-          grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-          gap: 8px;
+          grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.05fr) minmax(0, 1.55fr);
+          column-gap: 8px;
           margin-top: 3px;
           font-size: 11.5px;
           line-height: 1.2;
         }
+        .dato-ubicacion-0km:first-child { grid-column: 1 / 3; }
+        .dato-ubicacion-0km:last-child { grid-column: 3; }
         .dato-ubicacion-0km {
           display: flex;
           align-items: baseline;
