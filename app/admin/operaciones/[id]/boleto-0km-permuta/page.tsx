@@ -546,13 +546,23 @@ function agregarTransferenciaPago() {
           min-width: 0;
           overflow-wrap: anywhere;
         }
-        .localidad-comprador-0km {
+        .ubicacion-comprador-0km {
+          display: grid;
+          grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+          gap: 8px;
           margin-top: 3px;
           font-size: 11.5px;
           line-height: 1.2;
+        }
+        .dato-ubicacion-0km {
+          display: flex;
+          align-items: baseline;
+          gap: 4px;
+          min-width: 0;
           text-align: left;
         }
-        .localidad-comprador-0km strong { margin-right: 4px; }
+        .dato-ubicacion-0km strong { flex-shrink: 0; }
+        .dato-ubicacion-0km span { min-width: 0; overflow-wrap: anywhere; }
 
         .condiciones-pago {
           margin-top: 6px;
@@ -727,7 +737,7 @@ function agregarTransferenciaPago() {
             gap: 2px 8px;
             font-size: 10px;
           }
-          .localidad-comprador-0km { font-size: 10px; margin-top: 2px; }
+          .ubicacion-comprador-0km { font-size: 10px; margin-top: 2px; }
           .condiciones-pago {
             margin-top: 3px;
             padding: 5px 8px;
@@ -869,9 +879,15 @@ function agregarTransferenciaPago() {
               </div>
             ))}
           </div>
-          <div className="localidad-comprador-0km">
-            <strong>Localidad:</strong>{" "}
-            <span>{[cliente.ciudad, cliente.provincia].filter(Boolean).join(", ") || "—"}</span>
+          <div className="ubicacion-comprador-0km">
+            <div className="dato-ubicacion-0km">
+              <strong>Localidad:</strong>
+              <span>{cliente.ciudad || "—"}</span>
+            </div>
+            <div className="dato-ubicacion-0km">
+              <strong>Provincia:</strong>
+              <span>{cliente.provincia || "—"}</span>
+            </div>
           </div>
 
           <h2 className="titulo-seccion-0km">
