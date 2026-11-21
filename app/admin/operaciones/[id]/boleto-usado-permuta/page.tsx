@@ -1296,9 +1296,9 @@ if (activo) {
             <strong>
               4)
             </strong>{" "}
-            DOCUMENTACIÓN Y ELEMENTOS
-            RECIBIDOS DE LA UNIDAD
-            ENTREGADA EN PERMUTA:
+            Documentación y elementos
+            recibidos de la unidad
+            entregada en permuta:
           </p>
 
           <div className="documentacion-permuta">

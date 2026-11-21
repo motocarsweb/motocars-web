@@ -173,6 +173,38 @@ export default function AdminLayout({
 }
 
   return (
+    <>
+      <style jsx global>{`
+        @media screen and (min-width: 901px) {
+          .admin-layout {
+            height: 100vh;
+            min-height: 0 !important;
+            overflow: hidden;
+          }
+          .admin-sidebar {
+            height: 100vh;
+            overflow-y: auto;
+          }
+          .admin-content {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            min-height: 0;
+            overflow: hidden;
+          }
+          .admin-header {
+            flex: 0 0 74px;
+            position: relative;
+            z-index: 2;
+          }
+          .admin-main {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+          }
+        }
+      `}</style>
     <div
     className="admin-layout"
       style={{
@@ -387,5 +419,6 @@ export default function AdminLayout({
         </main>
       </div>
     </div>
+    </>
   );
 }

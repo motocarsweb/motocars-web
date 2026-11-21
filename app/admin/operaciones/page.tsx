@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import EmptyState from "@/componentes/admin/EmptyState";
 import PageHeader from "@/componentes/admin/PageHeader";
@@ -132,6 +132,20 @@ function formatearFecha(fecha: string) {
 
 
 export default function OperacionesPage() {
+  const barraSuperiorRef = useRef<HTMLDivElement>(null);
+  const tablaDesplazableRef = useRef<HTMLDivElement>(null);
+
+  function sincronizarDesplazamiento(origen: "superior" | "tabla") {
+    const superior = barraSuperiorRef.current;
+    const tabla = tablaDesplazableRef.current;
+    if (!superior || !tabla) return;
+    if (origen === "superior") {
+      tabla.scrollLeft = superior.scrollLeft;
+    } else {
+      superior.scrollLeft = tabla.scrollLeft;
+    }
+  }
+
   const [
     operaciones,
     setOperaciones,
@@ -261,7 +275,26 @@ export default function OperacionesPage() {
 
 
   return (
-    <main className="p-6">
+    <main className="operaciones-panel-fijo flex h-full min-h-0 flex-col p-6">
+      <style jsx global>{`
+        @media screen and (min-width: 901px) {
+          .admin-main:has(.operaciones-panel-fijo) {
+            overflow: hidden !important;
+          }
+        }
+        .operaciones-panel-fijo .tabla-operaciones-scroll {
+          min-height: 0;
+          flex: 1 1 auto;
+          overflow: auto;
+        }
+        .operaciones-panel-fijo .tabla-operaciones-scroll thead th {
+          position: sticky;
+          top: 0;
+          z-index: 1;
+          background: #f9fafb;
+          box-shadow: inset 0 -1px 0 #e5e7eb;
+        }
+      `}</style>
       <PageHeader
         titulo="Operaciones"
         descripcion="Ventas, compras y consignaciones"
@@ -354,39 +387,63 @@ export default function OperacionesPage() {
       {!cargando &&
         !error &&
         operacionesFiltradas.length > 0 && (
-          <div className="overflow-x-auto rounded-xl border bg-white">
-            <table className="w-full table-fixed border-collapse">
+          <div className="flex min-h-0 flex-1 flex-col">
+            <div
+              ref={barraSuperiorRef}
+              onScroll={() => sincronizarDesplazamiento("superior")}
+              className="mb-2 overflow-x-auto overflow-y-hidden rounded border border-gray-200 bg-gray-50"
+              aria-label="Desplazamiento horizontal de operaciones"
+              style={{ height: 18 }}
+            >
+              <div style={{ width: "max(100%, 1080px)", height: 1 }} />
+            </div>
+            <div
+              ref={tablaDesplazableRef}
+              onScroll={() => sincronizarDesplazamiento("tabla")}
+              className="tabla-operaciones-scroll rounded-xl border bg-white"
+            >
+            <table className="w-full table-fixed border-collapse" style={{ width: "100%", minWidth: 1080, borderCollapse: "collapse" }}>
+              <colgroup>
+                <col style={{ width: "7%" }} />
+                <col style={{ width: "11%" }} />
+                <col style={{ width: "18%" }} />
+                <col style={{ width: "24%" }} />
+                <col style={{ width: "14%" }} />
+                <col style={{ width: "12%" }} />
+                <col style={{ width: "9%" }} />
+                <col style={{ width: "6%" }} />
+              </colgroup>
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="w-[9%] p-4 text-left whitespace-nowrap">
+                  <th className="px-3 py-4 text-left whitespace-nowrap" style={{ padding: "12px 10px", verticalAlign: "middle" }}>
                     Operación
                   </th>
 
-                  <th className="w-[7%] p-4 text-left">
+                  <th className="px-3 py-4 text-left" style={{ padding: "12px 10px", verticalAlign: "middle" }}>
                     Tipo
                   </th>
 
-                  <th className="w-[19%] p-4 text-left">
+                  <th className="px-3 py-4 text-left" style={{ padding: "12px 10px", verticalAlign: "middle" }}>
                     Cliente / Proveedor
                   </th>
 
-                  <th className="w-[27%] p-4 text-left">
+                  <th className="px-3 py-4 text-left" style={{ padding: "12px 10px", verticalAlign: "middle" }}>
                     Vehículo
                   </th>
 
-                  <th className="w-[13%] p-4 text-right">
+                  <th className="px-3 py-4 text-right" style={{ padding: "12px 10px", verticalAlign: "middle" }}>
                     Importe
                   </th>
 
-                  <th className="w-[9%] p-4 text-left">
+                  <th className="px-3 py-4 text-left" style={{ padding: "12px 10px", verticalAlign: "middle" }}>
                     Estado
                   </th>
 
-                  <th className="w-[9%] p-4 text-left whitespace-nowrap">
+                  <th className="px-3 py-4 text-left whitespace-nowrap" style={{ padding: "12px 10px", verticalAlign: "middle" }}>
                     Fecha
                   </th>
 
-                  <th className="w-[10%] p-4 text-center">
+                  <th className="px-3 py-4 text-center" style={{ padding: "12px 10px", verticalAlign: "middle" }}>
                     Acción
                   </th>
                 </tr>
@@ -410,50 +467,50 @@ export default function OperacionesPage() {
                         key={operacion.id}
                         className="border-t hover:bg-gray-50"
                       >
-                        <td className="p-4 font-semibold whitespace-nowrap">
+                        <td className="px-3 py-4 font-semibold whitespace-nowrap" style={{ padding: "10px", verticalAlign: "middle" }}>
                           {operacion.id}
                         </td>
 
-                        <td className="p-4">
+                        <td className="px-3 py-4 whitespace-nowrap" style={{ padding: "10px", verticalAlign: "middle" }}>
                           {obtenerTextoTipoOperacion(
                             operacion.tipo_operacion
                           )}
                         </td>
 
-                        <td className="p-4">
+                        <td className="px-3 py-4 break-words" style={{ padding: "10px", verticalAlign: "middle" }}>
                           {obtenerNombreCliente(
                             cliente
                           )}
                         </td>
 
-                        <td className="p-4">
+                        <td className="px-3 py-4 break-words" style={{ padding: "10px", verticalAlign: "middle" }}>
                           {obtenerNombreVehiculo(
                             vehiculo
                           )}
                         </td>
 
-                        <td className="p-4 text-right font-medium whitespace-nowrap">
+                        <td className="px-3 py-4 text-right font-medium whitespace-nowrap" style={{ padding: "10px 18px 10px 8px", verticalAlign: "middle", textAlign: "right", whiteSpace: "nowrap" }}>
                           {formatearImporte(
                             operacion.precio_vehiculo
                           )}
                         </td>
 
-                        <td className="p-4">
+                        <td className="px-3 py-4 break-words" style={{ padding: "10px 10px 10px 20px", verticalAlign: "middle", borderLeft: "1px solid #e5e7eb" }}>
                           {obtenerTextoEstado(
                             operacion.estado
                           )}
                         </td>
 
-                        <td className="p-4 whitespace-nowrap">
+                        <td className="px-3 py-4 whitespace-nowrap" style={{ padding: "10px", verticalAlign: "middle" }}>
                           {formatearFecha(
                             operacion.created_at
                           )}
                         </td>
 
-                        <td className="p-4 text-center">
+                        <td className="px-3 py-4 text-center" style={{ padding: "10px", verticalAlign: "middle" }}>
                           <Link
                             href={`/admin/operaciones/${operacion.id}`}
-                            className="inline-flex whitespace-nowrap rounded-lg border px-3 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50"
+                            className="inline-flex whitespace-nowrap rounded-lg border px-2 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50"
                           >
                             Ver
                           </Link>
@@ -464,6 +521,7 @@ export default function OperacionesPage() {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
         )}
     </main>
