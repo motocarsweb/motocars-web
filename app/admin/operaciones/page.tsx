@@ -355,38 +355,48 @@ export default function OperacionesPage() {
         !error &&
         operacionesFiltradas.length > 0 && (
           <div className="overflow-x-auto rounded-xl border bg-white">
-            <table className="w-full table-fixed border-collapse">
+            <table className="w-full min-w-[1280px] table-fixed border-collapse">
+              <colgroup>
+                <col style={{ width: "8%" }} />
+                <col style={{ width: "12%" }} />
+                <col style={{ width: "19%" }} />
+                <col style={{ width: "24%" }} />
+                <col style={{ width: "13%" }} />
+                <col style={{ width: "12%" }} />
+                <col style={{ width: "9%" }} />
+                <col style={{ width: "3%" }} />
+              </colgroup>
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="w-[9%] p-4 text-left whitespace-nowrap">
+                  <th className="px-3 py-4 text-left whitespace-nowrap">
                     Operación
                   </th>
 
-                  <th className="w-[7%] p-4 text-left">
+                  <th className="px-3 py-4 text-left">
                     Tipo
                   </th>
 
-                  <th className="w-[19%] p-4 text-left">
+                  <th className="px-3 py-4 text-left">
                     Cliente / Proveedor
                   </th>
 
-                  <th className="w-[27%] p-4 text-left">
+                  <th className="px-3 py-4 text-left">
                     Vehículo
                   </th>
 
-                  <th className="w-[13%] p-4 text-right">
+                  <th className="px-3 py-4 text-right">
                     Importe
                   </th>
 
-                  <th className="w-[9%] p-4 text-left">
+                  <th className="px-3 py-4 text-left">
                     Estado
                   </th>
 
-                  <th className="w-[9%] p-4 text-left whitespace-nowrap">
+                  <th className="px-3 py-4 text-left whitespace-nowrap">
                     Fecha
                   </th>
 
-                  <th className="w-[10%] p-4 text-center">
+                  <th className="px-3 py-4 text-center">
                     Acción
                   </th>
                 </tr>
@@ -410,50 +420,50 @@ export default function OperacionesPage() {
                         key={operacion.id}
                         className="border-t hover:bg-gray-50"
                       >
-                        <td className="p-4 font-semibold whitespace-nowrap">
+                        <td className="px-3 py-4 font-semibold whitespace-nowrap">
                           {operacion.id}
                         </td>
 
-                        <td className="p-4">
+                        <td className="px-3 py-4 whitespace-nowrap">
                           {obtenerTextoTipoOperacion(
                             operacion.tipo_operacion
                           )}
                         </td>
 
-                        <td className="p-4">
+                        <td className="px-3 py-4 break-words">
                           {obtenerNombreCliente(
                             cliente
                           )}
                         </td>
 
-                        <td className="p-4">
+                        <td className="px-3 py-4 break-words">
                           {obtenerNombreVehiculo(
                             vehiculo
                           )}
                         </td>
 
-                        <td className="p-4 text-right font-medium whitespace-nowrap">
+                        <td className="px-3 py-4 text-right font-medium whitespace-nowrap">
                           {formatearImporte(
                             operacion.precio_vehiculo
                           )}
                         </td>
 
-                        <td className="p-4">
+                        <td className="px-3 py-4 break-words">
                           {obtenerTextoEstado(
                             operacion.estado
                           )}
                         </td>
 
-                        <td className="p-4 whitespace-nowrap">
+                        <td className="px-3 py-4 whitespace-nowrap">
                           {formatearFecha(
                             operacion.created_at
                           )}
                         </td>
 
-                        <td className="p-4 text-center">
+                        <td className="px-3 py-4 text-center">
                           <Link
                             href={`/admin/operaciones/${operacion.id}`}
-                            className="inline-flex whitespace-nowrap rounded-lg border px-3 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50"
+                            className="inline-flex whitespace-nowrap rounded-lg border px-2 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50"
                           >
                             Ver
                           </Link>
