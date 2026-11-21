@@ -275,7 +275,26 @@ export default function OperacionesPage() {
 
 
   return (
-    <main className="p-6">
+    <main className="operaciones-panel-fijo flex h-full min-h-0 flex-col p-6">
+      <style jsx global>{`
+        @media screen and (min-width: 901px) {
+          .admin-main:has(.operaciones-panel-fijo) {
+            overflow: hidden !important;
+          }
+        }
+        .operaciones-panel-fijo .tabla-operaciones-scroll {
+          min-height: 0;
+          flex: 1 1 auto;
+          overflow: auto;
+        }
+        .operaciones-panel-fijo .tabla-operaciones-scroll thead th {
+          position: sticky;
+          top: 0;
+          z-index: 1;
+          background: #f9fafb;
+          box-shadow: inset 0 -1px 0 #e5e7eb;
+        }
+      `}</style>
       <PageHeader
         titulo="Operaciones"
         descripcion="Ventas, compras y consignaciones"
@@ -368,7 +387,7 @@ export default function OperacionesPage() {
       {!cargando &&
         !error &&
         operacionesFiltradas.length > 0 && (
-          <div>
+          <div className="flex min-h-0 flex-1 flex-col">
             <div
               ref={barraSuperiorRef}
               onScroll={() => sincronizarDesplazamiento("superior")}
@@ -381,7 +400,7 @@ export default function OperacionesPage() {
             <div
               ref={tablaDesplazableRef}
               onScroll={() => sincronizarDesplazamiento("tabla")}
-              className="overflow-x-auto rounded-xl border bg-white"
+              className="tabla-operaciones-scroll rounded-xl border bg-white"
             >
             <table className="w-full table-fixed border-collapse" style={{ width: "100%", minWidth: 1080, borderCollapse: "collapse" }}>
               <colgroup>
