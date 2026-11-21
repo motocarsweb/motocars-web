@@ -357,14 +357,14 @@ export default function OperacionesPage() {
           <div className="overflow-x-auto rounded-xl border bg-white">
             <table className="w-full min-w-[1280px] table-fixed border-collapse">
               <colgroup>
-                <col style={{ width: "8%" }} />
+                <col style={{ width: "7%" }} />
                 <col style={{ width: "12%" }} />
                 <col style={{ width: "19%" }} />
-                <col style={{ width: "24%" }} />
+                <col style={{ width: "23%" }} />
                 <col style={{ width: "13%" }} />
-                <col style={{ width: "12%" }} />
+                <col style={{ width: "11%" }} />
                 <col style={{ width: "9%" }} />
-                <col style={{ width: "3%" }} />
+                <col style={{ width: "6%" }} />
               </colgroup>
               <thead className="bg-gray-50">
                 <tr>
