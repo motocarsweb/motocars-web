@@ -522,27 +522,29 @@ function agregarTransferenciaPago() {
           text-transform: uppercase;
         }
 
+        .datos-comprador-0km,
         .datos-0km {
           display: grid;
-
-          grid-template-columns:
-            repeat(
-              2,
-              minmax(0, 1fr)
-            );
-
-          gap: 4px 20px;
-
+          grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.05fr) minmax(0, 1.55fr);
+          column-gap: 8px;
+          row-gap: 3px;
           font-size: 11.5px;
+          line-height: 1.2;
         }
-
         .dato-0km {
-          display: grid;
-
-          grid-template-columns:
-            88px 1fr;
-
-          gap: 5px;
+          display: flex;
+          align-items: baseline;
+          gap: 4px;
+          min-width: 0;
+          text-align: left;
+        }
+        .dato-0km strong {
+          flex-shrink: 0;
+          white-space: nowrap;
+        }
+        .dato-0km span {
+          min-width: 0;
+          overflow-wrap: anywhere;
         }
 
         .condiciones-pago {
@@ -634,76 +636,127 @@ function agregarTransferenciaPago() {
 .solo-imprimir {
   display: none;
 }
+        /* Pie institucional uniforme, sin modificar el layout compartido. */
+        .documento-motocars .documento-pie {
+          display: grid !important;
+          grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+          column-gap: 2mm !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          box-sizing: border-box !important;
+          font-size: 9px !important;
+          line-height: 1.25 !important;
+        }
+        .documento-motocars .pie-item,
+        .documento-motocars .pie-item-izquierda,
+        .documento-motocars .pie-item-derecha {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          text-align: left !important;
+          min-width: 0 !important;
+          gap: 4px !important;
+        }
+        .documento-motocars .pie-item svg {
+          width: 10px !important;
+          height: 10px !important;
+          flex: 0 0 10px !important;
+        }
+        .documento-motocars .pie-item span {
+          min-width: 0 !important;
+          overflow-wrap: anywhere !important;
+          word-break: break-word !important;
+        }
+
         @media print {
-  .no-imprimir {
-  .solo-imprimir {
-  display: block !important;
-}
-    display: none !important;
-  }
+          @page { size: A4; margin: 0; }
+          html, body { width: 100% !important; }
+          .no-imprimir { display: none !important; }
+          .solo-imprimir { display: block !important; }
 
-  .boleto-0km-texto {
-    margin-top: 8px;
-    font-size: 10.5px;
-    line-height: 1.22;
-  }
-
-  .boleto-0km-texto p {
-    margin-bottom: 4px;
-  }
-
-  .titulo-seccion-0km {
-    margin: 6px 0 3px;
-    padding-bottom: 2px;
-    font-size: 10px;
-  }
-
-  .datos-0km {
-    gap: 2px 16px;
-    font-size: 10px;
-  }
-
-  .dato-0km {
-  grid-template-columns: 88px 1fr;
-  gap: 4px;
-}
-
-  .condiciones-pago {
-    margin-top: 3px;
-    padding: 5px 8px;
-    font-size: 10px;
-  }
-
-  .bloque-permuta {
-    margin: 4px 0 5px;
-    padding: 5px 8px;
-  }
-
-  .documentacion-permuta {
-    margin: 3px 0 5px;
-    padding: 5px 8px;
-    row-gap: 1px;
-    font-size: 9.8px;
-    line-height: 1.15;
-  }
-
-  .casillero-documentacion {
-    font-size: 11px;
-  }
-
-  .firmas-0km {
-    margin-top: 42px;
-    margin-bottom: 0;
-  }
-
-  .firma-0km {
-    padding-top: 4px;
-    font-size: 9.5px;
-    line-height: 1.2;
-  }
-}
+          .documento-motocars {
+            position: relative !important;
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100% !important;
+            max-width: 210mm !important;
+            min-height: 297mm !important;
+            height: auto !important;
+            margin: 0 auto !important;
+            padding: 12mm 12mm 10mm !important;
+            box-sizing: border-box !important;
+            overflow: visible !important;
+          }
+          .documento-contenido {
+            flex: 0 0 auto !important;
+            min-height: 0 !important;
+          }
+          .documento-pie {
+            position: relative !important;
+            top: auto !important;
+            bottom: auto !important;
+            left: auto !important;
+            right: auto !important;
+            margin-top: auto !important;
+            padding-top: 2mm !important;
+            flex-shrink: 0 !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
+          .boleto-0km-texto {
+            margin-top: 8px;
+            font-size: 10.5px;
+            line-height: 1.22;
+            text-align: left !important;
+          }
+          .boleto-0km-texto p { margin-bottom: 4px; }
+          .titulo-seccion-0km {
+            margin: 6px 0 3px;
+            padding-bottom: 2px;
+            font-size: 10px;
+          }
+          .datos-comprador-0km,
+          .datos-0km {
+            gap: 2px 8px;
+            font-size: 10px;
+          }
+          .condiciones-pago {
+            margin-top: 3px;
+            padding: 5px 8px;
+            font-size: 10px;
+          }
+          .bloque-permuta {
+            margin: 4px 0 5px;
+            padding: 5px 8px;
+          }
+          .documentacion-permuta {
+            margin: 3px 0 5px;
+            padding: 5px 8px;
+            row-gap: 1px;
+            font-size: 9.8px;
+            line-height: 1.15;
+          }
+          .casillero-documentacion { font-size: 11px; }
+          .firmas-0km {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 40px !important;
+            margin-top: 22mm !important;
+            margin-bottom: 0 !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
+          .firma-0km {
+            padding-top: 4px;
+            font-size: 9.5px;
+            line-height: 1.2;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
+        }
 
         @media screen and (max-width: 850px) {
+          .datos-comprador-0km,
           .datos-0km,
           .documentacion-permuta {
             grid-template-columns: 1fr;
@@ -785,182 +838,48 @@ function agregarTransferenciaPago() {
 </p>
 
           <h2 className="titulo-seccion-0km">
-  Datos del comprador
-</h2>
-
-<div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "4px 20px",
-    fontSize: "11.5px",
-  }}
->
-  <div
-    style={{
-      display: "grid",
-      alignContent: "start",
-      gap: "4px",
-    }}
-  >
-    <div className="dato-0km">
-      <strong>Comprador:</strong>
-      <span>{nombreCliente(cliente)}</span>
-    </div>
-
-    <div className="dato-0km">
-      <strong>Fecha nac.:</strong>
-      <span>
-        {cliente.fecha_nacimiento
-          ? formatearFecha(cliente.fecha_nacimiento)
-          : "—"}
-      </span>
-    </div>
-
-    <div className="dato-0km">
-      <strong>Estado civil:</strong>
-      <span>{cliente.estado_civil || "—"}</span>
-    </div>
-
-    <div className="dato-0km">
-      <strong>Domicilio:</strong>
-      <span>{cliente.direccion || "—"}</span>
-    </div>
-
-    <div className="dato-0km">
-      <strong>Teléfono:</strong>
-      <span>
-        {cliente.whatsapp ||
-          cliente.telefono ||
-          "—"}
-      </span>
-    </div>
-  </div>
-
-  <div
-    style={{
-      display: "grid",
-      alignContent: "start",
-      gap: "4px",
-    }}
-  >
-    <div className="dato-0km">
-      <strong>DNI/CUIT:</strong>
-      <span>{documentoCliente(cliente)}</span>
-    </div>
-
-    <div className="dato-0km">
-      <strong>Profesión:</strong>
-      <span>{cliente.profesion || "—"}</span>
-    </div>
-
-    {cliente.estado_civil === "Casado/a" && (
-      <>
-        <div className="dato-0km">
-          <strong>Cónyuge:</strong>
-          <span>
-            {cliente.conyuge_nombre || "—"}
-          </span>
-        </div>
-
-        <div className="dato-0km">
-          <strong>DNI cónyuge:</strong>
-          <span>
-            {cliente.conyuge_dni || "—"}
-          </span>
-        </div>
-      </>
-    )}
-
-    <div className="dato-0km">
-      <strong>Localidad:</strong>
-      <span>
-        {[
-          cliente.ciudad,
-          cliente.provincia,
-        ]
-          .filter(Boolean)
-          .join(", ") || "—"}
-      </span>
-    </div>
-
-    <div className="dato-0km">
-      <strong>Email:</strong>
-      <span>{cliente.email || "—"}</span>
-    </div>
-  </div>
-</div>
+            Datos del comprador
+          </h2>
+          <div className="datos-comprador-0km">
+            {[
+              ["Comprador:", nombreCliente(cliente)],
+              ["DNI/CUIT:", documentoCliente(cliente)],
+              ["Fecha nac.:", cliente.fecha_nacimiento
+                ? formatearFecha(cliente.fecha_nacimiento) : "—"],
+              ["Estado civil:", cliente.estado_civil || "—"],
+              ["Profesión:", cliente.profesion || "—"],
+              ["Domicilio:", cliente.direccion || "—"],
+              ["Localidad:", [cliente.ciudad, cliente.provincia].filter(Boolean).join(", ") || "—"],
+              ["Teléfono:", cliente.whatsapp || cliente.telefono || "—"],
+              ["Email:", cliente.email || "—"],
+              ...(cliente.estado_civil === "Casado/a"
+                ? [["Cónyuge:", cliente.conyuge_nombre || "—"], ["DNI cónyuge:", cliente.conyuge_dni || "—"]]
+                : []),
+            ].map(([etiqueta, valor], indice) => (
+              <div className="dato-0km" key={indice}>
+                <strong>{etiqueta}</strong>
+                <span>{valor}</span>
+              </div>
+            ))}
+          </div>
 
           <h2 className="titulo-seccion-0km">
             Vehículo vendido
           </h2>
-
           <div className="datos-0km">
-            <div className="dato-0km">
-              <strong>
-                Vehículo:
-              </strong>
-
-              <span>
-                {nombreVehiculo(
-                  vehiculo
-                )}
-              </span>
-            </div>
-
-            <div className="dato-0km">
-              <strong>
-                Año:
-              </strong>
-
-              <span>
-                {vehiculo.anio ??
-                  "—"}
-              </span>
-            </div>
-
-            <div className="dato-0km">
-              <strong>
-                Condición:
-              </strong>
-
-              <span>
-                0 km
-              </span>
-            </div>
-
-            <div className="dato-0km">
-              <strong>
-                Color:
-              </strong>
-
-              <span>
-                {vehiculo.color ||
-                  "—"}
-              </span>
-            </div>
-
-            <div className="dato-0km">
-              <strong>
-                Chasis:
-              </strong>
-
-              <span>
-                {operacion.numero_chasis || vehiculo.numero_chasis ||
-                  "—"}
-              </span>
-            </div>
-
-            <div className="dato-0km">
-              <strong>
-                Motor:
-              </strong>
-
-              <span>
-                {operacion.numero_motor || vehiculo.numero_motor ||
-                  "—"}
-              </span>
-            </div>
+            {[
+              ["Vehículo:", nombreVehiculo(vehiculo)],
+              ["Año:", vehiculo.anio ?? "—"],
+              ["Condición:", "0 km"],
+              ["Color:", vehiculo.color || "—"],
+              ["Chasis:", operacion.numero_chasis || vehiculo.numero_chasis || "—"],
+              ["Motor:", operacion.numero_motor || vehiculo.numero_motor || "—"],
+            ].map(([etiqueta, valor], indice) => (
+              <div className="dato-0km" key={indice}>
+                <strong>{etiqueta}</strong>
+                <span>{valor}</span>
+              </div>
+            ))}
           </div>
 
           <p
