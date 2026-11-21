@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import EmptyState from "@/componentes/admin/EmptyState";
 import PageHeader from "@/componentes/admin/PageHeader";
@@ -132,6 +132,20 @@ function formatearFecha(fecha: string) {
 
 
 export default function OperacionesPage() {
+  const barraSuperiorRef = useRef<HTMLDivElement>(null);
+  const tablaDesplazableRef = useRef<HTMLDivElement>(null);
+
+  function sincronizarDesplazamiento(origen: "superior" | "tabla") {
+    const superior = barraSuperiorRef.current;
+    const tabla = tablaDesplazableRef.current;
+    if (!superior || !tabla) return;
+    if (origen === "superior") {
+      tabla.scrollLeft = superior.scrollLeft;
+    } else {
+      superior.scrollLeft = tabla.scrollLeft;
+    }
+  }
+
   const [
     operaciones,
     setOperaciones,
@@ -354,7 +368,21 @@ export default function OperacionesPage() {
       {!cargando &&
         !error &&
         operacionesFiltradas.length > 0 && (
-          <div className="overflow-x-auto rounded-xl border bg-white">
+          <div>
+            <div
+              ref={barraSuperiorRef}
+              onScroll={() => sincronizarDesplazamiento("superior")}
+              className="mb-2 overflow-x-auto overflow-y-hidden rounded border border-gray-200 bg-gray-50"
+              aria-label="Desplazamiento horizontal de operaciones"
+              style={{ height: 18 }}
+            >
+              <div style={{ width: "max(100%, 1080px)", height: 1 }} />
+            </div>
+            <div
+              ref={tablaDesplazableRef}
+              onScroll={() => sincronizarDesplazamiento("tabla")}
+              className="overflow-x-auto rounded-xl border bg-white"
+            >
             <table className="w-full table-fixed border-collapse" style={{ width: "100%", minWidth: 1080, borderCollapse: "collapse" }}>
               <colgroup>
                 <col style={{ width: "7%" }} />
@@ -474,6 +502,7 @@ export default function OperacionesPage() {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
         )}
     </main>
