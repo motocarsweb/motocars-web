@@ -546,6 +546,13 @@ function agregarTransferenciaPago() {
           min-width: 0;
           overflow-wrap: anywhere;
         }
+        .localidad-comprador-0km {
+          margin-top: 3px;
+          font-size: 11.5px;
+          line-height: 1.2;
+          text-align: left;
+        }
+        .localidad-comprador-0km strong { margin-right: 4px; }
 
         .condiciones-pago {
           margin-top: 6px;
@@ -707,7 +714,7 @@ function agregarTransferenciaPago() {
             margin-top: 8px;
             font-size: 10.5px;
             line-height: 1.22;
-            text-align: left !important;
+            text-align: justify !important;
           }
           .boleto-0km-texto p { margin-bottom: 4px; }
           .titulo-seccion-0km {
@@ -720,6 +727,7 @@ function agregarTransferenciaPago() {
             gap: 2px 8px;
             font-size: 10px;
           }
+          .localidad-comprador-0km { font-size: 10px; margin-top: 2px; }
           .condiciones-pago {
             margin-top: 3px;
             padding: 5px 8px;
@@ -849,7 +857,6 @@ function agregarTransferenciaPago() {
               ["Estado civil:", cliente.estado_civil || "—"],
               ["Profesión:", cliente.profesion || "—"],
               ["Domicilio:", cliente.direccion || "—"],
-              ["Localidad:", [cliente.ciudad, cliente.provincia].filter(Boolean).join(", ") || "—"],
               ["Teléfono:", cliente.whatsapp || cliente.telefono || "—"],
               ["Email:", cliente.email || "—"],
               ...(cliente.estado_civil === "Casado/a"
@@ -861,6 +868,10 @@ function agregarTransferenciaPago() {
                 <span>{valor}</span>
               </div>
             ))}
+          </div>
+          <div className="localidad-comprador-0km">
+            <strong>Localidad:</strong>{" "}
+            <span>{[cliente.ciudad, cliente.provincia].filter(Boolean).join(", ") || "—"}</span>
           </div>
 
           <h2 className="titulo-seccion-0km">
@@ -1125,9 +1136,9 @@ function agregarTransferenciaPago() {
             <strong>
               4)
             </strong>{" "}
-            DOCUMENTACIÓN Y ELEMENTOS
-            RECIBIDOS DE LA UNIDAD
-            ENTREGADA EN PERMUTA:
+            Documentación y elementos
+            recibidos de la unidad
+            entregada en permuta:
           </p>
 
           <div className="documentacion-permuta">
