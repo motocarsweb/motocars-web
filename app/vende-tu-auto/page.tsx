@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Header from "@/componentes/layout/Header";
 import Footer from "@/componentes/layout/Footer";
 import FormularioVenderAuto from "@/componentes/Home/FormularioVenderAuto";
+import styles from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "Vendé tu auto",
@@ -12,16 +13,16 @@ export default function VendeTuAutoPage() {
   return (
     <>
       <Header />
-      <main className="min-h-[65vh] bg-zinc-50 px-4 py-12 md:py-20">
-        <div className="mx-auto max-w-3xl">
-          <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm md:p-10">
-            <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-red-600">
+      <main className={styles.page}>
+        <div className={styles.container}>
+          <div className={styles.panel}>
+            <p className={styles.eyebrow}>
               MotoCars Concesionaria
             </p>
-            <h1 className="text-3xl font-bold text-zinc-950 md:text-4xl">
+            <h1 className={styles.heading}>
               ¿Tenés un auto para vender?
             </h1>
-            <p className="mt-4 text-base leading-relaxed text-zinc-600">
+            <p className={styles.intro}>
               Contanos qué vehículo querés vender. Nuestro equipo revisará
               la información y se comunicará con vos.
             </p>
