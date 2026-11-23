@@ -11,6 +11,9 @@ export default function FormularioVenderAuto() {
   const [errorFotos, setErrorFotos] = useState("");
 
   const [procesando, setProcesando] = useState(false);
+  const [enviando, setEnviando] = useState(false);
+  const [mensaje, setMensaje] = useState("");
+  const [errorEnvio, setErrorEnvio] = useState("");
   const [vistasPrevias, setVistasPrevias] = useState<string[]>([]);
 
   useEffect(() => {
@@ -44,8 +47,32 @@ export default function FormularioVenderAuto() {
     }
   }
 
+  async function enviar(evento: React.FormEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    if (enviando || procesando) return;
+    setEnviando(true);
+    setMensaje("");
+    setErrorEnvio("");
+    try {
+      const formulario = evento.currentTarget;
+      const datos = new FormData(formulario);
+      datos.delete("fotos");
+      fotos.forEach((foto) => datos.append("fotos", foto));
+      const respuesta = await fetch("/api/solicitudes-venta-web", { method: "POST", body: datos });
+      const resultado: { ok?: boolean; error?: string; mensaje?: string } = await respuesta.json();
+      if (!respuesta.ok || !resultado.ok) throw new Error(resultado.error || "No pudimos enviar la solicitud.");
+      setMensaje(resultado.mensaje || "Solicitud recibida correctamente.");
+      formulario.reset();
+      setFotos([]);
+    } catch (error) {
+      setErrorEnvio(error instanceof Error ? error.message : "No pudimos enviar la solicitud.");
+    } finally {
+      setEnviando(false);
+    }
+  }
+
   return (
-    <form className="mt-8 space-y-8" onSubmit={(evento) => evento.preventDefault()}>
+    <form className="mt-8 space-y-8" onSubmit={enviar}>
       <fieldset className="space-y-4">
         <legend className="mb-4 text-xl font-bold text-zinc-950">Tus datos de contacto</legend>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -89,11 +116,11 @@ export default function FormularioVenderAuto() {
         {errorFotos && <p role="alert" className="text-sm font-semibold text-red-700">{errorFotos}</p>}
       </fieldset>
 
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
-        El formulario está en etapa de prueba. Todavía no se pueden enviar solicitudes.
-      </div>
-      <button type="button" disabled className="w-full cursor-not-allowed rounded-lg bg-zinc-400 px-6 py-4 font-bold text-white sm:w-auto">
-        Envío disponible próximamente
+      <div className="absolute -left-[10000px]" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
+      {mensaje && <p role="status" className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-900">{mensaje}</p>}
+      {errorEnvio && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">{errorEnvio}</p>}
+      <button type="submit" disabled={enviando || procesando} className="w-full rounded-lg bg-red-600 px-6 py-4 font-bold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-zinc-400 sm:w-auto">
+        {enviando ? "Enviando..." : procesando ? "Procesando fotografías..." : "Enviar solicitud"}
       </button>
     </form>
   );
