@@ -10,6 +10,7 @@ import {
   FileText,
   Gauge,
   Images,
+  Inbox,
   LayoutDashboard,
   Users,
   LogOut,
@@ -57,6 +58,11 @@ const menuItems: MenuItem[] = [
   href: "/admin/operaciones",
   label: "Operaciones",
   icon: <Gauge size={19} strokeWidth={2} />,
+},
+{
+  href: "/admin/solicitudes-web",
+  label: "Solicitudes WEB",
+  icon: <Inbox size={19} strokeWidth={2} />,
 },
 {
   href: "/admin/creditos",
