@@ -14,20 +14,20 @@ export default function FormularioVenderAuto() {
   const [enviando, setEnviando] = useState(false);
   const [mensaje, setMensaje] = useState("");
   const [errorEnvio, setErrorEnvio] = useState("");
-  const [vistasPrevias, setVistasPrevias] = useState<string[]>([]);
+  const [vistasPrevias, setVistasPrevias] = useState<{ url: string; foto: File }[]>([]);
 
   useEffect(() => {
-    const urls = fotos.map((foto) => URL.createObjectURL(foto));
+    const urls = fotos.map((foto) => ({ url: URL.createObjectURL(foto), foto }));
     setVistasPrevias(urls);
-    return () => urls.forEach((url) => URL.revokeObjectURL(url));
+    return () => urls.forEach((url) => URL.revokeObjectURL(url.url));
   }, [fotos]);
 
   async function seleccionarFotos(evento: React.ChangeEvent<HTMLInputElement>) {
     const archivos = Array.from(evento.target.files ?? []);
     evento.target.value = "";
-    setFotos([]);
+    if (procesando || enviando) return;
     setErrorFotos("");
-    if (archivos.length > 2) {
+    if (archivos.length + fotos.length > 2) {
       setErrorFotos("Podés adjuntar como máximo dos fotografías.");
       return;
     }
@@ -39,7 +39,7 @@ export default function FormularioVenderAuto() {
     setProcesando(true);
     try {
       const optimizadas = await Promise.all(archivos.map(optimizarFotoWebp));
-      setFotos(optimizadas);
+      setFotos((actuales) => [...actuales, ...optimizadas].slice(0, 2));
     } catch (error) {
       setErrorFotos(error instanceof Error ? error.message : "No se pudieron procesar las imágenes.");
     } finally {
@@ -98,16 +98,17 @@ export default function FormularioVenderAuto() {
 
       <fieldset className="space-y-3">
         <legend className="mb-3 text-xl font-bold text-zinc-950">Fotografías</legend>
-        <label className="block"><span className={etiqueta}>Adjuntá hasta 2 fotos de tu auto</span><input className={campo} type="file" name="fotos" accept="image/*" multiple onChange={seleccionarFotos} aria-describedby="ayuda-fotos" /></label>
+        <label className="block"><span className={etiqueta}>Adjuntá hasta 2 fotos de tu auto</span><input className={campo} type="file" name="fotos" accept="image/*" multiple disabled={procesando || enviando || fotos.length >= 2} onChange={seleccionarFotos} aria-describedby="ayuda-fotos" /></label>
         <p id="ayuda-fotos" className="text-sm text-zinc-600">Las fotografías se optimizarán antes de enviarse. {procesando ? "Optimizando fotografías..." : `Seleccionadas: ${fotos.length} de 2.`}</p>
         {vistasPrevias.length > 0 && (
           <div className="grid grid-cols-2 gap-3">
-            {vistasPrevias.map((url, indice) => (
-              <div key={url} className="overflow-hidden rounded-lg border border-zinc-200">
+            {vistasPrevias.map(({ url, foto }, indice) => (
+              <div key={url} className="relative overflow-hidden rounded-lg border border-zinc-200">
+                <button type="button" disabled={procesando || enviando} aria-label={`Eliminar fotografía ${indice + 1}`} onClick={() => { setFotos((actuales) => actuales.filter((archivo) => archivo !== foto)); setErrorFotos(""); }} style={{ position: "absolute", top: 8, right: 8, width: 36, height: 36, borderRadius: "50%", background: "#d71935", color: "#fff", fontSize: 25, lineHeight: 1, cursor: "pointer", zIndex: 1 }}>×</button>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={url} alt={`Vista previa de la fotografía ${indice + 1}`} className="h-36 w-full object-cover" />
                 <p className="p-2 text-center text-xs text-zinc-600">
-                  WebP · {(fotos[indice].size / 1024).toFixed(0)} KB
+                  WebP · {(foto.size / 1024).toFixed(0)} KB
                 </p>
               </div>
             ))}
