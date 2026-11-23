@@ -115,6 +115,20 @@ export default function AdminLayout({
   const router = useRouter();
   const [rol, setRol] = useState<"administrador" | "vendedor" | null>(null);
 
+  const [pendientesWeb, setPendientesWeb] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (rol !== "administrador") return;
+    let vigente = true;
+    async function actualizarPendientes() {
+      const { count, error } = await supabase.from("solicitudes_venta_web").select("id", { count: "exact", head: true }).eq("estado", "pendiente");
+      if (vigente) setPendientesWeb(error ? null : count);
+    }
+    void actualizarPendientes();
+    const intervalo = window.setInterval(actualizarPendientes, 60000);
+    return () => { vigente = false; window.clearInterval(intervalo); };
+  }, [rol, pathname]);
+
   useEffect(() => {
     if (pathname === "/admin/login") return;
     let vigente = true;
@@ -318,6 +332,7 @@ export default function AdminLayout({
                 </span>
 
                 <span>{item.label}</span>
+                {rol === "administrador" && item.href === "/admin/solicitudes-web" && pendientesWeb !== null && pendientesWeb > 0 && <span aria-label={pendientesWeb + " pendientes"} style={{ marginLeft: "auto", background: activo ? "#fff" : "#c71930", color: activo ? "#c71930" : "#fff", borderRadius: 12, padding: "2px 8px", fontSize: 12, fontWeight: 700 }}>{pendientesWeb}</span>}
               </Link>
             );
           })}
