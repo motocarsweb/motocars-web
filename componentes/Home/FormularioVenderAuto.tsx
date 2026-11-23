@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { optimizarFotoWebp } from "@/lib/optimizar-foto-webp";
 
 const campo = "w-full rounded-lg border border-zinc-300 bg-white px-3 py-3 text-base text-zinc-900 outline-none focus:border-red-600 focus:ring-2 focus:ring-red-100";
 const etiqueta = "mb-1.5 block text-sm font-semibold text-zinc-800";
@@ -9,22 +10,38 @@ export default function FormularioVenderAuto() {
   const [fotos, setFotos] = useState<File[]>([]);
   const [errorFotos, setErrorFotos] = useState("");
 
-  function seleccionarFotos(evento: React.ChangeEvent<HTMLInputElement>) {
+  const [procesando, setProcesando] = useState(false);
+  const [vistasPrevias, setVistasPrevias] = useState<string[]>([]);
+
+  useEffect(() => {
+    const urls = fotos.map((foto) => URL.createObjectURL(foto));
+    setVistasPrevias(urls);
+    return () => urls.forEach((url) => URL.revokeObjectURL(url));
+  }, [fotos]);
+
+  async function seleccionarFotos(evento: React.ChangeEvent<HTMLInputElement>) {
     const archivos = Array.from(evento.target.files ?? []);
+    evento.target.value = "";
+    setFotos([]);
+    setErrorFotos("");
     if (archivos.length > 2) {
       setErrorFotos("Podés adjuntar como máximo dos fotografías.");
-      setFotos([]);
-      evento.target.value = "";
       return;
     }
     if (archivos.some((archivo) => !archivo.type.startsWith("image/"))) {
       setErrorFotos("Seleccioná únicamente archivos de imagen.");
-      setFotos([]);
-      evento.target.value = "";
       return;
     }
-    setErrorFotos("");
-    setFotos(archivos);
+    if (!archivos.length) return;
+    setProcesando(true);
+    try {
+      const optimizadas = await Promise.all(archivos.map(optimizarFotoWebp));
+      setFotos(optimizadas);
+    } catch (error) {
+      setErrorFotos(error instanceof Error ? error.message : "No se pudieron procesar las imágenes.");
+    } finally {
+      setProcesando(false);
+    }
   }
 
   return (
@@ -55,7 +72,20 @@ export default function FormularioVenderAuto() {
       <fieldset className="space-y-3">
         <legend className="mb-3 text-xl font-bold text-zinc-950">Fotografías</legend>
         <label className="block"><span className={etiqueta}>Adjuntá hasta 2 fotos de tu auto</span><input className={campo} type="file" name="fotos" accept="image/*" multiple onChange={seleccionarFotos} aria-describedby="ayuda-fotos" /></label>
-        <p id="ayuda-fotos" className="text-sm text-zinc-600">Las fotografías se optimizarán antes de enviarse. Seleccionadas: {fotos.length} de 2.</p>
+        <p id="ayuda-fotos" className="text-sm text-zinc-600">Las fotografías se optimizarán antes de enviarse. {procesando ? "Optimizando fotografías..." : `Seleccionadas: ${fotos.length} de 2.`}</p>
+        {vistasPrevias.length > 0 && (
+          <div className="grid grid-cols-2 gap-3">
+            {vistasPrevias.map((url, indice) => (
+              <div key={url} className="overflow-hidden rounded-lg border border-zinc-200">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt={`Vista previa de la fotografía ${indice + 1}`} className="h-36 w-full object-cover" />
+                <p className="p-2 text-center text-xs text-zinc-600">
+                  WebP · {(fotos[indice].size / 1024).toFixed(0)} KB
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
         {errorFotos && <p role="alert" className="text-sm font-semibold text-red-700">{errorFotos}</p>}
       </fieldset>
 
