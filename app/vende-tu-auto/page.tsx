@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Header from "@/componentes/layout/Header";
 import Footer from "@/componentes/layout/Footer";
+import FormularioVenderAuto from "@/componentes/Home/FormularioVenderAuto";
 
 export const metadata: Metadata = {
   title: "Vendé tu auto",
@@ -24,10 +25,7 @@ export default function VendeTuAutoPage() {
               Contanos qué vehículo querés vender. Nuestro equipo revisará
               la información y se comunicará con vos.
             </p>
-            <div className="mt-8 rounded-lg border border-zinc-200 bg-zinc-50 p-5 text-sm text-zinc-600">
-              Estamos preparando el formulario para recibir los datos de tu auto
-              y hasta dos fotografías. Próximamente vas a poder enviarlo desde acá.
-            </div>
+            <FormularioVenderAuto />
           </div>
         </div>
       </main>
