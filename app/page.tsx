@@ -7,6 +7,7 @@ import FeaturedCars from "@/componentes/Home/FeaturedCars";
 import About from "@/componentes/Home/About";
 import Brands from "@/componentes/Home/Brands";
 import CreditoCTA from "@/componentes/Home/CreditoCTA";
+import VenderAutoCTA from "@/componentes/Home/VenderAutoCTA";
 import { obtenerVehiculosPublicos } from "@/lib/supabase-vehicles";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +36,8 @@ export default async function Home() {
 <CreditoCTA />
 
 <FeaturedCars vehicles={vehiculosPublicados} />
+
+      <VenderAutoCTA />
 
       <About />
 
