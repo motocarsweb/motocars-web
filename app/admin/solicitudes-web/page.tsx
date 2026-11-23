@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import PageHeader from "@/componentes/admin/PageHeader";
 
@@ -52,6 +53,7 @@ export default function SolicitudesWebPage() {
               <strong style={{ color: s.estado === "pendiente" ? "#92400e" : "#374151" }}>{estados[s.estado]}</strong>
               <span>{new Date(s.fecha_solicitud).toLocaleString("es-AR", { timeZone: "America/Argentina/Salta" })}</span>
               <span>{s.fotos.length} fotografías</span>
+              <Link href={"/admin/solicitudes-web/" + s.id} style={{ color: "white", background: "#c71930", padding: "8px 14px", borderRadius: 8, textAlign: "center" }}>Ver solicitud</Link>
             </div>
           </article>)}
         </div>
