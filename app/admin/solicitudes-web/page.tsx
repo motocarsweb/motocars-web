@@ -13,6 +13,7 @@ export default function SolicitudesWebPage() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
   const [filtro, setFiltro] = useState("todas");
+  const [busqueda, setBusqueda] = useState("");
   useEffect(() => {
     let vigente = true;
     async function cargar() {
@@ -31,16 +32,19 @@ export default function SolicitudesWebPage() {
     void cargar();
     return () => { vigente = false; };
   }, []);
-  const visibles = solicitudes.filter(s => filtro === "todas" || s.estado === filtro);
+  const normalizar = (valor: string) => valor.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  const palabras = normalizar(busqueda).split(/\s+/).filter(Boolean);
+  const visibles = solicitudes.filter(s => (filtro === "todas" || s.estado === filtro) && palabras.every(p => normalizar([s.marca, s.modelo, s.version, s.anio, s.nombre_apellido, s.whatsapp, s.localidad].join(" ")).includes(p)));
   return (
     <section style={{ display: "grid", gap: 20 }}>
       <PageHeader titulo="Solicitudes WEB" descripcion="Vehículos ofrecidos por propietarios desde la página web" />
       {cargando ? <p>Cargando solicitudes...</p> : error ? <p role="alert" style={{ color: "#b91c1c" }}>{error}</p> : <>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
           <strong>{solicitudes.filter(s => s.estado === "pendiente").length} pendientes</strong>
+          <input type="search" aria-label="Buscar solicitudes" placeholder="Buscar vehículo o propietario" value={busqueda} onChange={e => setBusqueda(e.target.value)} style={{ padding: "10px 12px", border: "1px solid #ddd", borderRadius: 8, background: "white", flex: "1 1 240px", maxWidth: 420, minWidth: 0 }} />
           <label>Estado: <select value={filtro} onChange={e => setFiltro(e.target.value)} style={{ padding: 8, border: "1px solid #ddd", borderRadius: 8, background: "white" }}><option value="todas">Todas</option>{Object.entries(estados).map(([valor, nombre]) => <option key={valor} value={valor}>{nombre}</option>)}</select></label>
         </div>
-        {!visibles.length && <p>No hay solicitudes para este estado.</p>}
+        {!visibles.length && <p>No hay solicitudes que coincidan con la búsqueda y el estado seleccionado.</p>}
         <div style={{ display: "grid", gap: 12 }}>
           {visibles.map(s => <article key={s.id} style={{ background: "white", border: "1px solid #ddd", borderRadius: 12, padding: 20, display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 20 }}>
             <div style={{ display: "grid", gap: 6 }}>
@@ -51,7 +55,7 @@ export default function SolicitudesWebPage() {
             </div>
             <div style={{ display: "grid", gap: 6, alignContent: "start" }}>
               <strong style={{ color: s.estado === "pendiente" ? "#92400e" : "#374151" }}>{estados[s.estado]}</strong>
-              <span>{new Date(s.fecha_solicitud).toLocaleString("es-AR", { timeZone: "America/Argentina/Salta" })}</span>
+              <span>{new Date(s.fecha_solicitud).toLocaleString("es-AR", { timeZone: "America/Argentina/Salta", hourCycle: "h23" })}</span>
               <span>{s.fotos.length} fotografías</span>
               <Link href={"/admin/solicitudes-web/" + s.id} style={{ color: "white", background: "#c71930", padding: "8px 14px", borderRadius: 8, textAlign: "center" }}>Ver solicitud</Link>
             </div>
