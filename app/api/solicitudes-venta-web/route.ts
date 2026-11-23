@@ -68,15 +68,24 @@ export async function POST(request: NextRequest) {
   const anio = Number(datos.get("anio"));
   const kilometraje = Number(datos.get("kilometraje"));
   const precio = Number(datos.get("precio"));
-  if (![ [nombre,120], [whatsapp,25], [localidad,120], [marca,60], [modelo,80] ].every(([v,m]) => obligatorio(String(v), Number(m))) ||
-      version.length > 100 || observaciones.length > 1000 ||
-      !/^\\+?[0-9\\s()-]{7,25}$/.test(whatsapp) ||
-      !Number.isSafeInteger(anio) || anio < 1950 || anio > 2100 ||
-      !Number.isSafeInteger(kilometraje) || kilometraje < 0 ||
-      !Number.isFinite(precio) || precio <= 0 || precio > 9999999999999 ||
-      !["ARS","USD"].includes(moneda)) {
-    return error("Revisá los datos obligatorios del formulario.", 400);
+  for (const [valor, max, campo] of [
+    [nombre, 120, "nombre y apellido"], [whatsapp, 25, "WhatsApp"],
+    [localidad, 120, "localidad"], [marca, 60, "marca"], [modelo, 80, "modelo"],
+  ] as const) {
+    if (!obligatorio(valor, max)) return error("Revisá el campo " + campo + ".", 400);
   }
+  const telefono = whatsapp.replace(/[\s()+-]/g, "");
+  if (!/^\+?[0-9\s()-]+$/.test(whatsapp) || !/^[0-9]{7,15}$/.test(telefono))
+    return error("Ingresá un número de WhatsApp válido.", 400);
+  if (version.length > 100 || observaciones.length > 1000)
+    return error("Revisá la extensión de versión u observaciones.", 400);
+  if (!texto(datos.get("anio"), 4) || !Number.isSafeInteger(anio) || anio < 1950 || anio > 2100)
+    return error("Ingresá un año válido.", 400);
+  if (!texto(datos.get("kilometraje"), 10) || !Number.isSafeInteger(kilometraje) || kilometraje < 0 || kilometraje > 2147483647)
+    return error("Ingresá un kilometraje válido.", 400);
+  if (!Number.isFinite(precio) || precio <= 0 || precio > 9999999999999)
+    return error("Ingresá un precio válido.", 400);
+  if (!["ARS", "USD"].includes(moneda)) return error("Seleccioná una moneda válida.", 400);
 
   const archivos = datos.getAll("fotos");
   if (archivos.length > 2 || archivos.some((archivo) => !(archivo instanceof File) || archivo.type !== "image/webp" || archivo.size === 0 || archivo.size > 1048576)) {
