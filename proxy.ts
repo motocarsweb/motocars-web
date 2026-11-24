@@ -71,7 +71,7 @@ export async function proxy(request: NextRequest) {
     }
 
     if (perfil.rol === "vendedor" &&
-        (pathname !== "/admin/referidos" || !perfil.codigo_referido)) {
+        (!["/admin/referidos", "/admin/red-comercial", "/admin/red-comercial/contactos", "/admin/red-comercial/busquedas", "/admin/red-comercial/captaciones"].includes(pathname) || !perfil.codigo_referido)) {
       const url = request.nextUrl.clone();
       url.pathname = perfil.codigo_referido ? "/admin/referidos" : "/admin/login";
       return NextResponse.redirect(url);
