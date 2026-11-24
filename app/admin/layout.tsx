@@ -158,7 +158,7 @@ export default function AdminLayout({
         router.replace("/admin/login");
         return;
       }
-      if (perfil.rol === "vendedor" && pathname !== "/admin/referidos" && pathname !== "/admin/red-comercial" && pathname !== "/admin/red-comercial/contactos" && pathname !== "/admin/red-comercial/busquedas") {
+      if (perfil.rol === "vendedor" && pathname !== "/admin/referidos" && pathname !== "/admin/red-comercial" && pathname !== "/admin/red-comercial/contactos" && pathname !== "/admin/red-comercial/busquedas" && pathname !== "/admin/red-comercial/captaciones") {
         router.replace("/admin/referidos");
         return;
       }
