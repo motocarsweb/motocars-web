@@ -125,7 +125,15 @@ export async function POST(request: NextRequest) {
   }
   const id = randomUUID();
   const rutas: string[] = [];
+  let reservado = false;
   try {
+    if (archivos.length) {
+      const bytes = archivos.reduce((total, archivo) => total + (archivo instanceof File ? archivo.size : 0), 0);
+      const { data, error: reservaError } = await supabaseAdmin.rpc("reservar_espacio_venta_web", { p_id: id, p_bytes: bytes });
+      if (reservaError) return error("No pudimos verificar el espacio disponible.", 503);
+      if (data !== true) return error("No hay espacio disponible para fotografías. Podés enviar la solicitud sin fotos.", 409);
+      reservado = true;
+    }
     for (const [indice, archivo] of archivos.entries()) {
       if (!(archivo instanceof File)) return error("Archivo inválido.", 400);
       const bytes = new Uint8Array(await archivo.arrayBuffer());
@@ -150,5 +158,14 @@ export async function POST(request: NextRequest) {
     console.error("Error solicitud venta web:", e instanceof Error ? e.message : "desconocido");
     if (rutas.length) await supabaseAdmin.storage.from(BUCKET).remove(rutas);
     return error("No pudimos registrar la solicitud. Intentá nuevamente.", 500);
+  } finally {
+    if (reservado) {
+      try {
+        const { error: liberarError } = await supabaseAdmin.rpc("liberar_espacio_venta_web", { p_id: id });
+        if (liberarError) console.error("Error liberación espacio venta web:", liberarError.code);
+      } catch {
+        console.error("No se pudo liberar reserva de espacio venta web");
+      }
+    }
   }
 }
