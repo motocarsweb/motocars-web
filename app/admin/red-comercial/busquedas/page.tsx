@@ -8,10 +8,15 @@ const segmentos: Record<string,string[]> = {auto:["hatchback","pickup_mediana","
 const requisitos=["transmision","combustible","traccion"];
 const numericos = ["anio_desde","anio_hasta","presupuesto_maximo","kilometros_maximos"];
 const inicial = { ...Object.fromEntries(campos.map(([k])=>[k,""])), comprador_contacto_id:"", categoria:"auto", moneda:"ARS", estado:"activa", segmento:"" } as Record<string,string>;
+type Catalogo = {categoria:string|null; marca:string; modelo:string|null};
+const normalizar=(v:string)=>v.trim().toLocaleLowerCase("es-AR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+const opciones=(valores:string[])=>[...new Map(valores.filter(Boolean).map(v=>[normalizar(v),v])).values()].sort((a,b)=>a.localeCompare(b,"es-AR"));
 type Contacto = {id:string; nombre:string; apellido:string|null; referido_user_id:string};
 const estados = {activa:"Activa",pausada:"Pausada",compra_concretada:"Compra concretada",cancelada:"Cancelada"};
 type Busqueda = {segmento:string|null; requisitos_obligatorios:Record<string,boolean>|null} & Record<typeof campos[number][0], string | number | null> & {id:string; comprador_contacto_id:string; categoria:string; marca:string|null; modelo:string|null; presupuesto_maximo:number|null; moneda:string; estado:string};
 export default function BusquedasPage(){
+ const [catalogo,setCatalogo]=useState<Catalogo[]>([]);
+ const [errorCatalogo,setErrorCatalogo]=useState(false);
  const [contactos,setContactos]=useState<Contacto[]>([]);
  const [filas,setFilas]=useState<Busqueda[]>([]);
  const [usuario,setUsuario]=useState("");
@@ -40,6 +45,9 @@ export default function BusquedasPage(){
   if(!vigente)return;
   if(error||!p?.activo||!(p.rol==="administrador"||(p.rol==="vendedor"&&p.codigo_referido))){setEstado("Acceso no autorizado.");return;}
   setUsuario(user.id);setAdmin(p.rol==="administrador");await cargar(user.id,p.rol==="administrador");
+  const rc=await supabase.rpc("red_catalogo_marcas_modelos");
+  if(!vigente)return;
+  if(rc.error)setErrorCatalogo(true);else setCatalogo((rc.data??[]) as Catalogo[]);
  }void iniciar();return()=>{vigente=false;};},[]);
  async function guardar(e:FormEvent){
   e.preventDefault();if(guardando||!usuario)return;
@@ -55,6 +63,9 @@ export default function BusquedasPage(){
   setGuardando(false);if(error){setEstado("No se pudo guardar la búsqueda: "+error.message);return;}
   setForm(inicial);setObligatorios({});setEditando(null);setNuevo(false);await cargar(usuario,admin);
  }
+ const sugerencias=catalogo.filter(c=>c.categoria===form.categoria||c.categoria===null);
+ const marcas=opciones(sugerencias.map(c=>c.marca));
+ const modelos=opciones(sugerencias.filter(c=>normalizar(c.marca)===normalizar(form.marca)).map(c=>c.modelo??""));
  const visibles=filas.filter(f=>{const c=contactos.find(c=>c.id===f.comprador_contacto_id);return [c?.nombre,c?.apellido,f.marca,f.modelo].join(" ").toLowerCase().includes(buscar.trim().toLowerCase());});
  const estilo={width:"100%",padding:10,border:"1px solid #ddd",borderRadius:6,boxSizing:"border-box" as const};
  const boton={background:"var(--mc-red)",color:"#fff",border:0,borderRadius:8,padding:"10px 18px"};
@@ -62,13 +73,16 @@ export default function BusquedasPage(){
  {estado&&<p role="status">{estado}</p>}
  {usuario&&<><input aria-label="Buscar búsquedas" placeholder="Buscar cliente, marca o modelo" style={{...estilo,maxWidth:360,marginRight:12}} value={buscar} onChange={e=>setBuscar(e.target.value)}/><button style={boton} onClick={()=>{setNuevo(!nuevo);setForm(inicial);setObligatorios({});setEditando(null);setEstado("");}}>{nuevo?"Cancelar":"Nueva búsqueda"}</button>
  {nuevo&&<form onSubmit={guardar} style={{background:"#fff",padding:20,borderRadius:12,margin:"20px 0"}}>
+ {errorCatalogo&&<p role="status">No se pudieron cargar las sugerencias del catálogo. Podés ingresar marca y modelo manualmente.</p>}
+ <datalist id="red-marcas">{marcas.map(v=><option key={v} value={v}/>)}</datalist>
+ <datalist id="red-modelos">{modelos.map(v=><option key={v} value={v}/>)}</datalist>
  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:16}}>
  <label>Contacto comprador *<select disabled={!!editando||guardando} required style={estilo} value={form.comprador_contacto_id} onChange={e=>setForm({...form,comprador_contacto_id:e.target.value})}><option value="">Seleccionar</option>{contactos.map(c=><option key={c.id} value={c.id}>{c.apellido} {c.nombre}</option>)}</select></label>
  <label>Categoría<select style={estilo} value={form.categoria} onChange={e=>setForm({...form,categoria:e.target.value,segmento:""})}>{["auto","moto","rodantes","otros"].map(c=><option key={c} value={c}>{c}</option>)}</select></label>
  <label>Segmento<select style={estilo} value={form.segmento} onChange={e=>setForm({...form,segmento:e.target.value})}><option value="">Sin definir</option>{(segmentos[form.categoria]??[]).map(s=><option key={s} value={s}>{s.replaceAll("_"," ")}</option>)}</select></label>
  <label>Estado<select style={estilo} value={form.estado} onChange={e=>setForm({...form,estado:e.target.value})}>{Object.entries(estados).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></label>
  <label>Moneda<select style={estilo} value={form.moneda} onChange={e=>setForm({...form,moneda:e.target.value})}><option>ARS</option><option>USD</option></select></label>
- {campos.map(([k,l])=><label key={k}>{l}{k==="transmision"||k==="combustible"||k==="traccion"?<select style={estilo} value={form[k]} onChange={e=>setForm({...form,[k]:e.target.value})}><option value="">Sin definir</option>{[...new Set([...(k==="transmision"?["Automática","CVT","Manual"]:k==="traccion"?["Delantera","Trasera","4x2","4x4","Integral / AWD"]:["Diésel","Eléctrico","Híbrido","Híbrido enchufable","Nafta"]),...(form[k]?[form[k]]:[])])].map(v=><option key={v} value={v}>{v}</option>)}</select>:k==="observaciones"?<textarea style={estilo} value={form[k]} onChange={e=>setForm({...form,[k]:e.target.value})}/>:<input style={estilo} type={numericos.includes(k)?"number":"text"} min={numericos.includes(k)?0:undefined} step={k==="presupuesto_maximo"?"0.01":undefined} value={form[k]} onChange={e=>setForm({...form,[k]:e.target.value})}/>}</label>)}
+ {campos.map(([k,l])=><label key={k}>{l}{k==="marca"||k==="modelo"?<input style={estilo} list={k==="marca"?"red-marcas":"red-modelos"} value={form[k]} onChange={e=>setForm({...form,[k]:e.target.value})} placeholder="Elegir o escribir"/>:k==="transmision"||k==="combustible"||k==="traccion"?<select style={estilo} value={form[k]} onChange={e=>setForm({...form,[k]:e.target.value})}><option value="">Sin definir</option>{[...new Set([...(k==="transmision"?["Automática","CVT","Manual"]:k==="traccion"?["Delantera","Trasera","4x2","4x4","Integral / AWD"]:["Diésel","Eléctrico","Híbrido","Híbrido enchufable","Nafta"]),...(form[k]?[form[k]]:[])])].map(v=><option key={v} value={v}>{v}</option>)}</select>:k==="observaciones"?<textarea style={estilo} value={form[k]} onChange={e=>setForm({...form,[k]:e.target.value})}/>:<input style={estilo} type={numericos.includes(k)?"number":"text"} min={numericos.includes(k)?0:undefined} step={k==="presupuesto_maximo"?"0.01":undefined} value={form[k]} onChange={e=>setForm({...form,[k]:e.target.value})}/>}</label>)}
  </div><fieldset style={{marginTop:16,border:"1px solid #ddd",borderRadius:8,padding:12}}><legend>Requisitos obligatorios</legend>{requisitos.map(k=><label key={k} style={{display:"block",margin:8}}><input type="checkbox" disabled={!form[k].trim()} checked={!!obligatorios[k]&&!!form[k].trim()} onChange={e=>setObligatorios({...obligatorios,[k]:e.target.checked})}/> {campos.find(([key])=>key===k)?.[1]} obligatoria/o</label>)}<p>Completá el criterio correspondiente para marcarlo como obligatorio.</p></fieldset><p>Completá solamente los datos conocidos. Las coincidencias se calculan automáticamente.</p><button style={boton} disabled={guardando}>{guardando?"Guardando...":editando?"Guardar cambios":"Guardar búsqueda"}</button></form>}
  <div style={{background:"#fff",padding:16,borderRadius:12,overflowX:"auto",marginTop:20}}><table style={{width:"100%",borderCollapse:"collapse",textAlign:"left"}}><thead><tr>{["Contacto","Categoría","Marca y modelo","Presupuesto","Estado","Acciones"].map(t=><th key={t} style={{padding:12}}>{t}</th>)}</tr></thead><tbody>{visibles.map(f=>{const c=contactos.find(c=>c.id===f.comprador_contacto_id);return <tr key={f.id}>{[[c?.apellido,c?.nombre].filter(Boolean).join(" "),f.categoria,[f.marca,f.modelo].filter(Boolean).join(" ")||"Búsqueda general",f.presupuesto_maximo===null?"Sin definir":f.moneda+" "+Number(f.presupuesto_maximo).toLocaleString("es-AR"),estados[f.estado as keyof typeof estados]??f.estado].map((v,i)=><td key={i} style={{padding:12,borderTop:"1px solid #eee"}}>{v||"—"}</td>)}<td style={{padding:12,borderTop:"1px solid #eee"}}><button type="button" disabled={guardando} onClick={()=>editar(f)}>Editar</button></td></tr>;})}</tbody></table>{!visibles.length&&<p>No hay búsquedas registradas.</p>}</div></>}
  </section>;
