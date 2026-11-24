@@ -1,4 +1,5 @@
 import { createHmac, randomUUID } from "node:crypto";
+import sharp from "sharp";
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
@@ -123,6 +124,21 @@ export async function POST(request: NextRequest) {
   if (archivos.length > 2 || archivos.some((archivo) => !(archivo instanceof File) || archivo.type !== "image/webp" || archivo.size === 0 || archivo.size > 1048576)) {
     return error("Adjuntá como máximo dos fotografías WebP de hasta 1 MB cada una.", 400);
   }
+  const imagenes: Buffer[] = [];
+  try {
+    for (const archivo of archivos) {
+      if (!(archivo instanceof File)) return error("Archivo inválido.", 400);
+      const imagen = sharp(Buffer.from(await archivo.arrayBuffer()), { limitInputPixels: 1280 * 1280, failOn: "warning" });
+      const meta = await imagen.metadata();
+      if (meta.format !== "webp" || !meta.width || !meta.height || meta.width > 1280 || meta.height > 1280 || (meta.pages ?? 1) !== 1)
+        return error("Adjuntá fotografías WebP válidas de hasta 1280 píxeles.", 400);
+      const bytes = await imagen.rotate().webp({ quality: 76 }).toBuffer();
+      if (bytes.length > 1048576) return error("La fotografía supera el tamaño permitido.", 400);
+      imagenes.push(bytes);
+    }
+  } catch {
+    return error("Una de las fotografías es inválida o está dañada.", 400);
+  }
   const id = randomUUID();
   const rutas: string[] = [];
   let reservado = false;
@@ -133,18 +149,13 @@ export async function POST(request: NextRequest) {
         console.error("Error limpieza reservas venta web:", limpiezaError.code);
         return error("No pudimos verificar el espacio disponible.", 503);
       }
-      const bytes = archivos.reduce((total, archivo) => total + (archivo instanceof File ? archivo.size : 0), 0);
+      const bytes = imagenes.reduce((total, imagen) => total + imagen.length, 0);
       const { data, error: reservaError } = await supabaseAdmin.rpc("reservar_espacio_venta_web", { p_id: id, p_bytes: bytes });
       if (reservaError) return error("No pudimos verificar el espacio disponible.", 503);
       if (data !== true) return error("No hay espacio disponible para fotografías. Podés enviar la solicitud sin fotos.", 409);
       reservado = true;
     }
-    for (const [indice, archivo] of archivos.entries()) {
-      if (!(archivo instanceof File)) return error("Archivo inválido.", 400);
-      const bytes = new Uint8Array(await archivo.arrayBuffer());
-      if (bytes.length < 12 ||
-          String.fromCharCode(...bytes.subarray(0,4)) !== "RIFF" ||
-          String.fromCharCode(...bytes.subarray(8,12)) !== "WEBP") throw new Error("Archivo WebP inválido");
+    for (const [indice, bytes] of imagenes.entries()) {
       const ruta = `${id}/foto-${indice + 1}.webp`;
       const { error: uploadError } = await supabaseAdmin.storage.from(BUCKET).upload(ruta, bytes, { contentType: "image/webp", upsert: false });
       if (uploadError) throw uploadError;
