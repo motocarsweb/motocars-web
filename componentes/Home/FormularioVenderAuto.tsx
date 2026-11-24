@@ -120,7 +120,7 @@ export default function FormularioVenderAuto() {
       <section style={{ marginTop: 24, marginBottom: 20, padding: 16, border: "1px solid #ddd", borderRadius: 8, background: "#fafafa", fontSize: 14, lineHeight: 1.5, color: "#333" }}>
         <h3 style={{ fontWeight: 700, marginBottom: 8 }}>Privacidad de tus datos</h3>
         <p>Los datos y fotografías proporcionados serán utilizados por MotoCars exclusivamente para evaluar tu vehículo, contactarte y gestionar una posible operación comercial. El envío de esta solicitud no implica ningún compromiso de venta ni la publicación automática de tu vehículo.</p>
-        <p style={{ marginTop: 8 }}>Podés solicitar acceso, rectificación o supresión de tus datos mediante los canales de contacto de MotoCars, conforme a la Ley 25.326. La Agencia de Acceso a la Información Pública recibe denuncias y reclamos sobre protección de datos personales.</p>
+        <p style={{ marginTop: 8 }}>Podés solicitar acceso, rectificación o supresión de tus datos escribiendo a <a href="mailto:motocars.concesionaria@gmail.com" style={{ color: "#b91c1c", textDecoration: "underline", overflowWrap: "anywhere" }}>motocars.concesionaria@gmail.com</a>, conforme a la Ley 25.326. La Agencia de Acceso a la Información Pública recibe denuncias y reclamos sobre protección de datos personales.</p>
         <label style={{ display: "flex", alignItems: "flex-start", gap: 10, marginTop: 12, cursor: "pointer" }}>
           <input type="checkbox" name="privacidad" value="1.0" required style={{ width: 18, height: 18, flexShrink: 0, marginTop: 2, accentColor: "#c71930" }} />
           <span>Acepto el tratamiento de mis datos para los fines indicados.</span>
