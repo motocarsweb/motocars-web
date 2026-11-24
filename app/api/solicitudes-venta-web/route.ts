@@ -128,6 +128,11 @@ export async function POST(request: NextRequest) {
   let reservado = false;
   try {
     if (archivos.length) {
+      const { error: limpiezaError } = await supabaseAdmin.rpc("limpiar_reservas_venta_web");
+      if (limpiezaError) {
+        console.error("Error limpieza reservas venta web:", limpiezaError.code);
+        return error("No pudimos verificar el espacio disponible.", 503);
+      }
       const bytes = archivos.reduce((total, archivo) => total + (archivo instanceof File ? archivo.size : 0), 0);
       const { data, error: reservaError } = await supabaseAdmin.rpc("reservar_espacio_venta_web", { p_id: id, p_bytes: bytes });
       if (reservaError) return error("No pudimos verificar el espacio disponible.", 503);
