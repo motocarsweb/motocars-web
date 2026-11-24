@@ -58,6 +58,7 @@ export default function RedComercialPage() {
         <Link href="/admin/red-comercial/contactos" style={{display:"inline-block",background:"var(--mc-red)",color:"#fff",padding:"10px 18px",borderRadius:8,textDecoration:"none"}}>Gestionar contactos</Link>
         <Link href="/admin/red-comercial/busquedas" style={{display:"inline-block",marginLeft:12,background:"var(--mc-red)",color:"#fff",padding:"10px 18px",borderRadius:8,textDecoration:"none"}}>Gestionar búsquedas</Link>
         <Link href="/admin/red-comercial/captaciones" style={{display:"inline-block",marginLeft:12,background:"var(--mc-red)",color:"#fff",padding:"10px 18px",borderRadius:8,textDecoration:"none"}}>Gestionar captaciones</Link>
+        {admin && <Link href="/admin/red-comercial/coincidencias" style={{display:"inline-block",marginLeft:12,background:"var(--mc-red)",color:"#fff",padding:"10px 18px",borderRadius:8,textDecoration:"none"}}>Gestionar coincidencias</Link>}
         <p style={{ color: "#666", fontSize: 14 }}>{admin ? "Resumen general" : "Mi actividad comercial"}</p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
           {indicadores.map(item => (
