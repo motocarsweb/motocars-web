@@ -12,6 +12,7 @@ import {
   Images,
   Inbox,
   LayoutDashboard,
+  Network,
   Users,
   LogOut,
   Settings,
@@ -38,6 +39,11 @@ const menuItems: MenuItem[] = [
     href: "/admin/referidos",
     label: "Referidos",
     icon: <Users size={19} strokeWidth={2} />,
+  },
+  {
+    href: "/admin/red-comercial",
+    label: "Red Comercial",
+    icon: <Network size={19} strokeWidth={2} />,
   },
   {
     href: "/admin/vehiculos",
@@ -152,7 +158,7 @@ export default function AdminLayout({
         router.replace("/admin/login");
         return;
       }
-      if (perfil.rol === "vendedor" && pathname !== "/admin/referidos") {
+      if (perfil.rol === "vendedor" && pathname !== "/admin/referidos" && pathname !== "/admin/red-comercial") {
         router.replace("/admin/referidos");
         return;
       }
@@ -291,7 +297,7 @@ export default function AdminLayout({
             marginTop: 24,
           }}
         >
-          {(rol === "administrador" ? menuItems : menuItems.filter((item) => item.href === "/admin/referidos")).map((item) => {
+          {(rol === "administrador" ? menuItems : menuItems.filter((item) => (item.href === "/admin/referidos" || item.href === "/admin/red-comercial"))).map((item) => {
             const activo = estaActivo(item.href);
 
             return (
@@ -436,7 +442,7 @@ export default function AdminLayout({
             padding: "30px 32px 44px",
           }}
         >
-          {children}
+          {rol ? children : <p role="status">Verificando acceso...</p>}
         </main>
       </div>
     </div>
