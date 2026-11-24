@@ -10,6 +10,7 @@ import {
   FileText,
   Gauge,
   Images,
+  Inbox,
   LayoutDashboard,
   Users,
   LogOut,
@@ -57,6 +58,11 @@ const menuItems: MenuItem[] = [
   href: "/admin/operaciones",
   label: "Operaciones",
   icon: <Gauge size={19} strokeWidth={2} />,
+},
+{
+  href: "/admin/solicitudes-web",
+  label: "Solicitudes WEB",
+  icon: <Inbox size={19} strokeWidth={2} />,
 },
 {
   href: "/admin/creditos",
@@ -108,6 +114,20 @@ export default function AdminLayout({
   const pathname = usePathname();
   const router = useRouter();
   const [rol, setRol] = useState<"administrador" | "vendedor" | null>(null);
+
+  const [pendientesWeb, setPendientesWeb] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (rol !== "administrador") return;
+    let vigente = true;
+    async function actualizarPendientes() {
+      const { count, error } = await supabase.from("solicitudes_venta_web").select("id", { count: "exact", head: true }).eq("estado", "pendiente");
+      if (vigente) setPendientesWeb(error ? null : count);
+    }
+    void actualizarPendientes();
+    const intervalo = window.setInterval(actualizarPendientes, 60000);
+    return () => { vigente = false; window.clearInterval(intervalo); };
+  }, [rol, pathname]);
 
   useEffect(() => {
     if (pathname === "/admin/login") return;
@@ -312,6 +332,7 @@ export default function AdminLayout({
                 </span>
 
                 <span>{item.label}</span>
+                {rol === "administrador" && item.href === "/admin/solicitudes-web" && pendientesWeb !== null && pendientesWeb > 0 && <span aria-label={pendientesWeb + " pendientes"} style={{ marginLeft: "auto", background: activo ? "#fff" : "#c71930", color: activo ? "#c71930" : "#fff", borderRadius: 12, padding: "2px 8px", fontSize: 12, fontWeight: 700 }}>{pendientesWeb}</span>}
               </Link>
             );
           })}
