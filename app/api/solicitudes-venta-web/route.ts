@@ -81,6 +81,14 @@ export async function POST(request: NextRequest) {
 
   if (texto(datos.get("website"), 100)) return NextResponse.json({ ok: true }, { status: 201 });
 
+  const { data: permitidoGlobal, error: errorGlobal } = await supabaseAdmin.rpc("verificar_limite_global_venta_web");
+  if (errorGlobal) {
+    console.error("Error límite global venta web:", errorGlobal.code);
+    return error("Servicio temporalmente no disponible.", 503);
+  }
+  if (permitidoGlobal !== true) return error("Alcanzamos el límite diario de solicitudes. Probá nuevamente mañana.", 429);
+
+
   const nombre = texto(datos.get("nombre"), 120);
   const whatsapp = texto(datos.get("whatsapp"), 25);
   const localidad = texto(datos.get("localidad"), 120);
