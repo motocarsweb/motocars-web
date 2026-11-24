@@ -90,6 +90,8 @@ export async function POST(request: NextRequest) {
   if (permitidoGlobal !== true) return error("Alcanzamos el límite diario de solicitudes. Probá nuevamente mañana.", 429);
 
 
+  if (datos.get("privacidad") !== "1.0") return error("Debés aceptar el aviso de privacidad.", 400);
+
   const nombre = texto(datos.get("nombre"), 120);
   const whatsapp = texto(datos.get("whatsapp"), 25);
   const localidad = texto(datos.get("localidad"), 120);
@@ -167,6 +169,7 @@ export async function POST(request: NextRequest) {
       version: version || null, anio, kilometraje,
       precio_solicitado: precio, moneda, observaciones: observaciones || null,
       fotos: rutas, origen: "WEB", estado: "pendiente",
+      privacidad_aceptada: true, privacidad_fecha: new Date().toISOString(), privacidad_version: "1.0",
     });
     if (insertError) throw insertError;
     return NextResponse.json({ ok: true, mensaje: "Recibimos tu solicitud. Nos comunicaremos con vos." }, { status: 201 });
