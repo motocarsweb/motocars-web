@@ -50,7 +50,31 @@ export async function POST(request: NextRequest) {
 
   let datos: FormData;
   try {
-    datos = await request.formData();
+    if (!request.body) return error("Formulario vacío.", 400);
+    const lector = request.body.getReader();
+    const partes: Uint8Array[] = [];
+    let total = 0;
+    try {
+      while (true) {
+        const { done, value } = await lector.read();
+        if (done) break;
+        total += value.byteLength;
+        if (total > MAX_BODY) {
+          await lector.cancel().catch(() => {});
+          return error("La solicitud supera el tamaño permitido.", 413);
+        }
+        partes.push(value);
+      }
+    } finally {
+      lector.releaseLock();
+    }
+    const cuerpo = new Uint8Array(total);
+    let posicion = 0;
+    for (const parte of partes) {
+      cuerpo.set(parte, posicion);
+      posicion += parte.byteLength;
+    }
+    datos = await new Response(cuerpo, { headers: { "content-type": tipo } }).formData();
   } catch {
     return error("No se pudo leer el formulario.", 400);
   }
