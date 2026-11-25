@@ -55,12 +55,14 @@ export default function RedComercialPage() {
       <p style={{ color: "#666", marginBottom: 24 }}>Gestión de oportunidades comerciales MotoCars.</p>
       {estado && <p role="status">{estado}</p>}
       {indicadores.length > 0 && <>
+        <div style={{display:"flex",flexWrap:"wrap",gap:12,marginBottom:24}}>
         <Link href="/admin/red-comercial/contactos" style={{display:"inline-block",background:"var(--mc-red)",color:"#fff",padding:"10px 18px",borderRadius:8,textDecoration:"none"}}>Gestionar contactos</Link>
-        <Link href="/admin/red-comercial/busquedas" style={{display:"inline-block",marginLeft:12,background:"var(--mc-red)",color:"#fff",padding:"10px 18px",borderRadius:8,textDecoration:"none"}}>Gestionar búsquedas</Link>
-        <Link href="/admin/red-comercial/captaciones" style={{display:"inline-block",marginLeft:12,background:"var(--mc-red)",color:"#fff",padding:"10px 18px",borderRadius:8,textDecoration:"none"}}>Gestionar captaciones</Link>
-        {admin && <Link href="/admin/red-comercial/coincidencias" style={{display:"inline-block",marginLeft:12,background:"var(--mc-red)",color:"#fff",padding:"10px 18px",borderRadius:8,textDecoration:"none"}}>Gestionar coincidencias</Link>}
-        <Link href={admin?"/admin/red-comercial/solicitudes":"/admin/red-comercial/oportunidades"} style={{display:"inline-block",marginLeft:12,background:"var(--mc-red)",color:"#fff",padding:"10px 18px",borderRadius:8,textDecoration:"none"}}>{admin?"Solicitudes de contacto":"Oportunidades comerciales"}</Link>
-        <p style={{ color: "#666", fontSize: 14 }}>{admin ? "Resumen general" : "Mi actividad comercial"}</p>
+        <Link href="/admin/red-comercial/busquedas" style={{display:"inline-block",background:"var(--mc-red)",color:"#fff",padding:"10px 18px",borderRadius:8,textDecoration:"none"}}>Gestionar búsquedas</Link>
+        <Link href="/admin/red-comercial/captaciones" style={{display:"inline-block",background:"var(--mc-red)",color:"#fff",padding:"10px 18px",borderRadius:8,textDecoration:"none"}}>Gestionar captaciones</Link>
+        {admin && <Link href="/admin/red-comercial/coincidencias" style={{display:"inline-block",background:"var(--mc-red)",color:"#fff",padding:"10px 18px",borderRadius:8,textDecoration:"none"}}>Gestionar coincidencias</Link>}
+        <Link href={admin?"/admin/red-comercial/solicitudes":"/admin/red-comercial/oportunidades"} style={{display:"inline-block",background:"var(--mc-red)",color:"#fff",padding:"10px 18px",borderRadius:8,textDecoration:"none"}}>{admin?"Solicitudes de contacto":"Oportunidades comerciales"}</Link>
+        </div>
+        <p style={{ color: "#666", fontSize: 14, marginBottom: 12 }}>{admin ? "Resumen general" : "Mi actividad comercial"}</p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
           {indicadores.map(item => (
             <div key={item.label} style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 12, padding: 22 }}>
