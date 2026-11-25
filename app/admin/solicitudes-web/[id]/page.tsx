@@ -7,7 +7,7 @@ import PageHeader from "@/componentes/admin/PageHeader";
 
 const estados = { pendiente: "Pendiente", en_revision: "En revisión", contactado: "Contactado", aceptado: "Aceptado", rechazado: "Rechazado" };
 type Estado = keyof typeof estados;
-type Solicitud = { id: string; nombre_apellido: string; whatsapp: string; localidad: string; marca: string; modelo: string; version: string | null; anio: number; kilometraje: number; precio_solicitado: number; moneda: string; estado: Estado; fotos: string[]; observaciones: string | null; observaciones_internas: string | null; fecha_solicitud: string };
+type Solicitud = { id: string; nombre_apellido: string; whatsapp: string; localidad: string; marca: string; modelo: string; version: string | null; anio: number; kilometraje: number; precio_solicitado: number; moneda: string; estado: Estado; fotos: string[]; observaciones: string | null; observaciones_internas: string | null; fecha_solicitud: string; privacidad_aceptada: boolean; privacidad_fecha: string | null; privacidad_version: string | null };
 const panel = { background: "white", border: "1px solid #ddd", borderRadius: 12, padding: 20, display: "grid", gap: 12 };
 export default function SolicitudPage() {
   const { id } = useParams<{ id: string }>();
@@ -18,12 +18,15 @@ export default function SolicitudPage() {
   const [error, setError] = useState("");
   const [errorFotos, setErrorFotos] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const [captacion, setCaptacion] = useState<string | null>(null);
+  const [incorporando, setIncorporando] = useState(false);
+  const [errorRed, setErrorRed] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [cargando, setCargando] = useState(true);
   useEffect(() => {
     let vigente = true;
     async function cargar() {
-      setCargando(true); setSolicitud(null); setFotos([]); setError(""); setErrorFotos(""); setMensaje("");
+      setCargando(true); setCaptacion(null); setErrorRed(""); setSolicitud(null); setFotos([]); setError(""); setErrorFotos(""); setMensaje("");
       try {
         const { data: auth } = await supabase.auth.getUser();
         if (!auth.user) throw new Error("Acceso no autorizado.");
@@ -34,6 +37,8 @@ export default function SolicitudPage() {
         if (!vigente) return;
         const s = data as Solicitud;
         setSolicitud(s); setEstado(s.estado); setNotas(s.observaciones_internas ?? "");
+        const vinculada = await supabase.from("red_vehiculos").select("id").eq("solicitud_web_id", id).maybeSingle();
+        if (vigente) { if (vinculada.error) setErrorRed(vinculada.error.message); else setCaptacion(vinculada.data?.id ?? null); }
         const resultados = await Promise.all(s.fotos.map(async ruta => {
           const { data } = await supabase.storage.from("solicitudes-venta-web").createSignedUrl(ruta, 900);
           return data?.signedUrl ?? "";
@@ -51,9 +56,20 @@ export default function SolicitudPage() {
     try {
       const { data, error } = await supabase.from("solicitudes_venta_web").update({ estado, observaciones_internas: notas.trim(), fecha_actualizacion: new Date().toISOString() }).eq("id", solicitud.id).select("id").single();
       if (error || !data) throw new Error("No se pudieron guardar los cambios.");
+      setSolicitud(prev => prev ? {...prev, estado, observaciones_internas: notas.trim()} : prev);
       setMensaje("Cambios guardados correctamente.");
     } catch (e) { setError(e instanceof Error ? e.message : "Error al guardar."); }
     finally { setGuardando(false); }
+  }
+  async function incorporar() {
+    if (!solicitud || incorporando || captacion || guardando) return;
+    setIncorporando(true); setErrorRed("");
+    try {
+      const r = await supabase.rpc("red_incorporar_solicitud_web", {p_solicitud_id: solicitud.id});
+      if (r.error || !r.data) throw Error(r.error?.message ?? "No se confirmó la incorporación.");
+      setCaptacion(String(r.data));
+    } catch(e) { setErrorRed(e instanceof Error ? e.message : String(e)); }
+    finally { setIncorporando(false); }
   }
   const telefono = solicitud?.whatsapp.replace(/\D/g, "") ?? "";
   const numero = telefono.length === 10 ? "549" + telefono : telefono;
@@ -84,6 +100,13 @@ export default function SolicitudPage() {
           </a>)}
         </div>
         {!!fotos.length && <small>Hacé clic en una fotografía para ampliarla. Los enlaces vencen a los 15 minutos; actualizá la página para renovarlos.</small>}
+      </div>
+      <div style={panel}>
+        <h2>Red Comercial</h2>
+        <p>Incorporá esta oferta para detectar compradores compatibles. Solo MotoCars podrá acceder a esta captación. Las fotos permanecen en la solicitud original.</p>
+        {errorRed && <p role="alert" style={{color:"#b91c1c"}}>{errorRed}</p>}
+        {captacion ? <><strong style={{color:"#16803d"}}>Solicitud incorporada a Red Comercial</strong><Link href="/admin/red-comercial/captaciones">Ver captaciones</Link></> : <button type="button" disabled={incorporando || guardando || solicitud.estado==="rechazado" || !solicitud.privacidad_aceptada || !solicitud.privacidad_fecha || !solicitud.privacidad_version?.trim()} onClick={()=>void incorporar()} style={{background:"#c71930",color:"white",padding:"12px 20px",borderRadius:8,justifySelf:"start"}}>{incorporando?"Incorporando...":"Incorporar a Red Comercial"}</button>}
+        {!captacion && (solicitud.estado==="rechazado" || !solicitud.privacidad_aceptada || !solicitud.privacidad_fecha || !solicitud.privacidad_version?.trim()) && <p>No se puede incorporar una solicitud rechazada o sin consentimiento válido.</p>}
       </div>
       <div style={panel}>
         <h2>Seguimiento comercial</h2>
