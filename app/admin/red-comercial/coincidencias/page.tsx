@@ -41,7 +41,7 @@ supabase.from("red_busquedas").select("id,comprador_contacto_id,marca,modelo").e
 supabase.from("red_contactos").select("id,nombre,apellido,whatsapp,telefono"),
 supabase.from("red_vehiculos").select("id,marca,modelo,version,precio,moneda,origen_captacion,propietario_contacto_id,referido_user_id").eq("estado","disponible"),
 supabase.from("vehiculos").select("id,marca,modelo,version,precio,moneda"),
-supabase.from("usuarios_permisos").select("user_id,nombre")
+supabase.rpc("red_referidos_identificacion_admin")
 ]);
 for(const x of r)if(x.error)throw Error(x.error.message);
 setReferidos((r[6].data??[]) as {user_id:string;nombre:string}[]);setGestiones((r[1].data??[]) as Gestion[]);setBusquedas((r[2].data??[]) as Busqueda[]);setContactos((r[3].data??[]) as Contacto[]);setOfertas((r[4].data??[]) as Oferta[]);setStock((r[5].data??[]) as Oferta[]);setRows((r[0].data??[]) as Detectada[]);
