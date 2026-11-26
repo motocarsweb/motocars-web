@@ -35,7 +35,7 @@ export default function ContactosPage() {
   async function cargar(id: string, esAdmin: boolean) {
     let consulta = supabase.from("red_contactos").select("id,nombre,apellido,whatsapp,telefono,dni,localidad,provincia,observaciones").order("apellido").order("nombre");
     if (!esAdmin) consulta = consulta.eq("referido_user_id", id);
-    const { data, error } = await consulta;
+    const { data, error } = await porBloques((a,b)=>consulta.order("id").range(a,b));
     if (error) { setEstado("No se pudieron cargar los contactos."); return; }
     setFilas(data ?? []);
     setEstado("");
@@ -98,3 +98,5 @@ export default function ContactosPage() {
     </>}
   </section>;
 }
+
+async function porBloques<T>(consulta:(a:number,b:number)=>PromiseLike<{data:T[]|null;error:{message:string}|null}>){const data:T[]=[];for(let a=0;;a+=500){const r=await consulta(a,a+499);if(r.error)return {data:null,error:r.error};const lote=r.data??[];data.push(...lote);if(lote.length<500)return {data,error:null};}}
