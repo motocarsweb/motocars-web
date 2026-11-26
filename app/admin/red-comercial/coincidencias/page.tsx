@@ -11,6 +11,10 @@ type Gestion = {id:string;busqueda_id:string;vehiculo_id:string|null;vehiculo_mo
 const clave=(r:{busqueda_id:string;vehiculo_id:string|null;vehiculo_motocars_id:number|null})=>r.busqueda_id+"/"+(r.vehiculo_id??"m"+r.vehiculo_motocars_id);
 const estados=["detectada","revisada","gestionada","descartada"];
 const formato=(v:Oferta|undefined)=>v?.precio!=null?(v.moneda==="USD"?"USD ":"$ ")+Number(v.precio).toLocaleString("es-AR"):"Precio a consultar";
+async function todas<T>(consulta:(desde:number,hasta:number)=>PromiseLike<{data:T[]|null;error:{message:string}|null}>):Promise<T[]>{
+const resultado:T[]=[];const limite=500;
+for(let desde=0;;desde+=limite){const r=await consulta(desde,desde+limite-1);if(r.error)throw Error(r.error.message);const lote=r.data??[];resultado.push(...lote);if(lote.length<limite)return resultado;}
+}
 export default function Coincidencias(){
 const [referidos,setReferidos]=useState<{user_id:string;nombre:string}[]>([]);
 const [rows,setRows]=useState<Detectada[]>([]);
@@ -34,17 +38,16 @@ const {data:{user}}=await supabase.auth.getUser();
 if(!user)throw Error("Iniciá sesión.");
 const p=await supabase.from("usuarios_permisos").select("rol,activo").eq("user_id",user.id).single();
 if(p.error||!p.data?.activo||p.data.rol!=="administrador")throw Error("Acceso exclusivo del administrador.");
-const r=await Promise.all([
-supabase.rpc("red_detectar_coincidencias_unificadas_admin"),
-supabase.from("red_coincidencias").select("id,busqueda_id,vehiculo_id,vehiculo_motocars_id,estado"),
-supabase.from("red_busquedas").select("id,comprador_contacto_id,marca,modelo").eq("estado","activa"),
-supabase.from("red_contactos").select("id,nombre,apellido,whatsapp,telefono"),
-supabase.from("red_vehiculos").select("id,marca,modelo,version,precio,moneda,origen_captacion,propietario_contacto_id,referido_user_id").eq("estado","disponible"),
-supabase.from("vehiculos").select("id,marca,modelo,version,precio,moneda"),
-supabase.rpc("red_referidos_identificacion_admin")
+const [detectadas,gestion,busqueda,contacto,oferta,stockActual,identificacion]=await Promise.all([
+todas<Detectada>((a,b)=>supabase.rpc("red_detectar_coincidencias_unificadas_admin").order("busqueda_id").order("vehiculo_id").order("vehiculo_motocars_id").range(a,b)),
+todas<Gestion>((a,b)=>supabase.from("red_coincidencias").select("id,busqueda_id,vehiculo_id,vehiculo_motocars_id,estado").order("id").range(a,b)),
+todas<Busqueda>((a,b)=>supabase.from("red_busquedas").select("id,comprador_contacto_id,marca,modelo").eq("estado","activa").order("id").range(a,b)),
+todas<Contacto>((a,b)=>supabase.from("red_contactos").select("id,nombre,apellido,whatsapp,telefono").order("id").range(a,b)),
+todas<Oferta>((a,b)=>supabase.from("red_vehiculos").select("id,marca,modelo,version,precio,moneda,origen_captacion,propietario_contacto_id,referido_user_id").eq("estado","disponible").order("id").range(a,b)),
+todas<Oferta>((a,b)=>supabase.from("vehiculos").select("id,marca,modelo,version,precio,moneda").order("id").range(a,b)),
+todas<{user_id:string;nombre:string}>((a,b)=>supabase.rpc("red_referidos_identificacion_admin").order("user_id").range(a,b))
 ]);
-for(const x of r)if(x.error)throw Error(x.error.message);
-setReferidos((r[6].data??[]) as {user_id:string;nombre:string}[]);setGestiones((r[1].data??[]) as Gestion[]);setBusquedas((r[2].data??[]) as Busqueda[]);setContactos((r[3].data??[]) as Contacto[]);setOfertas((r[4].data??[]) as Oferta[]);setStock((r[5].data??[]) as Oferta[]);setRows((r[0].data??[]) as Detectada[]);
+setReferidos(identificacion);setGestiones(gestion);setBusquedas(busqueda);setContactos(contacto);setOfertas(oferta);setStock(stockActual);setRows(detectadas);
 }catch(e){setMensaje(String(e));}finally{setBusy(false);}
 }
 useEffect(()=>{void cargar();},[]);
