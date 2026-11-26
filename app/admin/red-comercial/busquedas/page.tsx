@@ -33,7 +33,7 @@ export default function BusquedasPage(){
   let c=supabase.from("red_contactos").select("id,nombre,apellido,referido_user_id").order("apellido").order("nombre");
   let b=supabase.from("red_busquedas").select("id,comprador_contacto_id,categoria,moneda,estado,segmento,requisitos_obligatorios,"+campos.map(([k])=>k).join(",")).order("created_at",{ascending:false});
   if(!esAdmin){c=c.eq("referido_user_id",id);b=b.eq("referido_user_id",id);}
-  const [rc,rb]=await Promise.all([c,b]);
+  const [rc,rb]=await Promise.all([porBloques((a,z)=>c.order("id").range(a,z)),porBloques((a,z)=>b.order("id").range(a,z))]);
   if(rc.error||rb.error){setEstado("No se pudieron cargar las búsquedas o contactos.");return;}
   setContactos(rc.data??[]);setFilas((rb.data??[]) as unknown as Busqueda[]);setEstado("");
  }
@@ -45,7 +45,7 @@ export default function BusquedasPage(){
   if(!vigente)return;
   if(error||!p?.activo||!(p.rol==="administrador"||(p.rol==="vendedor"&&p.codigo_referido))){setEstado("Acceso no autorizado.");return;}
   setUsuario(user.id);setAdmin(p.rol==="administrador");await cargar(user.id,p.rol==="administrador");
-  const rc=await supabase.rpc("red_catalogo_marcas_modelos");
+  const rc=await porBloques((a,b)=>supabase.rpc("red_catalogo_marcas_modelos").order("categoria").order("marca").order("modelo").range(a,b));
   if(!vigente)return;
   if(rc.error)setErrorCatalogo(true);else setCatalogo((rc.data??[]) as Catalogo[]);
  }void iniciar();return()=>{vigente=false;};},[]);
@@ -87,3 +87,5 @@ export default function BusquedasPage(){
  <div style={{background:"#fff",padding:16,borderRadius:12,overflowX:"auto",marginTop:20}}><table style={{width:"100%",borderCollapse:"collapse",textAlign:"left"}}><thead><tr>{["Contacto","Categoría","Marca y modelo","Presupuesto","Estado","Acciones"].map(t=><th key={t} style={{padding:12}}>{t}</th>)}</tr></thead><tbody>{visibles.map(f=>{const c=contactos.find(c=>c.id===f.comprador_contacto_id);return <tr key={f.id}>{[[c?.apellido,c?.nombre].filter(Boolean).join(" "),f.categoria,[f.marca,f.modelo].filter(Boolean).join(" ")||"Búsqueda general",f.presupuesto_maximo===null?"Sin definir":f.moneda+" "+Number(f.presupuesto_maximo).toLocaleString("es-AR"),estados[f.estado as keyof typeof estados]??f.estado].map((v,i)=><td key={i} style={{padding:12,borderTop:"1px solid #eee"}}>{v||"—"}</td>)}<td style={{padding:12,borderTop:"1px solid #eee"}}><button type="button" disabled={guardando} onClick={()=>editar(f)}>Editar</button></td></tr>;})}</tbody></table>{!visibles.length&&<p>No hay búsquedas registradas.</p>}</div></>}
  </section>;
 }
+
+async function porBloques<T>(consulta:(a:number,b:number)=>PromiseLike<{data:T[]|null;error:{message:string}|null}>){const data:T[]=[];for(let a=0;;a+=500){const r=await consulta(a,a+499);if(r.error)return {data:null,error:r.error};const lote=r.data??[];data.push(...lote);if(lote.length<500)return {data,error:null};}}
