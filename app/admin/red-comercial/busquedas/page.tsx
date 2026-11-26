@@ -33,7 +33,7 @@ export default function BusquedasPage(){
   let c=supabase.from("red_contactos").select("id,nombre,apellido,referido_user_id").order("apellido").order("nombre");
   let b=supabase.from("red_busquedas").select("id,comprador_contacto_id,categoria,moneda,estado,segmento,requisitos_obligatorios,"+campos.map(([k])=>k).join(",")).order("created_at",{ascending:false});
   if(!esAdmin){c=c.eq("referido_user_id",id);b=b.eq("referido_user_id",id);}
-  const [rc,rb]=await Promise.all([porBloques((a,z)=>c.order("id").range(a,z)),porBloques((a,z)=>b.order("id").range(a,z))]);
+  const [rc,rb]=await Promise.all([porBloques<Contacto>((a,z)=>c.order("id").range(a,z)),porBloques((a,z)=>b.order("id").range(a,z))]);
   if(rc.error||rb.error){setEstado("No se pudieron cargar las búsquedas o contactos.");return;}
   setContactos(rc.data??[]);setFilas((rb.data??[]) as unknown as Busqueda[]);setEstado("");
  }
@@ -45,7 +45,7 @@ export default function BusquedasPage(){
   if(!vigente)return;
   if(error||!p?.activo||!(p.rol==="administrador"||(p.rol==="vendedor"&&p.codigo_referido))){setEstado("Acceso no autorizado.");return;}
   setUsuario(user.id);setAdmin(p.rol==="administrador");await cargar(user.id,p.rol==="administrador");
-  const rc=await porBloques((a,b)=>supabase.rpc("red_catalogo_marcas_modelos").order("categoria").order("marca").order("modelo").range(a,b));
+  const rc=await porBloques<Catalogo>((a,b)=>supabase.rpc("red_catalogo_marcas_modelos").order("categoria").order("marca").order("modelo").range(a,b));
   if(!vigente)return;
   if(rc.error)setErrorCatalogo(true);else setCatalogo((rc.data??[]) as Catalogo[]);
  }void iniciar();return()=>{vigente=false;};},[]);
